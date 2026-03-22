@@ -1,0 +1,119 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100%;
+  min-height: 100dvh;
+  background-color: #050505;
+  color: #f9fafb;
+  font-family: "Sora", system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100%;
+  min-height: 100dvh;
+}
+
+.app-bg {
+  position: relative;
+  background-color: #050505;
+  background-image:
+    radial-gradient(circle at top left, rgba(15, 23, 42, 0.8), transparent 55%),
+    radial-gradient(circle at bottom right, rgba(15, 23, 42, 0.9), transparent 55%);
+}
+
+.app-bg::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.25;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='noStitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  mix-blend-mode: soft-light;
+}
+
+.card-grid-outline {
+  background-image:
+    linear-gradient(
+      to right,
+      rgba(148, 163, 184, 0.35) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(148, 163, 184, 0.35) 1px,
+      transparent 1px
+    );
+  background-size: 56px 56px;
+}
+
+.hero-network-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.65;
+  z-index: 0;
+  -webkit-mask-image: radial-gradient(circle at center, white 55%, transparent 90%);
+  mask-image: radial-gradient(circle at center, white 55%, transparent 90%);
+}
+
+.hero-network-node {
+  animation: heroNodePulse 8s ease-in-out infinite;
+}
+
+.hero-network-line {
+  animation: heroLineFade 10s ease-in-out infinite;
+}
+
+@keyframes heroNodePulse {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.6);
+  }
+}
+
+@keyframes heroLineFade {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+.blob-slow {
+  animation: blob 22s ease-in-out infinite;
+}
+
+.blob-slower {
+  animation: blob 30s ease-in-out infinite;
+}
+
+@keyframes blob {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  25% {
+    transform: translate3d(-12px, -10px, 0) scale(1.05);
+  }
+  50% {
+    transform: translate3d(8px, 6px, 0) scale(0.98);
+  }
+  75% {
+    transform: translate3d(-6px, 10px, 0) scale(1.04);
+  }
+}
