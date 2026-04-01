@@ -1,5 +1,5 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { motion as Motion } from "framer-motion";
 import { ACCENT, FaintBackground } from "./OnboardingCommon.jsx";
 import { IdentityCard } from "./IdentityCard.jsx";
@@ -15,6 +15,12 @@ import { SystemActivityCard } from "./SystemActivityCard.jsx";
  */
 export function JurorDashboard() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [showNotifyAck, setShowNotifyAck] = useState(false);
+
+  useEffect(() => {
+    if (location.state?.notifyOnDecision) setShowNotifyAck(true);
+  }, [location.state?.notifyOnDecision]);
 
   const btnBase = {
     padding: "10px 18px",
@@ -59,9 +65,8 @@ export function JurorDashboard() {
           transition={{ duration: 0.3 }}
           style={{
             display: "flex",
-            flexWrap: "wrap",
-            justifyContent: "space-between",
-            alignItems: "center",
+            flexDirection: "column",
+            alignItems: "flex-start",
             gap: 16,
           }}
         >
@@ -87,7 +92,7 @@ export function JurorDashboard() {
                 margin: 0,
               }}
             >
-              Care Protocol Dashboard
+              Cipher Dashboard
             </h1>
           </div>
 
@@ -177,6 +182,78 @@ export function JurorDashboard() {
             </button>
           </div>
         </Motion.header>
+
+        {showNotifyAck ? (
+          <Motion.div
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              justifyContent: "space-between",
+              gap: 14,
+              padding: "14px 18px",
+              borderRadius: 14,
+              border: "1px solid rgba(181,236,52,0.28)",
+              background: "rgba(255,255,255,0.04)",
+              backdropFilter: "blur(12px)",
+              boxShadow: "0 12px 40px rgba(0,0,0,0.25)",
+            }}
+          >
+            <div style={{ minWidth: 0 }}>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: "0.18em",
+                  textTransform: "uppercase",
+                  color: "rgba(181,236,52,0.75)",
+                }}
+              >
+                Decision alerts on
+              </p>
+              <p
+                style={{
+                  margin: "8px 0 0",
+                  fontSize: 14,
+                  lineHeight: 1.5,
+                  color: "rgba(226,232,240,0.95)",
+                }}
+              >
+                You’ll be notified in this app when the jury’s final decision is ready
+                {location.state?.caseId ? (
+                  <>
+                    {" "}
+                    for Case #{location.state.caseId}.
+                  </>
+                ) : (
+                  "."
+                )}
+              </p>
+            </div>
+            <button
+              type="button"
+              aria-label="Dismiss"
+              onClick={() => setShowNotifyAck(false)}
+              style={{
+                flexShrink: 0,
+                width: 32,
+                height: 32,
+                borderRadius: 10,
+                border: "1px solid rgba(255,255,255,0.12)",
+                background: "rgba(255,255,255,0.05)",
+                color: "rgba(148,163,184,0.9)",
+                fontSize: 18,
+                lineHeight: 1,
+                cursor: "pointer",
+              }}
+            >
+              ×
+            </button>
+          </Motion.div>
+        ) : null}
 
         <div
           className="juror-protocol-top-grid"

@@ -1,11 +1,34 @@
 import React, { useCallback, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaintBackground, Label, Select, TextArea, ACCENT } from "./OnboardingCommon.jsx";
 import { SmartProcessing } from "./SmartProcessing.jsx";
 import { FastTrackApproval } from "./FastTrackApproval.jsx";
 import { PeerReviewPreparation } from "./PeerReviewPreparation.jsx";
+import { getFlagReason, mapToICD10 } from "../lib/icdMapper.js";
 
 const STORAGE_KEY = "cipher_claims_demo";
 const DRAFT_KEY = "cipher_claim_draft_demo";
+const HOSPITAL_OPTIONS = [
+  "AIIMS New Delhi",
+  "Apollo Hospitals",
+  "Fortis Healthcare",
+  "Max Healthcare",
+  "Manipal Hospitals",
+  "Narayana Health",
+  "Kokilaben Dhirubhai Ambani Hospital",
+  "Medanta - The Medicity",
+  "Tata Memorial Hospital",
+  "Christian Medical College (CMC) Vellore",
+];
+
+function parseClaimCost(rawCostDetails) {
+  const sanitized = String(rawCostDetails ?? "").replace(/,/g, "");
+  const matched = sanitized.match(/\d+/);
+  if (!matched) {
+    return Number.NaN;
+  }
+  return Number.parseInt(matched[0], 10);
+}
 
 function safeParse(raw) {
   try {
@@ -60,6 +83,7 @@ function Input({ value, onChange, placeholder, type = "text", step }) {
 }
 
 export function ClaimIntake({ onBack, onDone }) {
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [processing, setProcessing] = useState(false);
   const [processingClaim, setProcessingClaim] = useState(null);
@@ -74,6 +98,9 @@ export function ClaimIntake({ onBack, onDone }) {
   const [whenHappened, setWhenHappened] = useState(storedDraft?.whenHappened ?? "");
   const [timeStatus, setTimeStatus] = useState(storedDraft?.timeStatus ?? "Ongoing");
   const [issueType, setIssueType] = useState(storedDraft?.issueType ?? "Emergency");
+  const [hospitalName, setHospitalName] = useState(
+    storedDraft?.hospitalName ?? HOSPITAL_OPTIONS[0]
+  );
   const [doctorConsulted, setDoctorConsulted] = useState(storedDraft?.doctorConsulted ?? "Yes");
   const [recommendedTreatment, setRecommendedTreatment] = useState(
     storedDraft?.recommendedTreatment ?? ""
@@ -87,6 +114,9 @@ export function ClaimIntake({ onBack, onDone }) {
   );
 
   const [reportsMeta, setReportsMeta] = useState(storedDraft?.reportsMeta ?? []);
+  const [submissionResult, setSubmissionResult] = useState(null);
+  const [submissionError, setSubmissionError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const persistDraft = useCallback(
     (patch) => {
@@ -95,6 +125,7 @@ export function ClaimIntake({ onBack, onDone }) {
         whenHappened,
         timeStatus,
         issueType,
+        hospitalName,
         doctorConsulted,
         recommendedTreatment,
         costDetails,
@@ -112,6 +143,7 @@ export function ClaimIntake({ onBack, onDone }) {
       whenHappened,
       timeStatus,
       issueType,
+      hospitalName,
       doctorConsulted,
       recommendedTreatment,
       costDetails,
@@ -132,6 +164,7 @@ export function ClaimIntake({ onBack, onDone }) {
       whenHappened,
       timeStatus,
       issueType,
+      hospitalName,
       doctorConsulted,
       recommendedTreatment,
       costDetails,
@@ -144,6 +177,7 @@ export function ClaimIntake({ onBack, onDone }) {
       whenHappened,
       timeStatus,
       issueType,
+      hospitalName,
       doctorConsulted,
       recommendedTreatment,
       costDetails,
@@ -172,8 +206,51 @@ export function ClaimIntake({ onBack, onDone }) {
     window.localStorage.removeItem(DRAFT_KEY);
     setProcessingClaimId(id);
     setProcessingClaim({ description: whatHappened });
-    setProcessing(true);
+    return newClaim;
   }, [claimSummary, reportsMeta]);
+
+  const handleSubmit = useCallback(async () => {
+    if (!reportsMeta?.length) {
+      setSubmissionError("Please upload at least one medical document before submitting.");
+      return;
+    }
+
+    const mappedIcd = mapToICD10(whatHappened) || "UNKNOWN";
+    const parsedCost = parseClaimCost(costDetails);
+
+    if (Number.isNaN(parsedCost)) {
+      setSubmissionError("Please enter cost details in a numeric format (e.g. INR 120000).");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmissionError("");
+
+    try {
+      submit();
+      const response = await fetch("http://localhost:3001/submit-claim", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          icd10_code: mappedIcd,
+          claim_cost: parsedCost,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data?.error || "Failed to submit claim.");
+      }
+
+      setSubmissionResult(data);
+      setStep(3);
+      window.localStorage.removeItem(DRAFT_KEY);
+    } catch (error) {
+      setSubmissionError(error.message || "Failed to submit claim.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [costDetails, reportsMeta, submit, whatHappened]);
 
   if (processing) {
     return (
@@ -413,6 +490,19 @@ export function ClaimIntake({ onBack, onDone }) {
               />
             </div>
 
+            <div>
+              <Label>Hospital name</Label>
+              <Select
+                value={hospitalName}
+                onChange={(v) => {
+                  setHospitalName(v);
+                  persistDraft({ hospitalName: v });
+                }}
+                options={HOSPITAL_OPTIONS}
+                placeholder={null}
+              />
+            </div>
+
             <div style={{ gridColumn: "1 / -1" }}>
               <Label>Recommended treatment</Label>
               <TextArea
@@ -551,6 +641,7 @@ export function ClaimIntake({ onBack, onDone }) {
                   ["When", whenHappened || "—"],
                   ["Ongoing/Completed", timeStatus],
                   ["Issue type", issueType],
+                  ["Hospital name", hospitalName],
                   ["Doctor consulted", doctorConsulted],
                   ["Financial situation", financialContext],
                   ["Recommended treatment", recommendedTreatment || "—"],
@@ -624,11 +715,32 @@ export function ClaimIntake({ onBack, onDone }) {
                 letterSpacing: "-0.02em",
               }}
             >
-              Your claim is now in Pre-check.
+              {submissionResult?.path === "PATH_A"
+                ? "Your claim qualifies for automatic processing. We are contacting the hospital service provider and payment will be processed to them within 48hrs."
+                : submissionResult?.path === "PATH_B"
+                ? "Your claim has been sent for peer jury review. You will be notified within 72 hours."
+                : "Claim submitted."}
             </h2>
             <p style={{ margin: 0, fontSize: 14, lineHeight: 1.7, color: "rgba(255,255,255,0.45)" }}>
-              You can return to the dashboard to see the updated stage.
+              {submissionResult?.flags?.length
+                ? `Reason: ${submissionResult.flags
+                    .map((flag) => getFlagReason(flag, submissionResult.guardrails))
+                    .join(" ")}`
+                : "No flags were raised for this claim."}
             </p>
+            {submissionResult?.requiresExtraJury ? (
+              <p
+                style={{
+                  margin: "8px 0 0",
+                  fontSize: 14,
+                  lineHeight: 1.7,
+                  color: "rgba(255,255,255,0.45)",
+                }}
+              >
+                Due to current pool conditions, your case will be reviewed by two independent jury
+                panels before a decision is made.
+              </p>
+            ) : null}
           </div>
         )}
 
@@ -645,6 +757,20 @@ export function ClaimIntake({ onBack, onDone }) {
             flexWrap: "wrap",
           }}
         >
+          {submissionError ? (
+            <p
+              style={{
+                width: "100%",
+                margin: 0,
+                fontSize: 12,
+                color: "#fda4af",
+                letterSpacing: "0.01em",
+              }}
+            >
+              {submissionError}
+            </p>
+          ) : null}
+
           <p
             style={{
               margin: 0,
@@ -663,7 +789,7 @@ export function ClaimIntake({ onBack, onDone }) {
           {step === 1 && (
             <button
               onClick={() => {
-                submit();
+                setStep(2);
               }}
               style={{
                 padding: "14px 40px",
@@ -687,7 +813,8 @@ export function ClaimIntake({ onBack, onDone }) {
 
           {step === 2 && (
             <button
-              onClick={() => submit()}
+              onClick={() => handleSubmit()}
+              disabled={isSubmitting}
               style={{
                 padding: "14px 40px",
                 border: "none",
@@ -702,9 +829,33 @@ export function ClaimIntake({ onBack, onDone }) {
                 fontFamily: "inherit",
                 transition: "opacity 0.2s ease",
                 whiteSpace: "nowrap",
+                opacity: isSubmitting ? 0.7 : 1,
               }}
             >
-              submit
+              {isSubmitting ? "submitting..." : "submit"}
+            </button>
+          )}
+
+          {step === 3 && submissionResult?.path === "PATH_B" && (
+            <button
+              onClick={() => navigate("/final-verdict")}
+              style={{
+                padding: "14px 40px",
+                border: "1px solid rgba(255,255,255,0.2)",
+                borderRadius: 6,
+                background: "rgba(255,255,255,0.05)",
+                color: "#f1f5f9",
+                fontSize: 14,
+                fontWeight: 700,
+                letterSpacing: "0.15em",
+                textTransform: "uppercase",
+                cursor: "pointer",
+                fontFamily: "inherit",
+                transition: "opacity 0.2s ease",
+                whiteSpace: "nowrap",
+              }}
+            >
+              View Verdict
             </button>
           )}
 
