@@ -54,8 +54,9 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
           transition={{ duration: 0.3 }}
           style={{
             display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-start",
+            flexWrap: "wrap",
+            justifyContent: "space-between",
+            alignItems: "center",
             gap: 16,
           }}
         >
@@ -81,7 +82,7 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
                 margin: 0,
               }}
             >
-              Cipher Dashboard
+              Care Protocol Dashboard
             </h1>
           </div>
 

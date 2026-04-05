@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion as Motion } from "framer-motion";
 import { ACCENT, FaintBackground } from "./OnboardingCommon.jsx";
-import { JuryPostSubmissionScreen } from "./JuryPostSubmissionScreen.jsx";
 
 const TOTAL_STEPS = 5;
 
@@ -27,12 +26,6 @@ const FINAL_OPTIONS = [
   { key: "support", label: "Support this case" },
   { key: "furtherReview", label: "Needs further review" },
   { key: "doNotSupport", label: "Do not support" },
-];
-
-const CONFIDENCE_LEVELS = [
-  { key: "low", label: "Low" },
-  { key: "medium", label: "Medium" },
-  { key: "high", label: "High" },
 ];
 
 function labelFrom(options, key) {
@@ -91,105 +84,6 @@ function OptionCards({ options, selected, onSelect }) {
   );
 }
 
-function ConfidenceLevelRow({ value, onChange }) {
-  return (
-    <div
-      id="jury-confidence-level"
-      style={{
-        ...glassPanel,
-        padding: "18px 18px 16px",
-        marginTop: 6,
-      }}
-    >
-      <p
-        style={{
-          margin: "0 0 10px",
-          fontSize: 10,
-          fontWeight: 700,
-          letterSpacing: "0.2em",
-          textTransform: "uppercase",
-          color: "rgba(181,236,52,0.55)",
-        }}
-      >
-        Confidence level
-      </p>
-      <p
-        style={{
-          margin: 0,
-          fontSize: 15,
-          fontWeight: 650,
-          color: "rgba(241,245,249,0.96)",
-          letterSpacing: "-0.01em",
-          lineHeight: 1.35,
-        }}
-      >
-        How confident are you in this decision?
-      </p>
-      <p
-        style={{
-          margin: "8px 0 0",
-          fontSize: 12,
-          lineHeight: 1.5,
-          color: "rgba(148,163,184,0.72)",
-        }}
-      >
-        This helps weight your evaluation in the system.
-      </p>
-      <div
-        role="group"
-        aria-label="Confidence level"
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          gap: 10,
-          flexWrap: "wrap",
-          marginTop: 16,
-          justifyContent: "stretch",
-        }}
-      >
-        {CONFIDENCE_LEVELS.map((lvl) => {
-          const active = value === lvl.key;
-          return (
-            <Motion.button
-              key={lvl.key}
-              type="button"
-              onClick={() => onChange(lvl.key)}
-              whileTap={{ scale: 0.98 }}
-              animate={{
-                scale: active ? 1.04 : 1,
-                opacity: active ? 1 : value ? 0.5 : 0.88,
-              }}
-              transition={{ type: "spring", stiffness: 420, damping: 28 }}
-              style={{
-                flex: "1 1 88px",
-                minWidth: 88,
-                padding: "12px 14px",
-                borderRadius: 999,
-                fontSize: 13,
-                fontWeight: 700,
-                letterSpacing: "0.04em",
-                cursor: "pointer",
-                border: active
-                  ? `1px solid rgba(181,236,52,0.65)`
-                  : "1px solid rgba(255,255,255,0.12)",
-                background: active
-                  ? "rgba(181,236,52,0.14)"
-                  : "rgba(255,255,255,0.04)",
-                color: active ? "#f9fafb" : "rgba(226,232,240,0.88)",
-                boxShadow: active
-                  ? "0 0 28px rgba(181,236,52,0.28)"
-                  : "none",
-              }}
-            >
-              {lvl.label}
-            </Motion.button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
 function ContextBlock({ title, children }) {
   return (
     <div style={{ ...glassPanel, padding: "16px 18px" }}>
@@ -212,31 +106,8 @@ function ContextBlock({ title, children }) {
   );
 }
 
-/** Map final position + confidence to a rough “lean toward Support” meter (0–100). */
-function supportLeanPercentFromPosition(positionKey, confidenceKey) {
-  const base =
-    positionKey === "support"
-      ? 70
-      : positionKey === "furtherReview"
-        ? 50
-        : 26;
-  const confBoost =
-    confidenceKey === "high" ? 10 : confidenceKey === "medium" ? 5 : 0;
-  return Math.min(88, Math.max(20, base + confBoost));
-}
-
-export function JuryEvaluationFlow({
-  packet,
-  onComplete,
-  onLeave,
-  onViewCaseProgress,
-  onViewFinalVerdict,
-}) {
+export function JuryEvaluationFlow({ packet, onComplete, onLeave }) {
   const [step, setStep] = useState(1);
-  const [flowPhase, setFlowPhase] = useState("flow");
-  const [recordingSubmit, setRecordingSubmit] = useState(false);
-  const [submissionPayload, setSubmissionPayload] = useState(null);
-  const [meterPercent, setMeterPercent] = useState(62);
   const [evidenceChoice, setEvidenceChoice] = useState(null);
   const [evidenceReason, setEvidenceReason] = useState("");
   const [treatmentChoice, setTreatmentChoice] = useState(null);
@@ -244,7 +115,6 @@ export function JuryEvaluationFlow({
   const [costChoice, setCostChoice] = useState(null);
   const [costReason, setCostReason] = useState("");
   const [finalChoice, setFinalChoice] = useState(null);
-  const [confidenceFinal, setConfidenceFinal] = useState(null);
   const [reportsModalOpen, setReportsModalOpen] = useState(false);
   const [savingEvidenceStep, setSavingEvidenceStep] = useState(false);
 
@@ -278,9 +148,8 @@ export function JuryEvaluationFlow({
       return Boolean(evidenceChoice && evidenceReason.trim().length > 0);
     if (step === 3)
       return Boolean(treatmentChoice && treatmentReason.trim().length > 0);
-    if (step === 4)
-      return Boolean(costChoice && costReason.trim().length > 0);
-    if (step === 5) return Boolean(finalChoice && confidenceFinal);
+    if (step === 4) return Boolean(costChoice && costReason.trim().length > 0);
+    if (step === 5) return Boolean(finalChoice);
     return false;
   }, [
     step,
@@ -291,7 +160,6 @@ export function JuryEvaluationFlow({
     costChoice,
     costReason,
     finalChoice,
-    confidenceFinal,
   ]);
 
   const goNext = useCallback(() => {
@@ -309,35 +177,16 @@ export function JuryEvaluationFlow({
   }, [step]);
 
   const submitFinal = useCallback(() => {
-    if (!finalChoice || !confidenceFinal || recordingSubmit) return;
-    const payload = {
+    if (!finalChoice) return;
+    onComplete?.({
       caseId: packet.caseId,
-      evidence: {
-        answer: evidenceChoice,
-        reasoning: evidenceReason.trim(),
-      },
-      treatment: {
-        answer: treatmentChoice,
-        reasoning: treatmentReason.trim(),
-      },
-      cost: {
-        answer: costChoice,
-        reasoning: costReason.trim(),
-      },
-      position: {
-        answer: finalChoice,
-        confidence: confidenceFinal,
-      },
-    };
-    setRecordingSubmit(true);
-    setMeterPercent(supportLeanPercentFromPosition(finalChoice, confidenceFinal));
-    window.setTimeout(() => {
-      setSubmissionPayload(payload);
-      setFlowPhase("submitted");
-      setRecordingSubmit(false);
-    }, 520);
+      evidence: { choice: evidenceChoice, reasoning: evidenceReason.trim() },
+      treatment: { choice: treatmentChoice, reasoning: treatmentReason.trim() },
+      cost: { choice: costChoice, reasoning: costReason.trim() },
+      position: finalChoice,
+    });
   }, [
-    recordingSubmit,
+    onComplete,
     packet.caseId,
     evidenceChoice,
     evidenceReason,
@@ -346,16 +195,14 @@ export function JuryEvaluationFlow({
     costChoice,
     costReason,
     finalChoice,
-    confidenceFinal,
   ]);
 
   const primaryFooterLabel = useMemo(() => {
     if (step === 2 && savingEvidenceStep) return "Saving your evaluation...";
     if (step === 2) return "Continue to Diagnosis";
-    if (step === TOTAL_STEPS && recordingSubmit) return "Recording your position...";
     if (step === TOTAL_STEPS) return "Record your position";
     return "Next";
-  }, [step, savingEvidenceStep, recordingSubmit]);
+  }, [step, savingEvidenceStep]);
 
   const onFooterPrimary = useCallback(() => {
     if (step === TOTAL_STEPS) {
@@ -381,38 +228,12 @@ export function JuryEvaluationFlow({
   ]);
 
   const cannotProgressFooter =
-    step === TOTAL_STEPS
-      ? !(finalChoice && confidenceFinal) || recordingSubmit
-      : !canAdvance;
+    step === TOTAL_STEPS ? !finalChoice : !canAdvance;
 
   const evidenceCtaReady =
     step === 2 && canAdvance && !savingEvidenceStep;
 
   const evidenceSaving = step === 2 && savingEvidenceStep;
-
-  const recordingFinal = step === TOTAL_STEPS && recordingSubmit;
-
-  const respondedAfterSubmit = (packet.respondedBefore ?? 0) + 1;
-  const totalJurorsOnCase = packet.totalJurors ?? 10;
-
-  if (flowPhase === "submitted" && submissionPayload) {
-    return (
-      <JuryPostSubmissionScreen
-        caseId={packet.caseId}
-        positionAnswer={submissionPayload.position.answer}
-        confidenceKey={submissionPayload.position.confidence}
-        respondedCount={respondedAfterSubmit}
-        totalJurors={totalJurorsOnCase}
-        supportLeanPercent={meterPercent}
-        onViewFinalVerdict={({ notifyOnDecision }) =>
-          onViewFinalVerdict?.({ ...submissionPayload, notifyOnDecision })}
-        onReturnDashboard={({ notifyOnDecision }) =>
-          onComplete?.({ ...submissionPayload, notifyOnDecision })}
-        onViewCaseProgress={({ notifyOnDecision }) =>
-          onViewCaseProgress?.({ ...submissionPayload, notifyOnDecision })}
-      />
-    );
-  }
 
   return (
     <div
@@ -505,8 +326,7 @@ export function JuryEvaluationFlow({
           position: "relative",
           zIndex: 2,
           padding: "24px 24px",
-          paddingBottom:
-            step === 1 ? 48 : step === 5 ? 240 : 120,
+          paddingBottom: step === 1 ? 48 : 120,
           display: "flex",
           justifyContent: "center",
         }}
@@ -1039,10 +859,6 @@ export function JuryEvaluationFlow({
                   selected={finalChoice}
                   onSelect={setFinalChoice}
                 />
-                <ConfidenceLevelRow
-                  value={confidenceFinal}
-                  onChange={setConfidenceFinal}
-                />
               </Motion.div>
             )}
           </AnimatePresence>
@@ -1093,7 +909,7 @@ export function JuryEvaluationFlow({
             <button
               type="button"
               onClick={goBack}
-              disabled={savingEvidenceStep || recordingFinal}
+              disabled={savingEvidenceStep}
               style={{
                 padding: "14px 20px",
                 borderRadius: 999,
@@ -1101,9 +917,8 @@ export function JuryEvaluationFlow({
                 fontWeight: 700,
                 letterSpacing: "0.14em",
                 textTransform: "uppercase",
-                cursor:
-                  savingEvidenceStep || recordingFinal ? "not-allowed" : "pointer",
-                opacity: savingEvidenceStep || recordingFinal ? 0.45 : 1,
+                cursor: savingEvidenceStep ? "not-allowed" : "pointer",
+                opacity: savingEvidenceStep ? 0.45 : 1,
                 border: "1px solid rgba(148,163,184,0.35)",
                 background: "transparent",
                 color: "rgba(203,213,225,0.92)",
@@ -1114,7 +929,7 @@ export function JuryEvaluationFlow({
             <button
               type="button"
               disabled={cannotProgressFooter}
-              aria-busy={evidenceSaving || recordingFinal || undefined}
+              aria-busy={evidenceSaving || undefined}
               onClick={onFooterPrimary}
               style={{
                 padding: "13px 26px",
@@ -1125,7 +940,7 @@ export function JuryEvaluationFlow({
                 textTransform: "uppercase",
                 cursor: cannotProgressFooter
                   ? "not-allowed"
-                  : evidenceSaving || recordingFinal
+                  : evidenceSaving
                     ? "wait"
                     : "pointer",
                 border: `1px solid ${
@@ -1150,7 +965,7 @@ export function JuryEvaluationFlow({
                 transition:
                   "box-shadow 0.35s ease, border-color 0.25s ease, opacity 0.25s ease",
                 opacity:
-                  cannotProgressFooter ? 1 : evidenceSaving || recordingFinal ? 0.94 : 1,
+                  cannotProgressFooter ? 1 : evidenceSaving ? 0.94 : 1,
               }}
             >
               {primaryFooterLabel}

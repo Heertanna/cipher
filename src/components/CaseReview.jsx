@@ -5,7 +5,6 @@ import { ACCENT, FaintBackground } from "./OnboardingCommon.jsx";
 import {
   getJurorCaseById,
   getJuryEvaluationPacket,
-  getFinalVerdictCaseResult,
 } from "../data/jurorMockData.js";
 import { JuryEvaluationFlow } from "./JuryEvaluationFlow.jsx";
 
@@ -24,34 +23,12 @@ export function CaseReview() {
       <JuryEvaluationFlow
         packet={packet}
         onLeave={() => setEvaluationOpen(false)}
-        onViewFinalVerdict={(submission) => {
-          setEvaluationOpen(false);
-          navigate("/final-verdict", {
-            state: {
-              caseResult: getFinalVerdictCaseResult(submission, packet),
-              juryEvaluationRecorded: true,
-              notifyOnDecision: Boolean(submission?.notifyOnDecision),
-            },
-          });
-        }}
-        onComplete={(submission) => {
+        onComplete={() => {
           setEvaluationOpen(false);
           navigate("/juror-dashboard", {
             state: {
               juryEvaluationRecorded: true,
-              caseId: submission?.caseId ?? packet.caseId,
-              notifyOnDecision: Boolean(submission?.notifyOnDecision),
-            },
-          });
-        }}
-        onViewCaseProgress={(submission) => {
-          setEvaluationOpen(false);
-          navigate("/juror-dashboard", {
-            state: {
-              juryEvaluationRecorded: true,
-              caseId: submission?.caseId ?? packet.caseId,
-              viewCaseProgress: true,
-              notifyOnDecision: Boolean(submission?.notifyOnDecision),
+              caseId: packet.caseId,
             },
           });
         }}

@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import { ACCENT, FaintBackground } from "./OnboardingCommon.jsx";
 import { PricingCards } from "./PricingCards.jsx";
 
-export function PricingPlans({ onFinish, onSelectPlan }) {
+export function PricingPlans({ onBack, onFinish, onSelectPlan }) {
   const handleCardMove = useCallback((e) => {
     const card = e.currentTarget;
     const rect = card.getBoundingClientRect();
@@ -85,66 +85,96 @@ export function PricingPlans({ onFinish, onSelectPlan }) {
           >
             Plans and Contributions
           </h1>
+          <p
+            style={{
+              marginTop: 10,
+              fontSize: 14,
+              color: "rgba(148,163,184,0.9)",
+              maxWidth: 520,
+              marginLeft: "auto",
+              marginRight: "auto",
+              lineHeight: 1.7,
+            }}
+          >
+            Choose a contribution tier that matches how you want to participate
+            in the care pool — from minimal entry to high-stability system
+            supporter.
+          </p>
+        </div>
+
+        {/* small controls row */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 32,
+            gap: 16,
+            flexWrap: "wrap",
+          }}
+        >
+          <button
+            onClick={onBack}
+            style={{
+              background: "transparent",
+              border: "none",
+              color: "rgba(148,163,184,0.9)",
+              fontSize: 12,
+              fontWeight: 600,
+              letterSpacing: "0.15em",
+              textTransform: "uppercase",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              fontFamily: "inherit",
+              padding: 0,
+            }}
+            onMouseEnter={(e) => (e.target.style.color = ACCENT)}
+            onMouseLeave={(e) => (e.target.style.color = "rgba(148,163,184,0.9)")}
+          >
+            ← Back to terms
+          </button>
 
           <div
             style={{
-              marginTop: 24,
-              marginLeft: "auto",
-              marginRight: "auto",
-              maxWidth: 560,
-              padding: "22px 22px 20px",
-              borderRadius: 16,
-              border: "1px solid rgba(181,236,52,0.22)",
-              background:
-                "linear-gradient(135deg, rgba(181,236,52,0.06), transparent 55%), rgba(15,23,42,0.75)",
-              textAlign: "left",
+              display: "inline-flex",
+              padding: 3,
+              borderRadius: 999,
+              background: "rgba(15,23,42,0.9)",
+              border: "1px solid rgba(148,163,184,0.4)",
             }}
           >
-            <p
+            <button
               style={{
-                margin: 0,
+                padding: "6px 16px",
+                borderRadius: 999,
+                border: "none",
+                background: "rgba(15,23,42,0.95)",
+                color: "rgba(226,232,240,0.95)",
                 fontSize: 11,
-                fontWeight: 700,
-                letterSpacing: "0.2em",
+                letterSpacing: "0.1em",
                 textTransform: "uppercase",
-                color: ACCENT,
+                cursor: "default",
               }}
             >
-              Fairness Guarantee
-            </p>
-            <p
+              Monthly
+            </button>
+            <button
               style={{
-                margin: "14px 0 0",
-                fontSize: 15,
-                lineHeight: 1.65,
-                color: "rgba(241,245,249,0.95)",
-                fontWeight: 600,
+                padding: "6px 16px",
+                borderRadius: 999,
+                border: "none",
+                background: "transparent",
+                color: "rgba(148,163,184,0.9)",
+                fontSize: 11,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                cursor: "default",
               }}
             >
-              Care decisions on Cipher are never influenced by your plan.
-            </p>
-            <p
-              style={{
-                margin: "12px 0 0",
-                fontSize: 14,
-                lineHeight: 1.7,
-                color: "rgba(148,163,184,0.92)",
-              }}
-            >
-              Every case is evaluated using the same system, the same rules, and
-              the same level of scrutiny—regardless of what you pay.
-            </p>
-            <p
-              style={{
-                margin: "12px 0 0",
-                fontSize: 14,
-                lineHeight: 1.7,
-                color: "rgba(148,163,184,0.92)",
-              }}
-            >
-              Plans only unlock additional participation features, not
-              preferential treatment.
-            </p>
+              Annual (soon)
+            </button>
           </div>
         </div>
 

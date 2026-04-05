@@ -1,25 +1,21 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 import { ACCENT } from "./OnboardingCommon.jsx";
 import { motion as Motion, AnimatePresence } from "framer-motion";
-import {
-  CLAIMS_UPDATED_EVENT,
-  readClaimsFromStorage,
-  readVerdictSnapshot,
-} from "../lib/verdictClaimSync.js";
+
+const STORAGE_KEY = "cipher_claims_demo";
+
+function seedClaims() {
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch {
+    // ignore
+  }
+  return [];
+}
 
 export function ClaimsCard({ onStartClaim }) {
-  const [claims, setClaims] = useState(() => readClaimsFromStorage());
-
-  useEffect(() => {
-    const refresh = () => setClaims(readClaimsFromStorage());
-    window.addEventListener(CLAIMS_UPDATED_EVENT, refresh);
-    window.addEventListener("storage", refresh);
-    return () => {
-      window.removeEventListener(CLAIMS_UPDATED_EVENT, refresh);
-      window.removeEventListener("storage", refresh);
-    };
-  }, []);
+  const [claims] = useState(() => seedClaims());
 
   const hasClaims = claims && claims.length > 0;
 
@@ -133,65 +129,30 @@ export function ClaimsCard({ onStartClaim }) {
 const STAGE_ORDER = ["Pre-check", "Jury review", "Decision"];
 
 function ClaimRow({ claim }) {
-  const navigate = useNavigate();
   const stageIndex = Math.max(
     0,
     STAGE_ORDER.indexOf(claim.stage || "Pre-check")
   );
   const progress = ((stageIndex + 1) / STAGE_ORDER.length) * 100;
 
-  const hasVerdict =
-    claim.status === "Approved" || claim.status === "Rejected";
-
   let statusColor = "rgba(250,204,21,0.95)";
   if (claim.status === "Approved") statusColor = "rgba(190,242,100,0.96)";
-  if (claim.status === "Rejected") statusColor = "rgba(248,113,113,0.96)";
   if (claim.status === "Pending") statusColor = "rgba(148,163,184,0.96)";
   if (claim.status === "Under Jury Review")
     statusColor = "rgba(181,236,52,0.95)";
 
-  const openVerdict = () => {
-    if (!hasVerdict) return;
-    const snap = readVerdictSnapshot();
-    if (snap?.caseResult) {
-      navigate("/final-verdict", { state: { caseResult: snap.caseResult } });
-    } else {
-      navigate("/final-verdict");
-    }
-  };
-
   return (
     <Motion.div
-      role={hasVerdict ? "button" : undefined}
-      tabIndex={hasVerdict ? 0 : undefined}
-      onClick={hasVerdict ? openVerdict : undefined}
-      onKeyDown={
-        hasVerdict
-          ? (e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                openVerdict();
-              }
-            }
-          : undefined
-      }
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={hasVerdict ? { y: -4, scale: 1.01 } : { y: -4 }}
+      whileHover={{ y: -4 }}
       transition={{ duration: 0.26 }}
       style={{
         padding: "10px 12px",
         borderRadius: 12,
-        border: hasVerdict
-          ? `1px solid ${claim.status === "Rejected" ? "rgba(248,113,113,0.45)" : "rgba(190,242,100,0.45)"}`
-          : "1px solid rgba(148,163,184,0.5)",
+        border: "1px solid rgba(148,163,184,0.5)",
         background: "rgba(15,23,42,0.95)",
-        boxShadow: hasVerdict
-          ? claim.status === "Rejected"
-            ? "0 12px 36px rgba(248,113,113,0.12)"
-            : "0 12px 36px rgba(181,236,52,0.15)"
-          : "0 12px 30px rgba(0,0,0,0.28)",
-        cursor: hasVerdict ? "pointer" : "default",
+        boxShadow: "0 12px 30px rgba(0,0,0,0.28)",
       }}
     >
       <div
@@ -235,9 +196,7 @@ function ClaimRow({ claim }) {
               {claim.stageDetail}
             </p>
           ) : null}
-          {typeof claim.jurorCount === "number" &&
-          claim.stage === "Jury review" &&
-          !hasVerdict ? (
+          {typeof claim.jurorCount === "number" ? (
             <p
               style={{
                 margin: "4px 0 0",
@@ -246,20 +205,6 @@ function ClaimRow({ claim }) {
               }}
             >
               {claim.jurorCount} jurors evaluating
-            </p>
-          ) : null}
-          {hasVerdict ? (
-            <p
-              style={{
-                margin: "6px 0 0",
-                fontSize: 11,
-                fontWeight: 600,
-                letterSpacing: "0.12em",
-                textTransform: "uppercase",
-                color: "rgba(148,163,184,0.65)",
-              }}
-            >
-              Tap to view verdict
             </p>
           ) : null}
         </div>
@@ -290,7 +235,7 @@ function ClaimRow({ claim }) {
               color: statusColor,
             }}
           >
-            {hasVerdict ? claim.status.toUpperCase() : claim.status}
+            {claim.status}
           </span>
         </div>
       </div>

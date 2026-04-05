@@ -192,7 +192,7 @@ export function Rulebook() {
               transition: "all 0.6s ease",
             }}
           >
-            Cipher Rulebook
+            The Care Protocol Rulebook
           </p>
           <p
             style={{
