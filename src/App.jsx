@@ -14,6 +14,7 @@ import { ClaimIntake } from "./components/ClaimIntake.jsx";
 import { EmergencyAccess } from "./components/EmergencyAccess.jsx";
 import { JurorDashboard } from "./components/JurorDashboard.jsx";
 import { CaseReview } from "./components/CaseReview.jsx";
+import { FinalVerdictPage } from "./components/FinalVerdictPage.jsx";
 
 /* ───────────────────────────────────────────
    Quadrant pixel-grid canvas
@@ -585,10 +586,6 @@ function PageFlow() {
   if (page === "pricing") {
     return (
       <PricingPlans
-        onBack={() => {
-          setPage("terms");
-          window.scrollTo(0, 0);
-        }}
         onFinish={() => {
           setSelectedPlan("standard");
           setPage("payment");
@@ -632,6 +629,7 @@ function App() {
   return (
     <Routes>
       <Route path="/juror-dashboard" element={<JurorDashboard />} />
+      <Route path="/final-verdict" element={<FinalVerdictPage />} />
       <Route path="/case-review/:caseId" element={<CaseReview />} />
       <Route path="/protocol-dashboard" element={<ProtocolDashboardRoute />} />
       <Route path="/claim-intake" element={<ClaimIntakeRoute />} />

@@ -1,0 +1,25 @@
+﻿procedure_name,icd10_code,max_cost_inr
+"Laboratory Tests for COVID-19 Infection (PCR) (Reimbursement level for this package will be as per the ICMR guidelines, issued from time to time)",ID001,1500
+Chronic PD catheter Insertion,MG010,4700
+Bone marrow aspiration of biopsy,MG082,1600
+Endobronchial Ultrasound (EBUS),MG097,18000
+"High end radiological diagnostic (CT, MRI, Imaging including nuclear imaging)",MG075,5800
+Diffuse alveolar Hemorrhage Associated with SLE/Vasculitis/GP Syndrome,MG0106,156400
+Acute gastroenteritis / diarrhoea,MG010,5000
+Medical/ neuro rehablitation,MG0120,28800
+Severe pneumonia,MG017,"15,000"
+Pericardial tuberculosis,MG020,
+Upper respiratory infection,J06.9,"3,000"
+"Dengue hemorrhagic fever/Dengue
+shock syndrome - ICU without ventilator",4A.M1.00050B 4A.M1.00050B : Dengue hemorrhagic fever/Dengue,"2,700"
+Influenza with fever,J11.1,"3,500"
+Blood glucose / diabetes screening,Z01.7,500
+Cardiovascular screening (basic ECG),Z13.6,"1,500"
+"Cataract, unspecified",H26.9,"15,000"
+Fracture - Conservative Management - Without plaster,SB001,2600
+Lower back pain,M54.5,"8,000"
+"Antenatal care, first trimester",Z34.0,"3,000"
+"Respiratory failure due to any cause (pneumonia, asthma, COPD, ARDS, foreign body, poisoning, head injury etc.) - ICU with ventilator",4A.M1.00067C,3375
+Heat stroke - ICU with ventilator,4A.M1.00052C,3375
+Heat stroke - ICU without ventilator,4A.M1.00052B,2700
+Complicated malaria - ICU with ventilator,4A.M1.00051C,3375

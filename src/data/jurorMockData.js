@@ -2,6 +2,8 @@
  * Static mock data for juror mode (same user, responsibility layer).
  */
 
+import { buildLedgerJurors } from "../lib/juryLedgerBuild.js";
+
 export const JUROR_MOCK_CASES = [
   {
     id: "A392",
@@ -200,6 +202,9 @@ export function getJuryEvaluationPacket(caseId) {
   return {
     caseId: c.id,
     caseType: resolveJuryCaseType(c),
+    /** Count before this juror submits (used for post-submission collective UI). */
+    respondedBefore: c.responded ?? 0,
+    totalJurors: c.totalJurors ?? 10,
     symptoms: o.symptoms ?? DEFAULT_EVALUATION_PACKET.symptoms,
     reportsTests: o.reportsTests ?? DEFAULT_EVALUATION_PACKET.reportsTests,
     treatmentRequested:
@@ -211,5 +216,88 @@ export function getJuryEvaluationPacket(caseId) {
       c.id,
       o.anonymizedReport
     ),
+  };
+}
+
+function deriveVerdictConfidenceLevel(avg) {
+  if (avg > 0.7) return "High";
+  if (avg >= 0.5) return "Moderate";
+  return "Low";
+}
+
+function positionAnswerToUserVote(answer) {
+  if (answer === "support") return "APPROVED";
+  return "REJECTED";
+}
+
+function confidenceKeyToDecimal(key) {
+  if (key === "high") return 0.82;
+  if (key === "medium") return 0.58;
+  return 0.38;
+}
+
+/** Mock finalized pool aggregates (no vote counts) per case for Final Verdict page. */
+const FINAL_VERDICT_SEEDS = {
+  A392: {
+    finalDecision: "APPROVED",
+    avgConfidence: 0.78,
+    yesRatio: 0.72,
+    wasReevaluated: false,
+    allowReevaluation: false,
+  },
+  B118: {
+    finalDecision: "APPROVED",
+    avgConfidence: 0.76,
+    yesRatio: 0.71,
+    wasReevaluated: false,
+    allowReevaluation: false,
+  },
+  C204: {
+    finalDecision: "REJECTED",
+    avgConfidence: 0.52,
+    yesRatio: 0.46,
+    wasReevaluated: true,
+    allowReevaluation: true,
+  },
+  D441: {
+    finalDecision: "APPROVED",
+    avgConfidence: 0.68,
+    yesRatio: 0.67,
+    wasReevaluated: false,
+    allowReevaluation: false,
+  },
+  E903: {
+    finalDecision: "APPROVED",
+    avgConfidence: 0.74,
+    yesRatio: 0.7,
+    wasReevaluated: false,
+    allowReevaluation: false,
+  },
+};
+
+/**
+ * Builds `caseResult` for `FinalVerdictPage` from a completed evaluation submission.
+ */
+export function getFinalVerdictCaseResult(submission, packet) {
+  const caseId = packet?.caseId ?? submission?.caseId ?? "A392";
+  const id = String(caseId).toUpperCase();
+  const seed = FINAL_VERDICT_SEEDS[id] ?? { ...FINAL_VERDICT_SEEDS.A392 };
+  const userVote = positionAnswerToUserVote(submission?.position?.answer);
+  const userConfidence = confidenceKeyToDecimal(submission?.position?.confidence);
+  const avg = seed.avgConfidence;
+  return {
+    caseId: id,
+    finalDecision: seed.finalDecision,
+    avgConfidence: avg,
+    confidenceLevel: deriveVerdictConfidenceLevel(avg),
+    wasReevaluated: seed.wasReevaluated,
+    yesRatio: seed.yesRatio,
+    userVote,
+    userConfidence,
+    totalJurors: packet?.totalJurors ?? 10,
+    allowReevaluation: Boolean(seed.allowReevaluation),
+    ledgerJurors: buildLedgerJurors(submission, packet, {
+      yesRatio: seed.yesRatio,
+    }),
   };
 }
