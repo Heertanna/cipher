@@ -27,7 +27,7 @@ function useIsMobile(breakpointPx = 820) {
   return isMobile;
 }
 
-function PricingCardContent({ card, onSelectPlan }) {
+function PricingCardContent({ card, onSelectPlan, selectDisabled }) {
   // Keep the exact text styling you already had (fonts/colors/sizes) but move layout animations here.
   return (
     <>
@@ -56,8 +56,16 @@ function PricingCardContent({ card, onSelectPlan }) {
       </ul>
       <button
         type="button"
-        style={card.ctaStyle}
-        onClick={() => onSelectPlan?.(card.id)}
+        disabled={selectDisabled}
+        style={{
+          ...card.ctaStyle,
+          opacity: selectDisabled ? 0.45 : 1,
+          cursor: selectDisabled ? "not-allowed" : card.ctaStyle.cursor,
+        }}
+        onClick={() => {
+          if (selectDisabled) return;
+          onSelectPlan?.(card.id);
+        }}
       >
         {card.ctaText}
       </button>
@@ -65,7 +73,7 @@ function PricingCardContent({ card, onSelectPlan }) {
   );
 }
 
-export function PricingCards({ onSelectPlan }) {
+export function PricingCards({ onSelectPlan, selectDisabled = false }) {
   const reducedMotion = useReducedMotion();
   const isMobile = useIsMobile(820);
 
@@ -353,7 +361,11 @@ export function PricingCards({ onSelectPlan }) {
                 style={{ background: card.glowBackground }}
               />
               <div style={{ position: "relative", zIndex: 1 }}>
-                <PricingCardContent card={card} onSelectPlan={onSelectPlan} />
+                <PricingCardContent
+                  card={card}
+                  onSelectPlan={onSelectPlan}
+                  selectDisabled={selectDisabled}
+                />
               </div>
             </Motion.div>
           );
@@ -438,7 +450,11 @@ export function PricingCards({ onSelectPlan }) {
                 }}
               />
               <div style={{ position: "relative", zIndex: 1 }}>
-              <PricingCardContent card={card} onSelectPlan={onSelectPlan} />
+              <PricingCardContent
+                card={card}
+                onSelectPlan={onSelectPlan}
+                selectDisabled={selectDisabled}
+              />
             </div>
           </Motion.div>
         );

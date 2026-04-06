@@ -1,17 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { ACCENT, FaintBackground } from "./OnboardingCommon";
-
-function generateHash() {
-  const chars = "0123456789ABCDEFabcdef";
-  let h = "0x";
-  for (let i = 0; i < 40; i++) h += chars[Math.floor(Math.random() * chars.length)];
-  return h;
-}
-
-function truncateHash(h) {
-  if (!h || h.length < 12) return h;
-  return h.slice(0, 8) + "..." + h.slice(-6);
-}
+import { createIdentity } from "../lib/api.js";
+import { saveSession } from "../lib/session.js";
 
 const inputBase = {
   width: "100%",
@@ -32,21 +22,20 @@ const inputFocus = {
   boxShadow: `0 0 0 2px rgba(181,236,52,0.1), 0 0 20px rgba(181,236,52,0.06)`,
 };
 
-function StyledInput({ placeholder, value, onChange, readOnly }) {
+function StyledInput({ placeholder, value, onChange, type = "text", autoComplete }) {
   const [focused, setFocused] = useState(false);
   return (
     <input
-      type="text"
+      type={type}
       placeholder={placeholder}
       value={value}
       onChange={onChange}
-      readOnly={readOnly}
+      autoComplete={autoComplete}
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
       style={{
         ...inputBase,
         ...(focused ? inputFocus : {}),
-        ...(readOnly ? { cursor: "default", color: ACCENT, fontFamily: "monospace", fontSize: 13, letterSpacing: "0.04em" } : {}),
       }}
     />
   );
@@ -54,58 +43,59 @@ function StyledInput({ placeholder, value, onChange, readOnly }) {
 
 export function JoinNetwork({ onBack, onContinue }) {
   const [alias, setAlias] = useState("");
-  const [hash, setHash] = useState("");
-  const [customHash, setCustomHash] = useState(false);
+  const [password, setPassword] = useState("");
   const [created, setCreated] = useState(false);
   const [fadeIn, setFadeIn] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const [, setAnonymousId] = useState(null);
 
   useEffect(() => {
     requestAnimationFrame(() => setFadeIn(true));
   }, []);
 
-  // hydrate from localStorage if an identity already exists
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem("cipher_identity");
       if (!raw) return;
       const parsed = JSON.parse(raw);
       if (parsed.alias) setAlias(parsed.alias);
-      if (parsed.hash) setHash(parsed.hash);
       if (parsed.created) setCreated(true);
     } catch {
-      // ignore malformed storage
+      // ignore
     }
   }, []);
 
-  const persist = useCallback(
-    (next) => {
-      try {
-        const payload = {
-          alias: (next.alias ?? alias).trim(),
-          hash: next.hash ?? hash,
-          created: next.created ?? created,
-        };
-        window.localStorage.setItem("cipher_identity", JSON.stringify(payload));
-      } catch {
-        // best-effort only
-      }
-    },
-    [alias, hash, created]
-  );
+  const persistAlias = useCallback((nextAlias, markCreated) => {
+    try {
+      window.localStorage.setItem(
+        "cipher_identity",
+        JSON.stringify({
+          alias: nextAlias.trim(),
+          created: markCreated,
+        }),
+      );
+    } catch {
+      // best-effort
+    }
+  }, []);
 
-  const handleGenerate = useCallback(() => {
-    const nextHash = generateHash();
-    setHash(nextHash);
-    setCustomHash(false);
-    persist({ hash: nextHash, created: false });
-  }, [persist]);
-
-  const handleCreate = useCallback(() => {
-    if (!alias.trim()) return;
-    if (!hash) return;
-    persist({ alias, hash, created: true });
-    setCreated(true);
-  }, [alias, hash, persist]);
+  const handleCreate = useCallback(async () => {
+    if (!alias.trim() || !password) return;
+    setError("");
+    setSubmitting(true);
+    try {
+      const data = await createIdentity(alias.trim(), password);
+      saveSession(data.anonymousId, password);
+      setAnonymousId(data.anonymousId);
+      persistAlias(alias, true);
+      setCreated(true);
+    } catch (e) {
+      setError(e?.message || "Could not create identity. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  }, [alias, password, persistAlias]);
 
   if (created) {
     return (
@@ -183,20 +173,12 @@ export function JoinNetwork({ onBack, onContinue }) {
               marginBottom: 40,
             }}
           >
-            <div style={{ marginBottom: 20 }}>
+            <div>
               <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", marginBottom: 6 }}>
                 Alias
               </p>
               <p style={{ fontSize: 18, fontWeight: 700, color: "#f1f5f9" }}>
                 {alias}
-              </p>
-            </div>
-            <div>
-              <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", marginBottom: 6 }}>
-                Hash
-              </p>
-              <p style={{ fontSize: 14, fontFamily: "monospace", color: ACCENT, letterSpacing: "0.04em" }}>
-                {truncateHash(hash)}
               </p>
             </div>
           </div>
@@ -251,7 +233,6 @@ export function JoinNetwork({ onBack, onContinue }) {
           transition: "opacity 0.7s ease, transform 0.7s ease",
         }}
       >
-        {/* back link */}
         <button
           onClick={onBack}
           style={{
@@ -277,7 +258,6 @@ export function JoinNetwork({ onBack, onContinue }) {
           ← Back
         </button>
 
-        {/* header */}
         <p
           style={{
             fontSize: 11,
@@ -318,9 +298,7 @@ export function JoinNetwork({ onBack, onContinue }) {
           secured through encryption.
         </p>
 
-        {/* form */}
         <div style={{ display: "flex", flexDirection: "column", gap: 36 }}>
-          {/* alias */}
           <div>
             <label
               style={{
@@ -341,7 +319,6 @@ export function JoinNetwork({ onBack, onContinue }) {
               onChange={(e) => {
                 const next = e.target.value;
                 setAlias(next);
-                // keep storage in sync but do not mark as created
                 try {
                   const raw = window.localStorage.getItem("cipher_identity");
                   const base = raw ? JSON.parse(raw) : {};
@@ -350,21 +327,20 @@ export function JoinNetwork({ onBack, onContinue }) {
                     JSON.stringify({
                       ...base,
                       alias: next.trim(),
-                      hash,
                       created: false,
-                    })
+                    }),
                   );
                 } catch {
                   // ignore
                 }
               }}
+              autoComplete="username"
             />
             <p style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", marginTop: 8, letterSpacing: "0.03em" }}>
               This is how you will appear in the network.
             </p>
           </div>
 
-          {/* identity hash */}
           <div>
             <label
               style={{
@@ -377,93 +353,21 @@ export function JoinNetwork({ onBack, onContinue }) {
                 marginBottom: 10,
               }}
             >
-              Identity Hash
+              Password
             </label>
-            <div style={{ display: "flex", gap: 10 }}>
-              <div style={{ flex: 1 }}>
-                <StyledInput
-                  placeholder={customHash ? "Paste your own hash" : "Click generate →"}
-                  value={hash}
-                  onChange={(e) => {
-                    const next = e.target.value;
-                    setHash(next);
-                    setCustomHash(true);
-                    try {
-                      const raw = window.localStorage.getItem("cipher_identity");
-                      const base = raw ? JSON.parse(raw) : {};
-                      window.localStorage.setItem(
-                        "cipher_identity",
-                        JSON.stringify({
-                          ...base,
-                          alias: alias.trim(),
-                          hash: next,
-                          created: false,
-                        })
-                      );
-                    } catch {
-                      // ignore
-                    }
-                  }}
-                  readOnly={!customHash}
-                />
-              </div>
-              <button
-                onClick={handleGenerate}
-                style={{
-                  padding: "0 20px",
-                  border: `1px solid ${ACCENT}`,
-                  borderRadius: 8,
-                  background: "transparent",
-                  color: ACCENT,
-                  fontSize: 11,
-                  fontWeight: 700,
-                  letterSpacing: "0.12em",
-                  textTransform: "uppercase",
-                  cursor: "pointer",
-                  whiteSpace: "nowrap",
-                  fontFamily: "inherit",
-                  transition: "background 0.2s ease, color 0.2s ease",
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.background = ACCENT;
-                  e.target.style.color = "#050505";
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.background = "transparent";
-                  e.target.style.color = ACCENT;
-                }}
-              >
-                Generate
-              </button>
-            </div>
+            <StyledInput
+              type="password"
+              placeholder="Choose a strong password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="new-password"
+            />
             <p style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", marginTop: 8, letterSpacing: "0.03em" }}>
-              Your identity hash is encrypted and used for verification across the protocol.
+              Used to protect your health data encryption. Never shared with the protocol in plain form.
             </p>
-            {!customHash && hash === "" && (
-              <button
-                onClick={() => { setCustomHash(true); setHash(""); }}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "rgba(181,236,52,0.4)",
-                  fontSize: 11,
-                  cursor: "pointer",
-                  marginTop: 4,
-                  padding: 0,
-                  fontFamily: "inherit",
-                  letterSpacing: "0.03em",
-                  transition: "color 0.2s ease",
-                }}
-                onMouseEnter={(e) => (e.target.style.color = ACCENT)}
-                onMouseLeave={(e) => (e.target.style.color = "rgba(181,236,52,0.4)")}
-              >
-                Or paste your own hash →
-              </button>
-            )}
           </div>
         </div>
 
-        {/* security note */}
         <div
           style={{
             marginTop: 40,
@@ -479,33 +383,39 @@ export function JoinNetwork({ onBack, onContinue }) {
           </p>
         </div>
 
-        {/* CTA */}
+        {error ? (
+          <p style={{ marginTop: 16, fontSize: 13, color: "#fda4af", lineHeight: 1.5 }}>{error}</p>
+        ) : null}
+
         <div style={{ marginTop: 40, display: "flex", gap: 12 }}>
           <button
             onClick={handleCreate}
-            disabled={!alias.trim() || !hash}
+            disabled={!alias.trim() || !password || submitting}
             style={{
               padding: "14px 36px",
               border: "none",
               borderRadius: 6,
-              background: alias.trim() && hash ? ACCENT : "rgba(181,236,52,0.15)",
-              color: alias.trim() && hash ? "#050505" : "rgba(181,236,52,0.3)",
+              background: alias.trim() && password && !submitting ? ACCENT : "rgba(181,236,52,0.15)",
+              color: alias.trim() && password && !submitting ? "#050505" : "rgba(181,236,52,0.3)",
               fontSize: 14,
               fontWeight: 700,
               letterSpacing: "0.15em",
               textTransform: "uppercase",
-              cursor: alias.trim() && hash ? "pointer" : "not-allowed",
+              cursor: alias.trim() && password && !submitting ? "pointer" : "not-allowed",
               fontFamily: "inherit",
               transition: "background 0.2s ease, color 0.2s ease, opacity 0.2s ease",
             }}
             onMouseEnter={(e) => {
-              if (alias.trim() && hash) e.target.style.opacity = "0.85";
+              if (alias.trim() && password && !submitting) e.target.style.opacity = "0.85";
             }}
-            onMouseLeave={(e) => { e.target.style.opacity = "1"; }}
+            onMouseLeave={(e) => {
+              e.target.style.opacity = "1";
+            }}
           >
-            Create Identity
+            {submitting ? "Creating…" : "Create Identity"}
           </button>
           <button
+            type="button"
             style={{
               padding: "14px 32px",
               border: "1px solid rgba(181,236,52,0.3)",

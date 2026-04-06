@@ -1,8 +1,18 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { ACCENT, FaintBackground } from "./OnboardingCommon.jsx";
 import { PricingCards } from "./PricingCards.jsx";
+import { setTier } from "../lib/api.js";
+import { getSession } from "../lib/session.js";
+import { planIdToTier } from "../lib/planTierMap.js";
 
-export function PricingPlans({ onBack, onFinish, onSelectPlan }) {
+export function PricingPlans({
+  onBack,
+  onFinish,
+  selectedPlanId = "standard",
+  onSelectPlan,
+}) {
+  const [tierSubmitting, setTierSubmitting] = useState(false);
+  const [tierError, setTierError] = useState("");
   const handleCardMove = useCallback((e) => {
     const card = e.currentTarget;
     const rect = card.getBoundingClientRect();
@@ -180,6 +190,7 @@ export function PricingPlans({ onBack, onFinish, onSelectPlan }) {
 
         {/* animated pricing cards */}
         <PricingCards
+          selectDisabled={tierSubmitting}
           onSelectPlan={(planId) => {
             onSelectPlan?.(planId);
           }}
@@ -537,27 +548,53 @@ export function PricingPlans({ onBack, onFinish, onSelectPlan }) {
           style={{
             marginTop: 28,
             display: "flex",
-            justifyContent: "flex-end",
+            flexDirection: "column",
+            alignItems: "flex-end",
+            gap: 10,
           }}
         >
           <button
-            onClick={onFinish}
+            type="button"
+            disabled={tierSubmitting}
+            onClick={async () => {
+              setTierError("");
+              setTierSubmitting(true);
+              try {
+                const { anonymousId } = getSession();
+                if (!anonymousId) {
+                  throw new Error(
+                    "Your session expired. Please return to the start and sign up again.",
+                  );
+                }
+                await setTier(anonymousId, planIdToTier(selectedPlanId));
+                onFinish?.();
+              } catch (e) {
+                setTierError(e?.message || "Could not save your plan. Please try again.");
+              } finally {
+                setTierSubmitting(false);
+              }
+            }}
             style={{
               padding: "14px 40px",
               borderRadius: 6,
               border: "none",
-              background: ACCENT,
-              color: "#050505",
+              background: tierSubmitting ? "rgba(181,236,52,0.15)" : ACCENT,
+              color: tierSubmitting ? "rgba(181,236,52,0.3)" : "#050505",
               fontSize: 14,
               fontWeight: 700,
               letterSpacing: "0.15em",
               textTransform: "uppercase",
-              cursor: "pointer",
+              cursor: tierSubmitting ? "not-allowed" : "pointer",
               fontFamily: "inherit",
             }}
           >
-            Continue to Payment
+            {tierSubmitting ? "Saving…" : "Continue to Payment"}
           </button>
+          {tierError ? (
+            <p style={{ margin: 0, fontSize: 13, color: "#fda4af", lineHeight: 1.5, maxWidth: 420, textAlign: "right" }}>
+              {tierError}
+            </p>
+          ) : null}
         </div>
 
         <style>{`

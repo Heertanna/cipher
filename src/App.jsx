@@ -585,19 +585,17 @@ function PageFlow() {
   if (page === "pricing") {
     return (
       <PricingPlans
+        selectedPlanId={selectedPlan}
         onBack={() => {
           setPage("terms");
           window.scrollTo(0, 0);
         }}
         onFinish={() => {
-          setSelectedPlan("standard");
           setPage("payment");
           window.scrollTo(0, 0);
         }}
         onSelectPlan={(planId) => {
           setSelectedPlan(planId);
-          setPage("payment");
-          window.scrollTo(0, 0);
         }}
       />
     );
@@ -612,7 +610,11 @@ function PageFlow() {
           window.scrollTo(0, 0);
         }}
         onDone={() => {
-          navigate("/protocol-dashboard");
+          navigate("/protocol-dashboard", {
+            state: {
+              welcomeMessage: "Welcome to Care Protocol. Your identity has been created.",
+            },
+          });
           window.scrollTo(0, 0);
         }}
       />

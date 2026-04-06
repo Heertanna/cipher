@@ -7,10 +7,22 @@ import {
   Select,
   TextArea,
 } from "./OnboardingCommon.jsx";
+import { saveHealthProfile } from "../lib/api.js";
+import { getSession } from "../lib/session.js";
 
-const AGE_OPTIONS = ["0-18", "18-25", "25-40", "40-60", "60+"];
-const BLOOD_OPTIONS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
-const GENDER_OPTIONS = ["", "Female", "Male", "Non-binary", "Prefer not to say"];
+const AGE_OPTIONS = ["18-24", "25-34", "35-44", "45-54", "55+"];
+const BLOOD_OPTIONS = ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"];
+const GENDER_OPTIONS = ["Male", "Female", "Other", "Prefer not to say"];
+
+function genderToApiValue(label) {
+  const map = {
+    Male: "male",
+    Female: "female",
+    Other: "other",
+    "Prefer not to say": "prefer not to say",
+  };
+  return map[label] ?? String(label).toLowerCase();
+}
 
 function safeParse(raw) {
   try {
@@ -30,6 +42,8 @@ export function HealthProfile({ onBack, onContinue }) {
   const [gender, setGender] = useState("");
   const [allergies, setAllergies] = useState("");
   const [chronic, setChronic] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const existing = safeParse(window.localStorage.getItem("healthProfile"));
@@ -58,7 +72,7 @@ export function HealthProfile({ onBack, onContinue }) {
     [ageRange, bloodType, gender, allergies, chronic]
   );
 
-  const canContinue = Boolean(ageRange && bloodType);
+  const canContinue = Boolean(ageRange && bloodType && gender);
 
   return (
     <div
@@ -220,7 +234,7 @@ export function HealthProfile({ onBack, onContinue }) {
             </p>
             <AvatarPreview
               ageRange={ageRange}
-              gender={gender}
+              gender={gender || "Prefer not to say"}
             />
 
             {storedIdentity?.alias && (
@@ -300,7 +314,7 @@ export function HealthProfile({ onBack, onContinue }) {
             </div>
 
             <div style={{ gridColumn: "1 / -1" }}>
-              <Label>Gender (optional)</Label>
+              <Label>Gender</Label>
               <Select
                 value={gender}
                 onChange={(v) => {
@@ -308,7 +322,7 @@ export function HealthProfile({ onBack, onContinue }) {
                   persist({ gender: v });
                 }}
                 options={GENDER_OPTIONS}
-                placeholder={null}
+                placeholder="Select gender"
               />
             </div>
 
@@ -379,40 +393,64 @@ export function HealthProfile({ onBack, onContinue }) {
               letterSpacing: "0.02em",
             }}
           >
-            Required: age range + blood type.
+            Required: age range, blood type, and gender.
           </p>
 
           <button
-            onClick={() => {
-              const payload = persist({});
-              if (canContinue) onContinue(payload);
+            onClick={async () => {
+              if (!canContinue) return;
+              setError("");
+              setSubmitting(true);
+              try {
+                const { anonymousId, encryptionKey } = getSession();
+                if (!anonymousId || !encryptionKey) {
+                  throw new Error("Your session expired. Please go back and create your identity again.");
+                }
+                const payload = persist({});
+                await saveHealthProfile(anonymousId, encryptionKey, {
+                  ageRange: payload.ageRange,
+                  bloodType: payload.bloodType,
+                  gender: genderToApiValue(payload.gender),
+                  allergies: payload.allergies ?? "",
+                  conditions: payload.chronic ?? "",
+                });
+                onContinue(payload);
+              } catch (e) {
+                setError(e?.message || "Could not save your profile. Please try again.");
+              } finally {
+                setSubmitting(false);
+              }
             }}
-            disabled={!canContinue}
+            disabled={!canContinue || submitting}
             style={{
               padding: "14px 40px",
               border: "none",
               borderRadius: 6,
-              background: canContinue ? ACCENT : "rgba(181,236,52,0.15)",
-              color: canContinue ? "#050505" : "rgba(181,236,52,0.3)",
+              background: canContinue && !submitting ? ACCENT : "rgba(181,236,52,0.15)",
+              color: canContinue && !submitting ? "#050505" : "rgba(181,236,52,0.3)",
               fontSize: 14,
               fontWeight: 700,
               letterSpacing: "0.15em",
               textTransform: "uppercase",
-              cursor: canContinue ? "pointer" : "not-allowed",
+              cursor: canContinue && !submitting ? "pointer" : "not-allowed",
               fontFamily: "inherit",
               transition: "opacity 0.2s ease",
               whiteSpace: "nowrap",
             }}
             onMouseEnter={(e) => {
-              if (canContinue) e.target.style.opacity = "0.85";
+              if (canContinue && !submitting) e.target.style.opacity = "0.85";
             }}
             onMouseLeave={(e) => {
               e.target.style.opacity = "1";
             }}
           >
-            Next
+            {submitting ? "Saving…" : "Next"}
           </button>
         </div>
+
+        {error ? (
+          <p style={{ marginTop: 14, fontSize: 13, color: "#fda4af", lineHeight: 1.5 }}>{error}</p>
+        ) : null}
 
         {/* responsive note */}
         <style>{`

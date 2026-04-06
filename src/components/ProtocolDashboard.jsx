@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { motion as Motion } from "framer-motion";
 import { ACCENT, FaintBackground } from "./OnboardingCommon.jsx";
 import { IdentityCard } from "./IdentityCard.jsx";
@@ -10,6 +10,12 @@ import { LiveCasesStack } from "./LiveCasesStack.jsx";
 import { SystemEnergyCore } from "./SystemEnergyCore.jsx";
 export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const welcomeMessage = location.state?.welcomeMessage;
+
+  function dismissWelcomeBanner() {
+    navigate("/protocol-dashboard", { replace: true, state: {} });
+  }
 
   const btnBase = {
     padding: "10px 18px",
@@ -48,6 +54,39 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
           gap: 24,
         }}
       >
+        {welcomeMessage ? (
+          <div
+            style={{
+              padding: "14px 18px",
+              borderRadius: 12,
+              border: "1px solid rgba(181,236,52,0.35)",
+              background: "rgba(181,236,52,0.08)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 16,
+              flexWrap: "wrap",
+            }}
+          >
+            <p style={{ margin: 0, fontSize: 14, color: "rgba(248,250,252,0.92)", lineHeight: 1.55 }}>
+              {welcomeMessage}
+            </p>
+            <button
+              type="button"
+              onClick={dismissWelcomeBanner}
+              style={{
+                ...btnBase,
+                flexShrink: 0,
+                background: "transparent",
+                color: ACCENT,
+                borderColor: "rgba(181,236,52,0.55)",
+              }}
+            >
+              Dismiss
+            </button>
+          </div>
+        ) : null}
+
         <Motion.header
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}

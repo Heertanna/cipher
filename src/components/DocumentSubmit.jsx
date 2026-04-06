@@ -5,7 +5,8 @@ import {
   Label,
   TextArea,
 } from "./OnboardingCommon.jsx";
-import { DocumentProcessingModal } from "./DocumentProcessingModal.jsx";
+import { uploadDocuments } from "../lib/api.js";
+import { getSession } from "../lib/session.js";
 
 const HEALTH_STATES = ["Optimal", "Managed", "Critical"];
 
@@ -20,23 +21,25 @@ function safeParse(raw) {
 export function DocumentSubmit({ onBack, onContinue }) {
   const [healthState, setHealthState] = useState("Optimal");
   const [notes, setNotes] = useState("");
-  const [files, setFiles] = useState([]);
-  const [showProcessing, setShowProcessing] = useState(false);
+  const [fileObjects, setFileObjects] = useState([]);
+  const [submitting, setSubmitting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const existing = safeParse(window.localStorage.getItem("medicalDocuments"));
     if (existing) {
       setHealthState(existing.healthState || "Optimal");
       setNotes(existing.notes || "");
-      setFiles(existing.files || []);
     }
   }, []);
 
   function persist(next = {}) {
+    const nextFiles = next.fileObjects ?? fileObjects;
     const payload = {
       healthState: next.healthState ?? healthState,
       notes: next.notes ?? notes,
-      files: next.files ?? files,
+      fileNames: nextFiles.map((f) => f.name),
       updatedAt: Date.now(),
     };
     window.localStorage.setItem("medicalDocuments", JSON.stringify(payload));
@@ -44,14 +47,9 @@ export function DocumentSubmit({ onBack, onContinue }) {
   }
 
   function handleFilesChange(event) {
-    const list = Array.from(event.target.files || []).map((file) => ({
-      name: file.name,
-      size: file.size,
-      type: file.type,
-      lastModified: file.lastModified,
-    }));
-    setFiles(list);
-    persist({ files: list });
+    const list = Array.from(event.target.files || []);
+    setFileObjects(list);
+    persist({ fileObjects: list });
   }
 
   const severityPosition =
@@ -160,9 +158,8 @@ export function DocumentSubmit({ onBack, onContinue }) {
             marginBottom: 28,
           }}
         >
-          Attach any recent checkups, lab results, or discharge summaries. These
-          documents are represented locally for your prototype and are not sent to
-          any backend.
+          Attach any recent checkups, lab results, or discharge summaries. When you
+          continue, files are sent securely to the protocol (you can skip this step).
         </p>
 
         {/* grid: upload + severity */}
@@ -215,10 +212,10 @@ export function DocumentSubmit({ onBack, onContinue }) {
                 marginTop: 10,
               }}
             >
-              PDF, images, or reports — stored only in your browser.
+              PDF, images, or reports — optional; you can skip if you prefer.
             </p>
 
-            {files.length > 0 && (
+            {fileObjects.length > 0 && (
               <ul
                 style={{
                   listStyle: "none",
@@ -228,7 +225,7 @@ export function DocumentSubmit({ onBack, onContinue }) {
                   overflowY: "auto",
                 }}
               >
-                {files.map((file, idx) => (
+                {fileObjects.map((file, idx) => (
                   <li
                     key={file.name + idx}
                     style={{
@@ -236,7 +233,7 @@ export function DocumentSubmit({ onBack, onContinue }) {
                       color: "rgba(255,255,255,0.7)",
                       padding: "6px 0",
                       borderBottom:
-                        idx < files.length - 1
+                        idx < fileObjects.length - 1
                           ? "1px solid rgba(255,255,255,0.06)"
                           : "none",
                     }}
@@ -374,40 +371,110 @@ export function DocumentSubmit({ onBack, onContinue }) {
               color: "rgba(255,255,255,0.35)",
             }}
           >
-            Health state is for simulation only; documents remain in your browser.
+            Health state is for simulation only. Uploads run when you choose Next.
           </p>
-          <button
-            onClick={() => {
-              persist({});
-              setShowProcessing(true);
-            }}
+          <div
             style={{
-              padding: "14px 32px",
-              borderRadius: 6,
-              border: "none",
-              background: ACCENT,
-              color: "#050505",
-              fontSize: 14,
-              fontWeight: 700,
-              letterSpacing: "0.15em",
-              textTransform: "uppercase",
-              cursor: "pointer",
-              fontFamily: "inherit",
+              display: "flex",
+              alignItems: "center",
+              gap: 14,
+              flexWrap: "wrap",
             }}
           >
-            Next
-          </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (submitting) return;
+                setError("");
+                persist({});
+                onContinue();
+              }}
+              disabled={submitting}
+              style={{
+                background: "none",
+                border: "none",
+                color: submitting ? "rgba(181,236,52,0.2)" : "rgba(181,236,52,0.5)",
+                fontSize: 12,
+                fontWeight: 600,
+                letterSpacing: "0.15em",
+                textTransform: "uppercase",
+                cursor: submitting ? "not-allowed" : "pointer",
+                fontFamily: "inherit",
+                padding: 0,
+              }}
+              onMouseEnter={(e) => {
+                if (!submitting) e.target.style.color = ACCENT;
+              }}
+              onMouseLeave={(e) => {
+                if (!submitting) e.target.style.color = "rgba(181,236,52,0.5)";
+              }}
+            >
+              Skip for now
+            </button>
+            {uploadProgress != null && uploadProgress < 100 ? (
+              <span
+                style={{
+                  fontSize: 11,
+                  color: "rgba(255,255,255,0.45)",
+                  letterSpacing: "0.06em",
+                }}
+              >
+                Uploading {uploadProgress}%
+              </span>
+            ) : null}
+            <button
+              type="button"
+              disabled={submitting || fileObjects.length === 0}
+              onClick={async () => {
+                if (submitting || fileObjects.length === 0) return;
+                setError("");
+                setSubmitting(true);
+                setUploadProgress(0);
+                try {
+                  const { anonymousId } = getSession();
+                  if (!anonymousId) {
+                    throw new Error("Your session expired. Please go back and create your identity again.");
+                  }
+                  persist({});
+                  await uploadDocuments(anonymousId, fileObjects, (pct) => setUploadProgress(pct));
+                  onContinue();
+                } catch (e) {
+                  setError(e?.message || "Upload failed. Please try again.");
+                } finally {
+                  setSubmitting(false);
+                  setUploadProgress(null);
+                }
+              }}
+              style={{
+                padding: "14px 32px",
+                borderRadius: 6,
+                border: "none",
+                background:
+                  submitting || fileObjects.length === 0
+                    ? "rgba(181,236,52,0.15)"
+                    : ACCENT,
+                color:
+                  submitting || fileObjects.length === 0
+                    ? "rgba(181,236,52,0.3)"
+                    : "#050505",
+                fontSize: 14,
+                fontWeight: 700,
+                letterSpacing: "0.15em",
+                textTransform: "uppercase",
+                cursor:
+                  submitting || fileObjects.length === 0 ? "not-allowed" : "pointer",
+                fontFamily: "inherit",
+              }}
+            >
+              {submitting ? "Uploading…" : "Next"}
+            </button>
+          </div>
         </div>
-      </div>
 
-      {showProcessing && (
-        <DocumentProcessingModal
-          onFinished={() => {
-            setShowProcessing(false);
-            onContinue();
-          }}
-        />
-      )}
+        {error ? (
+          <p style={{ marginTop: 14, fontSize: 13, color: "#fda4af", lineHeight: 1.5 }}>{error}</p>
+        ) : null}
+      </div>
     </div>
   );
 }
