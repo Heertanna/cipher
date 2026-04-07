@@ -13,6 +13,27 @@ export function PricingPlans({
 }) {
   const [tierSubmitting, setTierSubmitting] = useState(false);
   const [tierError, setTierError] = useState("");
+  const submitTierForPlan = useCallback(
+    async (planId) => {
+      setTierError("");
+      setTierSubmitting(true);
+      try {
+        const { anonymousId } = getSession();
+        if (!anonymousId) {
+          throw new Error(
+            "Your session expired. Please return to the start and sign up again.",
+          );
+        }
+        await setTier(anonymousId, planIdToTier(planId));
+        onFinish?.();
+      } catch (e) {
+        setTierError(e?.message || "Could not save your plan. Please try again.");
+      } finally {
+        setTierSubmitting(false);
+      }
+    },
+    [onFinish],
+  );
   const handleCardMove = useCallback((e) => {
     const card = e.currentTarget;
     const rect = card.getBoundingClientRect();
@@ -193,6 +214,7 @@ export function PricingPlans({
           selectDisabled={tierSubmitting}
           onSelectPlan={(planId) => {
             onSelectPlan?.(planId);
+            submitTierForPlan(planId);
           }}
         />
 
@@ -556,24 +578,7 @@ export function PricingPlans({
           <button
             type="button"
             disabled={tierSubmitting}
-            onClick={async () => {
-              setTierError("");
-              setTierSubmitting(true);
-              try {
-                const { anonymousId } = getSession();
-                if (!anonymousId) {
-                  throw new Error(
-                    "Your session expired. Please return to the start and sign up again.",
-                  );
-                }
-                await setTier(anonymousId, planIdToTier(selectedPlanId));
-                onFinish?.();
-              } catch (e) {
-                setTierError(e?.message || "Could not save your plan. Please try again.");
-              } finally {
-                setTierSubmitting(false);
-              }
-            }}
+            onClick={() => submitTierForPlan(selectedPlanId)}
             style={{
               padding: "14px 40px",
               borderRadius: 6,

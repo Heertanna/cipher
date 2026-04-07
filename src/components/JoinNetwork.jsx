@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { ACCENT, FaintBackground } from "./OnboardingCommon";
 import { createIdentity } from "../lib/api.js";
-import { saveSession } from "../lib/session.js";
+import { getSession, saveSession } from "../lib/session.js";
 
 const inputBase = {
   width: "100%",
@@ -50,22 +50,6 @@ export function JoinNetwork({ onBack, onContinue }) {
   const [error, setError] = useState("");
   const [, setAnonymousId] = useState(null);
 
-  useEffect(() => {
-    requestAnimationFrame(() => setFadeIn(true));
-  }, []);
-
-  useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem("cipher_identity");
-      if (!raw) return;
-      const parsed = JSON.parse(raw);
-      if (parsed.alias) setAlias(parsed.alias);
-      if (parsed.created) setCreated(true);
-    } catch {
-      // ignore
-    }
-  }, []);
-
   const persistAlias = useCallback((nextAlias, markCreated) => {
     try {
       window.localStorage.setItem(
@@ -79,6 +63,31 @@ export function JoinNetwork({ onBack, onContinue }) {
       // best-effort
     }
   }, []);
+
+  useEffect(() => {
+    requestAnimationFrame(() => setFadeIn(true));
+  }, []);
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem("cipher_identity");
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (parsed.alias) setAlias(parsed.alias);
+      if (parsed.created) {
+        const { anonymousId, encryptionKey } = getSession();
+        if (anonymousId && encryptionKey) {
+          setCreated(true);
+        } else {
+          setCreated(false);
+          setError("Your session expired. Please create identity again to continue.");
+          persistAlias(parsed.alias || "", false);
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }, [persistAlias]);
 
   const handleCreate = useCallback(async () => {
     if (!alias.trim() || !password) return;

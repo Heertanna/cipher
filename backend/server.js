@@ -18,7 +18,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 app.use(express.json());
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://heertanna.github.io"],
+    origin: ["http://localhost:5173", "http://localhost:5174", "https://heertanna.github.io"],
   }),
 );
 
@@ -47,7 +47,13 @@ app.get("/procedures", (_req, res) => {
 app.post("/submit-claim", (req, res) => {
   console.log("[POST /submit-claim] Incoming payload:", req.body);
 
-  const validationError = validateClaimPayload(req.body);
+  const normalizedPayload = {
+    icd10_code: req.body?.icd10_code ?? req.body?.icd10Code,
+    procedure_name: req.body?.procedure_name ?? req.body?.procedureName,
+    claim_cost: req.body?.claim_cost ?? req.body?.claimCost,
+  };
+
+  const validationError = validateClaimPayload(normalizedPayload);
   if (validationError) {
     console.warn("[POST /submit-claim] Validation failed:", validationError);
     return res.status(400).json({
@@ -55,10 +61,11 @@ app.post("/submit-claim", (req, res) => {
     });
   }
 
-  const { icd10_code, claim_cost } = req.body;
+  const { icd10_code, procedure_name, claim_cost } = normalizedPayload;
   const guardrails = evaluatePoolHealth();
   const result = routeClaim({
-    icd10_code: icd10_code.trim(),
+    icd10_code: typeof icd10_code === "string" ? icd10_code.trim() : "",
+    procedure_name: typeof procedure_name === "string" ? procedure_name.trim() : "",
     claim_cost,
     approvedProcedures,
     guardrails,

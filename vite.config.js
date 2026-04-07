@@ -1,10 +1,12 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// Relative base so JS/CSS work for any GitHub Pages URL:
-// https://<user>.github.io/<repo>/  (repo name can change; no hardcoded /cipher/)
-// See https://vite.dev/config/shared-options.html#base
+// Must match the GitHub repo name (project Pages URL is /{repo}/).
+// Do NOT use base: './' — relative asset URLs break on client routes (e.g.
+// /cipher/foo resolves ./assets to /cipher/foo/assets → 404).
+const pagesBase = '/cipher/'
+
 export default defineConfig(({ command }) => ({
-  base: command === 'serve' ? '/' : './',
+  base: command === 'serve' ? '/' : pagesBase,
   plugins: [react()],
 }))
