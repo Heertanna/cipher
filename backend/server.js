@@ -15,10 +15,23 @@ const PORT = Number(process.env.PORT) || 3001;
 
 const upload = multer({ storage: multer.memoryStorage() });
 
+const defaultCorsOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "https://heertanna.github.io",
+];
+const extraCorsOrigins =
+  typeof process.env.CORS_ORIGINS === "string"
+    ? process.env.CORS_ORIGINS.split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+    : [];
+const corsOrigins = [...new Set([...defaultCorsOrigins, ...extraCorsOrigins])];
+
 app.use(express.json());
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5174", "https://heertanna.github.io"],
+    origin: corsOrigins,
   }),
 );
 
@@ -243,7 +256,7 @@ app.post("/onboarding/tier", async (req, res) => {
 async function startServer() {
   approvedProcedures = await loadApprovedProcedures();
 
-  app.listen(PORT, () => {
+  app.listen(PORT, "0.0.0.0", () => {
     console.log(`[Server] Cipher backend listening on port ${PORT}`);
     console.log(`[Server] Loaded procedures: ${approvedProcedures.length}`);
   });

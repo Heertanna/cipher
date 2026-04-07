@@ -24,6 +24,10 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          # Optional: older repos used this name; keep both secrets in sync or set only VITE_API_URL
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

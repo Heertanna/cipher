@@ -1,4 +1,6 @@
-const BASE_URL = "http://localhost:3001";
+import { API_URL } from "../config/api.js";
+
+const BASE_URL = API_URL;
 
 async function parseJsonResponse(res) {
   const text = await res.text();

@@ -8,6 +8,7 @@
     "build": "vite build && node -e \"require('fs').copyFileSync('dist/index.html','dist/404.html')\"",
     "lint": "eslint .",
     "preview": "vite preview",
+    "start": "node backend/server.js",
     "server": "node backend/server.js",
     "migrate": "node backend/lib/runMigrations.js"
   },
