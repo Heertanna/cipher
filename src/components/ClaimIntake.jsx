@@ -3,6 +3,7 @@ import { FaintBackground, Label, Select, TextArea, ACCENT } from "./OnboardingCo
 import { SmartProcessing } from "./SmartProcessing.jsx";
 import { FastTrackApproval } from "./FastTrackApproval.jsx";
 import { PeerReviewPreparation } from "./PeerReviewPreparation.jsx";
+import { API_URL } from "../config/api.js";
 
 const STORAGE_KEY = "cipher_claims_demo";
 const DRAFT_KEY = "cipher_claim_draft_demo";
@@ -65,6 +66,8 @@ export function ClaimIntake({ onBack, onDone }) {
   const [processingClaim, setProcessingClaim] = useState(null);
   const [processingClaimId, setProcessingClaimId] = useState(null);
   const [postProcessingPath, setPostProcessingPath] = useState(null);
+  const [routeDecision, setRouteDecision] = useState(null);
+  const [routingError, setRoutingError] = useState("");
 
   const storedDraft = useMemo(() => {
     return safeParse(window.localStorage.getItem(DRAFT_KEY));
@@ -153,7 +156,7 @@ export function ClaimIntake({ onBack, onDone }) {
     ]
   );
 
-  const submit = useCallback(() => {
+  const submit = useCallback(async () => {
     const existingRaw = window.localStorage.getItem(STORAGE_KEY);
     const existing = safeParse(existingRaw) || [];
 
@@ -172,8 +175,37 @@ export function ClaimIntake({ onBack, onDone }) {
     window.localStorage.removeItem(DRAFT_KEY);
     setProcessingClaimId(id);
     setProcessingClaim({ description: whatHappened });
-    setProcessing(true);
-  }, [claimSummary, reportsMeta]);
+    setRoutingError("");
+    setRouteDecision(null);
+
+    // Parse first number from free-form cost details (e.g. "INR 120000")
+    const numericCost = Number(String(costDetails || "").replace(/[^\d.]/g, "")) || 0;
+
+    try {
+      const res = await fetch(`${API_URL}/claims/route`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          what_happened: whatHappened,
+          cost_inr: numericCost,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data?.error || "Could not route claim.");
+      }
+      setRouteDecision(data);
+    } catch (e) {
+      setRoutingError(e?.message || "Could not route claim.");
+      // Safe fallback: if routing service is unreachable, default to jury.
+      setRouteDecision({
+        path: "PATH_B",
+        reason: "route_service_unavailable",
+      });
+    } finally {
+      setProcessing(true);
+    }
+  }, [claimSummary, reportsMeta, whatHappened, costDetails]);
 
   if (processing) {
     return (
@@ -181,6 +213,7 @@ export function ClaimIntake({ onBack, onDone }) {
         claimData={{
           description: processingClaim?.description ?? whatHappened ?? "",
         }}
+        routeDecision={routeDecision}
         onContinue={(path) => {
           if (path === "PathA") {
             setPostProcessingPath("PathA");
@@ -659,6 +692,11 @@ export function ClaimIntake({ onBack, onDone }) {
               ? "Confirm to submit for protocol processing."
               : "Back to dashboard to continue."}
           </p>
+          {routingError ? (
+            <p style={{ margin: 0, fontSize: 12, color: "#fda4af", letterSpacing: "0.01em" }}>
+              {routingError}
+            </p>
+          ) : null}
 
           {step === 1 && (
             <button

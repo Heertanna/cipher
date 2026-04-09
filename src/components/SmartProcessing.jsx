@@ -5,14 +5,12 @@ import { StepItem } from "./StepItem.jsx";
 
 const sleep = (ms) => new Promise((r) => window.setTimeout(r, ms));
 
-export function SmartProcessing({ claimData, onContinue }) {
-  // STRICT demo logic: use ONLY `description` (exact match).
-  // Example matches: "fever", "surgery" (case-insensitive, trimmed)
-  const description = (claimData?.description || "").trim().toLowerCase();
-  const isFever = description === "fever";
-  const isSurgery = description === "surgery";
+function toUiPath(path) {
+  return path === "PATH_A" ? "PathA" : "PathB";
+}
 
-  const path = isFever ? "PathA" : "PathB";
+export function SmartProcessing({ claimData, routeDecision, onContinue }) {
+  const path = routeDecision?.path ? toUiPath(routeDecision.path) : "PathB";
 
   const steps = useMemo(
     () => [
@@ -24,14 +22,10 @@ export function SmartProcessing({ claimData, onContinue }) {
     []
   );
 
-  // Step results (static demo):
-  // - fever   => pass pass pass pass
-  // - surgery => flag flag pass pass
-  // - anything else => PathB-like (flag flag pass pass)
   const outcomes = useMemo(() => {
-    if (isFever) return ["pass", "pass", "pass", "pass"];
+    if (path === "PathA") return ["pass", "pass", "pass", "pass"];
     return ["flag", "flag", "pass", "pass"];
-  }, [isFever, isSurgery]);
+  }, [path]);
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [stepStates, setStepStates] = useState(() => [
@@ -82,8 +76,8 @@ export function SmartProcessing({ claimData, onContinue }) {
 
   const explanation =
     path === "PathA"
-      ? "Fever: Common treatment with expected cost and sufficient evidence."
-      : "Surgery/Other: Complex case requiring additional evaluation before approval.";
+      ? "Procedure matched approved list. Moving to automatic processing."
+      : `No approved procedure match (${routeDecision?.reason || "procedure_not_recognized"}). Routing to jury review.`;
 
   return (
     <Motion.div
