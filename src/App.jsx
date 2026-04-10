@@ -14,6 +14,7 @@ import { ClaimIntake } from "./components/ClaimIntake.jsx";
 import { EmergencyAccess } from "./components/EmergencyAccess.jsx";
 import { JurorDashboard } from "./components/JurorDashboard.jsx";
 import { CaseReview } from "./components/CaseReview.jsx";
+import { initializeMockJuryCases } from "./data/jurorMockData.js";
 
 /* ───────────────────────────────────────────
    Quadrant pixel-grid canvas
@@ -631,6 +632,12 @@ function PageFlow() {
 }
 
 function App() {
+  useEffect(() => {
+    initializeMockJuryCases().catch((error) => {
+      console.error("Failed to initialize mock jury cases:", error?.message);
+    });
+  }, []);
+
   return (
     <Routes>
       <Route path="/juror-dashboard" element={<JurorDashboard />} />

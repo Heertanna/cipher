@@ -11,9 +11,12 @@ import pool from "./db.js";
 import { encrypt, encryptBuffer } from "./lib/encryption.js";
 import { uploadToIPFS } from "./lib/ipfsUpload.js";
 import { seedApprovedProceduresIfEmpty } from "./lib/seedApprovedProcedures.js";
+import { seedJurorsIfEmpty } from "./lib/seedJurors.js";
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;
+const allowDevUnassignedJurorVotes =
+  process.env.ALLOW_UNASSIGNED_JUROR_VOTES !== "false";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -79,6 +82,73 @@ async function ensureClaimsTable() {
   `);
 }
 
+async function ensureJuryTables() {
+  await pool.query(`
+    ALTER TABLE members
+    ADD COLUMN IF NOT EXISTS is_juror BOOLEAN DEFAULT false,
+    ADD COLUMN IF NOT EXISTS reputation_points INTEGER DEFAULT 0
+  `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS jury_cases (
+      id BIGSERIAL PRIMARY KEY,
+      claim_id BIGINT REFERENCES claims(id),
+      status VARCHAR(20) DEFAULT 'pending',
+      selected_juror_ids INTEGER[],
+      selected_juror_anonymous_ids TEXT[],
+      final_decision VARCHAR(20),
+      confidence_avg NUMERIC(4,3),
+      votes_cast INTEGER DEFAULT 0,
+      votes_required INTEGER DEFAULT 8,
+      created_at TIMESTAMPTZ DEFAULT now(),
+      decided_at TIMESTAMPTZ
+    )
+  `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS jury_votes (
+      id BIGSERIAL PRIMARY KEY,
+      jury_case_id BIGINT REFERENCES jury_cases(id),
+      juror_anonymous_id TEXT NOT NULL,
+      vote VARCHAR(10) NOT NULL,
+      confidence NUMERIC(3,2) NOT NULL,
+      reasoning TEXT NOT NULL,
+      submitted_at TIMESTAMPTZ DEFAULT now(),
+      UNIQUE (jury_case_id, juror_anonymous_id)
+    )
+  `);
+}
+
+async function assignJury(claimId) {
+  const jurorsResult = await pool.query(
+    `SELECT anonymous_id, alias_hash
+       FROM members
+      WHERE is_juror = true
+      ORDER BY RANDOM()
+      LIMIT 8`,
+  );
+  const assignedJurors = jurorsResult.rows;
+  if (assignedJurors.length < 8) {
+    throw new Error("Not enough jurors available to assign");
+  }
+
+  const jurorAnonymousIds = assignedJurors.map((j) => j.anonymous_id);
+  const jurorOrdinalIds = assignedJurors.map((_, idx) => idx + 1);
+
+  const caseResult = await pool.query(
+    `INSERT INTO jury_cases
+      (claim_id, status, selected_juror_ids, selected_juror_anonymous_ids, votes_required)
+     VALUES ($1, 'voting', $2::int[], $3::text[], 8)
+     RETURNING id`,
+    [claimId, jurorOrdinalIds, jurorAnonymousIds],
+  );
+
+  return {
+    jury_case_id: Number(caseResult.rows[0].id),
+    assigned_jurors: assignedJurors,
+  };
+}
+
 app.get("/health", (_req, res) => {
   res.json({ ok: true });
 });
@@ -98,6 +168,54 @@ app.get("/procedures", async (_req, res) => {
   } catch (error) {
     console.error("[GET /procedures] failed:", error?.message);
     res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+app.get("/claims/:id", async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id) || id <= 0) {
+      return res.status(400).json({ error: "Invalid claim id" });
+    }
+
+    const result = await pool.query(
+      `SELECT c.*,
+              jc.id AS jury_case_id,
+              jc.status AS jury_status,
+              jc.final_decision,
+              jc.confidence_avg,
+              jc.votes_cast,
+              ap.id AS matched_procedure_id_resolved,
+              ap.procedure_name AS matched_procedure_name,
+              ap.max_cost_inr AS matched_procedure_max_cost
+         FROM claims c
+         LEFT JOIN jury_cases jc ON jc.claim_id = c.id
+         LEFT JOIN approved_procedures ap ON ap.id = c.matched_procedure_id
+        WHERE c.id = $1
+        ORDER BY jc.created_at DESC NULLS LAST
+        LIMIT 1`,
+      [id],
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Claim not found" });
+    }
+
+    const row = result.rows[0];
+    return res.json({
+      ...row,
+      matched_procedure:
+        row.matched_procedure_id_resolved != null
+          ? {
+              id: row.matched_procedure_id_resolved,
+              procedure_name: row.matched_procedure_name,
+              max_cost_inr: row.matched_procedure_max_cost,
+            }
+          : null,
+    });
+  } catch (error) {
+    console.error("[GET /claims/:id] failed:", error?.message);
+    return res.status(500).json({ error: "Something went wrong" });
   }
 });
 
@@ -131,10 +249,11 @@ app.post("/submit-claim", async (req, res) => {
 
     const decision = await routeClaim(claim);
 
-    await pool.query(
+    const insertResult = await pool.query(
       `INSERT INTO claims
         (what_happened, cost_inr, routing_path, routing_reason, matched_procedure_id, similarity_score, payload)
-       VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb)`,
+       VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb)
+       RETURNING id`,
       [
         claim.what_happened,
         claim.cost_inr,
@@ -145,11 +264,230 @@ app.post("/submit-claim", async (req, res) => {
         JSON.stringify(req.body ?? {}),
       ],
     );
+    const claimId = insertResult.rows[0].id;
+
+    let juryAssignment = null;
+    if (decision.path === "PATH_B") {
+      juryAssignment = await assignJury(claimId);
+    }
 
     console.log("[POST /submit-claim] Routing result:", decision);
-    return res.json(decision);
+    return res.json({
+      ...decision,
+      claim_id: claimId,
+      jury_assignment: juryAssignment,
+    });
   } catch (error) {
     console.error("[POST /submit-claim] failed:", error?.message);
+    return res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+app.post("/jury/assign", async (req, res) => {
+  try {
+    const claimId = Number(req.body?.claim_id);
+    if (!Number.isFinite(claimId) || claimId <= 0) {
+      return res.status(400).json({ error: "claim_id is required" });
+    }
+    const assignment = await assignJury(claimId);
+    return res.json(assignment);
+  } catch (error) {
+    console.error("[POST /jury/assign] failed:", error?.message);
+    return res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+app.post("/jury/:jury_case_id/vote", async (req, res) => {
+  try {
+    const juryCaseId = Number(req.params.jury_case_id);
+    const jurorAnonymousId = String(req.body?.juror_anonymous_id ?? "").trim();
+    const vote = String(req.body?.vote ?? "").trim().toLowerCase();
+    const confidence = Number(req.body?.confidence);
+    const reasoning = String(req.body?.reasoning ?? "").trim();
+
+    if (!Number.isFinite(juryCaseId) || juryCaseId <= 0) {
+      return res.status(400).json({ error: "jury_case_id is invalid" });
+    }
+    if (!jurorAnonymousId) {
+      return res.status(400).json({ error: "juror_anonymous_id is required" });
+    }
+    if (vote !== "approved" && vote !== "denied") {
+      return res.status(400).json({ error: "vote must be 'approved' or 'denied'" });
+    }
+    if (!Number.isFinite(confidence) || confidence < 0 || confidence > 1) {
+      return res.status(400).json({ error: "confidence must be between 0 and 1" });
+    }
+    if (!reasoning) {
+      return res.status(400).json({ error: "reasoning must not be empty" });
+    }
+
+    const caseResult = await pool.query(
+      `SELECT id, claim_id, status, votes_required, selected_juror_anonymous_ids
+         FROM jury_cases
+        WHERE id = $1`,
+      [juryCaseId],
+    );
+    if (caseResult.rowCount === 0) {
+      return res.status(404).json({ error: "jury case not found" });
+    }
+    const juryCase = caseResult.rows[0];
+    if (juryCase.status !== "voting") {
+      return res.status(400).json({ error: "jury case is not accepting votes" });
+    }
+    if (!juryCase.selected_juror_anonymous_ids?.includes(jurorAnonymousId)) {
+      if (!allowDevUnassignedJurorVotes) {
+        return res.status(403).json({ error: "juror is not assigned to this case" });
+      }
+      // In local/dev mode allow demo jurors and backfill assignment.
+      await pool.query(
+        `UPDATE jury_cases
+            SET selected_juror_anonymous_ids = (
+              CASE
+                WHEN selected_juror_anonymous_ids IS NULL THEN ARRAY[$2::text]
+                WHEN NOT ($2::text = ANY(selected_juror_anonymous_ids))
+                  THEN array_append(selected_juror_anonymous_ids, $2::text)
+                ELSE selected_juror_anonymous_ids
+              END
+            )
+          WHERE id = $1`,
+        [juryCaseId, jurorAnonymousId],
+      );
+    }
+
+    await pool.query(
+      `INSERT INTO jury_votes (jury_case_id, juror_anonymous_id, vote, confidence, reasoning)
+       VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (jury_case_id, juror_anonymous_id) DO NOTHING`,
+      [juryCaseId, jurorAnonymousId, vote, confidence, reasoning],
+    );
+
+    const aggResult = await pool.query(
+      `SELECT
+         COUNT(*)::int AS votes_cast,
+         COUNT(*) FILTER (WHERE vote = 'approved')::int AS approve_count,
+         COUNT(*) FILTER (WHERE vote = 'denied')::int AS deny_count,
+         AVG(confidence)::numeric AS confidence_avg
+       FROM jury_votes
+       WHERE jury_case_id = $1`,
+      [juryCaseId],
+    );
+    const agg = aggResult.rows[0];
+    const votesCast = Number(agg.votes_cast ?? 0);
+    const votesRequired = Number(juryCase.votes_required ?? 8);
+    const approveCount = Number(agg.approve_count ?? 0);
+    const denyCount = Number(agg.deny_count ?? 0);
+    const confidenceAvg = agg.confidence_avg == null ? null : Number(agg.confidence_avg);
+
+    if (votesCast < votesRequired) {
+      await pool.query(`UPDATE jury_cases SET votes_cast = $2 WHERE id = $1`, [juryCaseId, votesCast]);
+      return res.json({ status: "waiting", votes_cast: votesCast, votes_required: votesRequired });
+    }
+
+    let finalDecision = "denied";
+    let reEvaluationCase = null;
+    if (confidenceAvg != null && confidenceAvg < 0.6) {
+      finalDecision = "re_evaluation";
+      reEvaluationCase = await assignJury(juryCase.claim_id);
+      await pool.query(
+        `UPDATE jury_cases
+           SET status = 're_evaluation', final_decision = $2, confidence_avg = $3,
+               votes_cast = $4, decided_at = now()
+         WHERE id = $1`,
+        [juryCaseId, finalDecision, confidenceAvg, votesCast],
+      );
+    } else if (approveCount > denyCount) {
+      finalDecision = "approved";
+      await pool.query(
+        `UPDATE jury_cases
+           SET status = 'decided', final_decision = $2, confidence_avg = $3,
+               votes_cast = $4, decided_at = now()
+         WHERE id = $1`,
+        [juryCaseId, finalDecision, confidenceAvg, votesCast],
+      );
+    } else {
+      finalDecision = "denied";
+      await pool.query(
+        `UPDATE jury_cases
+           SET status = 'decided', final_decision = $2, confidence_avg = $3,
+               votes_cast = $4, decided_at = now()
+         WHERE id = $1`,
+        [juryCaseId, finalDecision, confidenceAvg, votesCast],
+      );
+    }
+
+    await pool.query(
+      `UPDATE members
+          SET reputation_points = COALESCE(reputation_points, 0) + 10,
+              rp_score = COALESCE(rp_score, 0) + 10
+        WHERE anonymous_id IN (
+          SELECT DISTINCT juror_anonymous_id
+            FROM jury_votes
+           WHERE jury_case_id = $1
+        )`,
+      [juryCaseId],
+    );
+
+    return res.json({
+      status: "decided",
+      jury_case_id: juryCaseId,
+      final_decision: finalDecision,
+      approve_count: approveCount,
+      deny_count: denyCount,
+      confidence_avg: confidenceAvg,
+      votes_cast: votesCast,
+      votes_required: votesRequired,
+      re_evaluation_case_id: reEvaluationCase?.jury_case_id ?? null,
+    });
+  } catch (error) {
+    console.error("[POST /jury/:jury_case_id/vote] failed:", error?.message);
+    return res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+app.get("/jury/case/:jury_case_id", async (req, res) => {
+  try {
+    const juryCaseId = Number(req.params.jury_case_id);
+    if (!Number.isFinite(juryCaseId) || juryCaseId <= 0) {
+      return res.status(400).json({ error: "jury_case_id is invalid" });
+    }
+
+    const caseResult = await pool.query(
+      `SELECT id, claim_id, status, votes_cast, votes_required, confidence_avg, final_decision
+         FROM jury_cases
+        WHERE id = $1`,
+      [juryCaseId],
+    );
+    if (caseResult.rowCount === 0) {
+      return res.status(404).json({ error: "jury case not found" });
+    }
+    const juryCase = caseResult.rows[0];
+
+    const voteAggResult = await pool.query(
+      `SELECT
+         COUNT(*) FILTER (WHERE vote = 'approved')::int AS approve_count,
+         COUNT(*) FILTER (WHERE vote = 'denied')::int AS deny_count,
+         COUNT(*)::int AS votes_cast,
+         AVG(confidence)::numeric AS confidence_avg
+       FROM jury_votes
+       WHERE jury_case_id = $1`,
+      [juryCaseId],
+    );
+    const agg = voteAggResult.rows[0];
+
+    return res.json({
+      jury_case_id: juryCase.id,
+      claim_id: juryCase.claim_id,
+      status: juryCase.status,
+      votes_cast: Number(agg.votes_cast ?? juryCase.votes_cast ?? 0),
+      votes_required: Number(juryCase.votes_required ?? 8),
+      approve_count: Number(agg.approve_count ?? 0),
+      deny_count: Number(agg.deny_count ?? 0),
+      confidence_avg:
+        agg.confidence_avg != null ? Number(agg.confidence_avg) : juryCase.confidence_avg,
+      final_decision: juryCase.final_decision,
+    });
+  } catch (error) {
+    console.error("[GET /jury/case/:jury_case_id] failed:", error?.message);
     return res.status(500).json({ error: "Something went wrong" });
   }
 });
@@ -305,6 +643,8 @@ app.post("/onboarding/tier", async (req, res) => {
 async function startServer() {
   await seedApprovedProceduresIfEmpty();
   await ensureClaimsTable();
+  await ensureJuryTables();
+  await seedJurorsIfEmpty();
 
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`[Server] Cipher backend listening on port ${PORT}`);

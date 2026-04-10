@@ -1,10 +1,12 @@
 /**
  * Static mock data for juror mode (same user, responsibility layer).
  */
+import { API_URL } from "../config/api.js";
 
 export const JUROR_MOCK_CASES = [
   {
     id: "A392",
+    jury_case_id: 3,
     type: "Emergency",
     description: "Acute post-surgical complication — anonymized imaging and ward notes attached.",
     detail:
@@ -18,6 +20,7 @@ export const JUROR_MOCK_CASES = [
   },
   {
     id: "B118",
+    jury_case_id: null,
     type: "Planned",
     description: "Elective procedure pre-authorization with cost variance vs. pool median.",
     detail:
@@ -46,6 +49,7 @@ export const JUROR_MOCK_CASES = [
   },
   {
     id: "C204",
+    jury_case_id: null,
     type: "Emergency",
     description: "High-urgency medication escalation request; prior jury split on eligibility.",
     detail:
@@ -59,6 +63,7 @@ export const JUROR_MOCK_CASES = [
   },
   {
     id: "D441",
+    jury_case_id: null,
     type: "Planned",
     description: "Therapy extension review — duration and outcome metrics under peer standards.",
     detail:
@@ -72,6 +77,7 @@ export const JUROR_MOCK_CASES = [
   },
   {
     id: "E903",
+    jury_case_id: null,
     type: "Planned",
     juryCaseCategory: "Ongoing",
     description: "Reimbursement alignment check for cross-border care documentation.",
@@ -111,6 +117,57 @@ export function getJurorCaseById(caseId) {
     .replace(/^case\s*#/i, "")
     .trim();
   return JUROR_MOCK_CASES.find((c) => c.id.toLowerCase() === raw.toLowerCase());
+}
+
+export async function getOrCreateJuryCase(claim_id, jury_case_id) {
+  const claimId = Number(claim_id);
+  if (!Number.isFinite(claimId) || claimId <= 0) {
+    throw new Error("claim_id is required");
+  }
+
+  if (jury_case_id != null && String(jury_case_id).trim() !== "") {
+    const existing = await fetch(`${API_URL}/jury/case/${jury_case_id}`);
+    if (existing.ok) {
+      const data = await existing.json();
+      return data.jury_case_id;
+    }
+  }
+
+  const created = await fetch(`${API_URL}/jury/assign`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ claim_id: claimId }),
+  });
+  const data = await created.json();
+  if (!created.ok) {
+    throw new Error(data?.error || "Could not assign jury case");
+  }
+  return data.jury_case_id;
+}
+
+export async function initializeMockJuryCases() {
+  const assignments = JUROR_MOCK_CASES.map(async (mockCase) => {
+    const existingJuryCaseId = Number(mockCase.jury_case_id);
+    if (Number.isFinite(existingJuryCaseId) && existingJuryCaseId > 0) {
+      const check = await fetch(`${API_URL}/jury/case/${existingJuryCaseId}`);
+      if (check.ok) {
+        return;
+      }
+    }
+
+    const response = await fetch(`${API_URL}/jury/assign`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ claim_id: 1 }),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data?.error || `Could not initialize jury case for ${mockCase.id}`);
+    }
+    mockCase.jury_case_id = Number(data.jury_case_id);
+  });
+
+  await Promise.all(assignments);
 }
 
 /** Display type for jury evaluation overview: Emergency / Planned / Ongoing */
@@ -199,6 +256,7 @@ export function getJuryEvaluationPacket(caseId) {
   const o = c.evaluationPacket || {};
   return {
     caseId: c.id,
+    jury_case_id: c.jury_case_id ?? null,
     caseType: resolveJuryCaseType(c),
     symptoms: o.symptoms ?? DEFAULT_EVALUATION_PACKET.symptoms,
     reportsTests: o.reportsTests ?? DEFAULT_EVALUATION_PACKET.reportsTests,
