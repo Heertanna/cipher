@@ -77,13 +77,7 @@ export function CaseReview() {
           }
           const claim = await response.json();
 
-          let juryCaseId;
-          const juryStatus = claim.jury_status != null ? String(claim.jury_status).toLowerCase() : "";
-          if (claim.jury_case_id && juryStatus === "voting") {
-            juryCaseId = Number(claim.jury_case_id);
-          } else {
-            juryCaseId = await getOrCreateJuryCase(claim.id);
-          }
+          const juryCaseId = await getOrCreateJuryCase(claim.id);
 
           if (!cancelled) {
             setRealClaim({ ...claim, jury_case_id: juryCaseId });
@@ -167,7 +161,6 @@ export function CaseReview() {
               throw new Error(data?.error || "Could not submit vote");
             }
             setMockJuryCaseId(null);
-            setRealClaim((prev) => (prev ? { ...prev, jury_case_id: null } : null));
             setEvaluationOpen(false);
             navigate(`/verdict/${juryCaseId}`, {
               state: { verdict: data },
