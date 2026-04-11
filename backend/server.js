@@ -117,6 +117,9 @@ async function ensureJuryTables() {
       UNIQUE (jury_case_id, juror_anonymous_id)
     )
   `);
+
+  // Allow multiple jury rounds per claim (no one-active-case limit at DB level).
+  await pool.query(`ALTER TABLE jury_cases DROP CONSTRAINT IF EXISTS jury_cases_claim_id_key`);
 }
 
 async function assignJury(claimId) {

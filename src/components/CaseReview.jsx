@@ -10,10 +10,16 @@ import {
 import { JuryEvaluationFlow } from "./JuryEvaluationFlow.jsx";
 import { API_URL } from "../config/api.js";
 
+function isNumericClaimCaseId(caseIdParam) {
+  const idNum = Number(caseIdParam);
+  return Number.isFinite(idNum) && idNum > 0;
+}
+
 export function CaseReview() {
   const { caseId } = useParams();
   const navigate = useNavigate();
   const [realClaim, setRealClaim] = useState(null);
+  const [mockJuryCaseId, setMockJuryCaseId] = useState(null);
   const [loadingClaim, setLoadingClaim] = useState(true);
   const [claimError, setClaimError] = useState("");
 
@@ -22,60 +28,96 @@ export function CaseReview() {
     () => (c ? getJuryEvaluationPacket(caseId) : null),
     [c, caseId],
   );
+
   const packet = useMemo(() => {
-    if (!realClaim) return fallbackPacket;
-    const payload =
-      realClaim.payload && typeof realClaim.payload === "object" ? realClaim.payload : {};
-    const typeRaw = String(payload.typeOfIssue || payload.issueType || "General");
-    const doctorRaw = String(payload.doctorConsulted || "").toLowerCase();
-    const juryCaseId = realClaim.jury_case_id ?? null;
+    if (realClaim) {
+      const payload =
+        realClaim.payload && typeof realClaim.payload === "object" ? realClaim.payload : {};
+      const typeRaw = String(payload.typeOfIssue || payload.issueType || "General");
+      const doctorRaw = String(payload.doctorConsulted || "").toLowerCase();
+      return {
+        caseId: String(realClaim.id),
+        caseType: typeRaw || "General",
+        symptoms: [String(realClaim.what_happened || "No details provided")],
+        reportsTests: payload.recommendedTreatment || "See attached documents",
+        treatmentRequested: payload.recommendedTreatment || realClaim.what_happened,
+        doctorNote:
+          doctorRaw === "yes" ? "Doctor consulted" : "No doctor consulted",
+        cost: `₹${Number(realClaim.cost_inr || 0).toLocaleString("en-IN")}`,
+        expectedRange: realClaim.matched_procedure?.max_cost_inr
+          ? `Up to ₹${Number(realClaim.matched_procedure.max_cost_inr).toLocaleString("en-IN")}`
+          : "Not specified",
+        jury_case_id: realClaim.jury_case_id ?? null,
+      };
+    }
+    if (!fallbackPacket) return null;
     return {
-      caseId: String(realClaim.id),
-      caseType: typeRaw || "General",
-      symptoms: [String(realClaim.what_happened || "No details provided")],
-      reportsTests: payload.recommendedTreatment || "See attached documents",
-      treatmentRequested: payload.recommendedTreatment || realClaim.what_happened,
-      doctorNote:
-        doctorRaw === "yes" ? "Doctor consulted" : "No doctor consulted",
-      cost: `₹${Number(realClaim.cost_inr || 0).toLocaleString("en-IN")}`,
-      expectedRange: realClaim.matched_procedure?.max_cost_inr
-        ? `Up to ₹${Number(realClaim.matched_procedure.max_cost_inr).toLocaleString("en-IN")}`
-        : "Not specified",
-      jury_case_id: juryCaseId,
+      ...fallbackPacket,
+      jury_case_id: mockJuryCaseId ?? null,
     };
-  }, [realClaim, fallbackPacket]);
+  }, [realClaim, fallbackPacket, mockJuryCaseId]);
+
   const [evaluationOpen, setEvaluationOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-    async function loadClaim() {
+
+    async function load() {
       setLoadingClaim(true);
       setClaimError("");
+      setMockJuryCaseId(null);
+      setRealClaim(null);
+
+      if (isNumericClaimCaseId(caseId)) {
+        try {
+          const idNum = Number(caseId);
+          const response = await fetch(`${API_URL}/claims/${idNum}`);
+          if (!response.ok) {
+            throw new Error("Could not load claim");
+          }
+          const claim = await response.json();
+
+          let juryCaseId;
+          const juryStatus = claim.jury_status != null ? String(claim.jury_status).toLowerCase() : "";
+          if (claim.jury_case_id && juryStatus === "voting") {
+            juryCaseId = Number(claim.jury_case_id);
+          } else {
+            juryCaseId = await getOrCreateJuryCase(claim.id);
+          }
+
+          if (!cancelled) {
+            setRealClaim({ ...claim, jury_case_id: juryCaseId });
+          }
+        } catch (e) {
+          if (!cancelled) {
+            setClaimError(e?.message || "Could not load claim");
+            setRealClaim(null);
+          }
+        } finally {
+          if (!cancelled) setLoadingClaim(false);
+        }
+        return;
+      }
+
+      if (!getJurorCaseById(caseId)) {
+        if (!cancelled) setLoadingClaim(false);
+        return;
+      }
+
       try {
-        const idNum = Number(caseId);
-        if (!Number.isFinite(idNum) || idNum <= 0) {
-          setRealClaim(null);
-          return;
-        }
-        const response = await fetch(`${API_URL}/claims/${idNum}`);
-        if (!response.ok) {
-          throw new Error("Could not load claim");
-        }
-        const claim = await response.json();
-        const juryCaseId = await getOrCreateJuryCase(claim.id, claim.jury_case_id);
-        if (!cancelled) {
-          setRealClaim({ ...claim, jury_case_id: juryCaseId });
-        }
+        const juryCaseId = await getOrCreateJuryCase(1);
+        if (!cancelled) setMockJuryCaseId(juryCaseId);
       } catch (e) {
         if (!cancelled) {
-          setClaimError(e?.message || "Could not load claim");
-          setRealClaim(null);
+          setClaimError(e?.message || "Could not start jury case");
+          setMockJuryCaseId(null);
         }
       } finally {
         if (!cancelled) setLoadingClaim(false);
       }
     }
-    loadClaim();
+
+    load();
     return () => {
       cancelled = true;
     };
@@ -98,7 +140,7 @@ export function CaseReview() {
             window.sessionStorage.getItem("anonymousId") ||
             "";
           const juryCaseId =
-            packet?.jury_case_id ?? realClaim?.jury_case_id ?? null;
+            packet?.jury_case_id ?? realClaim?.jury_case_id ?? mockJuryCaseId ?? null;
 
           if (!juryCaseId) {
             console.error("No jury_case_id found - cannot submit vote");
@@ -124,6 +166,8 @@ export function CaseReview() {
             if (!response.ok) {
               throw new Error(data?.error || "Could not submit vote");
             }
+            setMockJuryCaseId(null);
+            setRealClaim((prev) => (prev ? { ...prev, jury_case_id: null } : null));
             setEvaluationOpen(false);
             navigate(`/verdict/${juryCaseId}`, {
               state: { verdict: data },
@@ -142,6 +186,12 @@ export function CaseReview() {
       />
     );
   }
+
+  const canStartEvaluation =
+    Boolean(packet) &&
+    !loadingClaim &&
+    packet.jury_case_id != null &&
+    Number(packet.jury_case_id) > 0;
 
   return (
     <div
@@ -290,22 +340,22 @@ export function CaseReview() {
 
           <button
             type="button"
-            disabled={!packet}
+            disabled={!canStartEvaluation}
             onClick={() => setEvaluationOpen(true)}
             style={{
               marginTop: 24,
               width: "100%",
               padding: "16px 22px",
               borderRadius: 999,
-              border: `1px solid ${packet ? "rgba(181,236,52,0.55)" : "rgba(148,163,184,0.3)"}`,
-              background: packet ? ACCENT : "rgba(30,41,59,0.6)",
-              color: packet ? "#020617" : "rgba(148,163,184,0.6)",
+              border: `1px solid ${canStartEvaluation ? "rgba(181,236,52,0.55)" : "rgba(148,163,184,0.3)"}`,
+              background: canStartEvaluation ? ACCENT : "rgba(30,41,59,0.6)",
+              color: canStartEvaluation ? "#020617" : "rgba(148,163,184,0.6)",
               fontSize: 12,
               fontWeight: 900,
               letterSpacing: "0.16em",
               textTransform: "uppercase",
-              cursor: packet ? "pointer" : "not-allowed",
-              boxShadow: packet ? "0 0 28px rgba(181,236,52,0.22)" : "none",
+              cursor: canStartEvaluation ? "pointer" : "not-allowed",
+              boxShadow: canStartEvaluation ? "0 0 28px rgba(181,236,52,0.22)" : "none",
             }}
           >
             Start Evaluation
