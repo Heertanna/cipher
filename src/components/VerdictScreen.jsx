@@ -96,17 +96,51 @@ export function VerdictScreen() {
 
   return (
     <div
+      className="verdict-page-root"
       style={{
         position: "relative",
         minHeight: "100dvh",
         background: "#02030a",
-        padding: "80px 24px 48px",
+        boxSizing: "border-box",
         display: "flex",
         justifyContent: "center",
         alignItems: "flex-start",
         overflowY: "auto",
       }}
     >
+      <style>{`
+        .verdict-page-root {
+          padding: 60px 48px 56px;
+        }
+        @media (max-width: 640px) {
+          .verdict-page-root {
+            padding: 48px 20px 44px;
+          }
+        }
+        .verdict-top-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 48px;
+          align-items: start;
+        }
+        @media (max-width: 640px) {
+          .verdict-top-grid {
+            grid-template-columns: 1fr;
+            gap: 32px;
+          }
+        }
+        .verdict-ledger-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 14px;
+        }
+        @media (max-width: 640px) {
+          .verdict-ledger-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
+
       <FaintBackground />
 
       <Motion.main
@@ -117,7 +151,7 @@ export function VerdictScreen() {
           position: "relative",
           zIndex: 1,
           width: "100%",
-          maxWidth: 560,
+          maxWidth: 900,
         }}
       >
         {loading && !data ? (
@@ -129,328 +163,372 @@ export function VerdictScreen() {
 
         {data ? (
           <>
-            {caseRefLabel ? (
-              <p
-                style={{
-                  margin: "0 0 10px",
-                  fontSize: 12,
-                  fontWeight: 600,
-                  letterSpacing: "0.06em",
-                  color: "rgba(148,163,184,0.88)",
-                }}
-              >
-                {caseRefLabel}
-              </p>
-            ) : null}
-
-            <p
-              style={{
-                margin: 0,
-                fontSize: 11,
-                fontWeight: 700,
-                letterSpacing: "0.22em",
-                textTransform: "uppercase",
-                color: ACCENT,
-              }}
-            >
-              PROTOCOL DECISION
-            </p>
-
-            <div style={{ position: "relative", marginTop: 14, marginBottom: 28 }}>
-              <Motion.div
-                aria-hidden
-                initial={{ opacity: 0, scale: 0.92 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.6 }}
-                style={{
-                  position: "absolute",
-                  left: "50%",
-                  top: "50%",
-                  transform: "translate(-50%, -50%)",
-                  width: "min(420px, 100%)",
-                  height: 120,
-                  borderRadius: "50%",
-                  background: `radial-gradient(ellipse at center, ${titleConfig.glow} 0%, transparent 70%)`,
-                  filter: "blur(28px)",
-                  pointerEvents: "none",
-                  zIndex: 0,
-                }}
-              />
-              <h1
-                style={{
-                  position: "relative",
-                  zIndex: 1,
-                  margin: 0,
-                  fontSize: "clamp(1.75rem, 4vw, 2.25rem)",
-                  fontWeight: 800,
-                  color: titleConfig.color,
-                  letterSpacing: "-0.02em",
-                  lineHeight: 1.2,
-                  display: "flex",
-                  alignItems: "center",
-                  flexWrap: "wrap",
-                  gap: "0.35em",
-                }}
-              >
-                {titleConfig.icon ? (
-                  <span style={{ fontSize: "0.95em", opacity: 0.95 }} aria-hidden>
-                    {titleConfig.icon}
-                  </span>
-                ) : null}
-                <span>{titleConfig.text}</span>
-              </h1>
-            </div>
-
-            {recordedLine ? (
-              <p
-                style={{
-                  margin: "0 0 22px",
-                  fontSize: 12,
-                  color: "rgba(148,163,184,0.72)",
-                }}
-              >
-                {recordedLine}
-              </p>
-            ) : null}
-
-            <div
-              style={{
-                borderRadius: 18,
-                border: "1px solid rgba(255,255,255,0.1)",
-                background:
-                  "radial-gradient(circle at 0% 0%, rgba(181,236,52,0.06), transparent 55%), rgba(15,23,42,0.92)",
-                padding: "24px 22px",
-                boxShadow: "0 24px 80px rgba(0,0,0,0.35)",
-              }}
-            >
-              <p
-                style={{
-                  margin: "0 0 18px",
-                  fontSize: 15,
-                  lineHeight: 1.6,
-                  color: "rgba(226,232,240,0.95)",
-                }}
-              >
-                {approveCount} of {votesRequired} reviewers supported this claim
-              </p>
-
-              <div style={{ marginBottom: 14 }}>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: 8,
-                  }}
-                >
-                  <span
+            <div className="verdict-top-grid">
+              <div style={{ minWidth: 0 }}>
+                {caseRefLabel ? (
+                  <p
                     style={{
-                      fontSize: 11,
-                      fontWeight: 700,
-                      letterSpacing: "0.14em",
-                      textTransform: "uppercase",
-                      color: "rgba(148,163,184,0.85)",
+                      margin: "0 0 14px",
+                      fontSize: 12,
+                      fontWeight: 600,
+                      letterSpacing: "0.06em",
+                      color: "rgba(148,163,184,0.88)",
                     }}
                   >
-                    Average confidence
-                  </span>
-                  <span style={{ fontSize: 14, fontWeight: 700, color: ACCENT }}>
-                    {confidencePct}%
-                  </span>
-                </div>
+                    {caseRefLabel}
+                  </p>
+                ) : null}
+
+                <p
+                  style={{
+                    margin: "0 0 12px",
+                    fontSize: 11,
+                    fontWeight: 700,
+                    letterSpacing: "0.22em",
+                    textTransform: "uppercase",
+                    color: ACCENT,
+                  }}
+                >
+                  PROTOCOL DECISION
+                </p>
+
                 <div
                   style={{
-                    height: 8,
-                    borderRadius: 999,
-                    background: "rgba(255,255,255,0.08)",
-                    overflow: "hidden",
+                    position: "relative",
+                    marginBottom: 20,
+                    paddingBottom: 4,
                   }}
                 >
                   <Motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${confidencePct}%` }}
-                    transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                    aria-hidden
+                    initial={{ opacity: 0, scale: 0.92 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.6 }}
                     style={{
-                      height: "100%",
-                      borderRadius: 999,
-                      background: ACCENT,
-                      boxShadow: "0 0 12px rgba(181,236,52,0.4)",
+                      position: "absolute",
+                      left: "0",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      width: "min(100%, 440px)",
+                      height: 140,
+                      borderRadius: "50%",
+                      background: `radial-gradient(ellipse at center, ${titleConfig.glow} 0%, transparent 72%)`,
+                      filter: "blur(32px)",
+                      pointerEvents: "none",
+                      zIndex: 0,
                     }}
                   />
-                </div>
-              </div>
-
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: 13,
-                  color: "rgba(148,163,184,0.92)",
-                  lineHeight: 1.55,
-                }}
-              >
-                {consensusLabel}
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setLedgerOpen((o) => !o)}
-              style={{
-                marginTop: 16,
-                width: "100%",
-                padding: "12px 18px",
-                borderRadius: 999,
-                border: "1px solid rgba(148,163,184,0.35)",
-                background: "rgba(255,255,255,0.03)",
-                color: "rgba(226,232,240,0.92)",
-                fontSize: 11,
-                fontWeight: 800,
-                letterSpacing: "0.16em",
-                textTransform: "uppercase",
-                cursor: "pointer",
-              }}
-            >
-              {ledgerOpen ? "HIDE DECISION LEDGER" : "VIEW DECISION LEDGER"}
-            </button>
-
-            <AnimatePresence initial={false}>
-              {ledgerOpen ? (
-                <Motion.div
-                  key="ledger"
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
-                  style={{ overflow: "hidden" }}
-                >
-                  <div
+                  <h1
                     style={{
-                      marginTop: 14,
-                      borderRadius: 16,
-                      border: "1px solid rgba(255,255,255,0.08)",
-                      background: "rgba(2,6,23,0.65)",
-                      padding: "20px 18px 18px",
+                      position: "relative",
+                      zIndex: 1,
+                      margin: 0,
+                      fontSize: "clamp(2rem, 5vw, 3rem)",
+                      fontWeight: 800,
+                      color: titleConfig.color,
+                      letterSpacing: "-0.03em",
+                      lineHeight: 1.15,
+                      display: "flex",
+                      alignItems: "center",
+                      flexWrap: "wrap",
+                      gap: "0.35em",
                     }}
                   >
-                    <p
-                      style={{
-                        margin: 0,
-                        fontSize: 11,
-                        fontWeight: 800,
-                        letterSpacing: "0.2em",
-                        textTransform: "uppercase",
-                        color: ACCENT,
-                      }}
-                    >
-                      DECISION LEDGER
-                    </p>
-                    <p
-                      style={{
-                        margin: "8px 0 18px",
-                        fontSize: 12,
-                        color: "rgba(148,163,184,0.75)",
-                        lineHeight: 1.5,
-                      }}
-                    >
-                      All evaluations are anonymized and immutable
-                    </p>
+                    {titleConfig.icon ? (
+                      <span style={{ fontSize: "0.9em", opacity: 0.95 }} aria-hidden>
+                        {titleConfig.icon}
+                      </span>
+                    ) : null}
+                    <span>{titleConfig.text}</span>
+                  </h1>
+                </div>
+
+                {recordedLine ? (
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: 13,
+                      lineHeight: 1.6,
+                      color: "rgba(148,163,184,0.78)",
+                    }}
+                  >
+                    {recordedLine}
+                  </p>
+                ) : null}
+              </div>
+
+              <div style={{ minWidth: 0 }}>
+                <div
+                  style={{
+                    borderRadius: 18,
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    background:
+                      "radial-gradient(circle at 100% 0%, rgba(181,236,52,0.07), transparent 50%), rgba(15,23,42,0.88)",
+                    padding: "28px 26px 26px",
+                    boxShadow: "0 24px 80px rgba(0,0,0,0.35)",
+                    height: "100%",
+                  }}
+                >
+                  <p
+                    style={{
+                      margin: "0 0 20px",
+                      fontSize: 16,
+                      lineHeight: 1.65,
+                      color: "rgba(226,232,240,0.96)",
+                    }}
+                  >
+                    {approveCount} of {votesRequired} reviewers supported this claim
+                  </p>
+
+                  <div style={{ marginBottom: 18 }}>
                     <div
                       style={{
                         display: "flex",
-                        flexDirection: "column",
-                        gap: 12,
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginBottom: 10,
                       }}
                     >
-                      {voteRows.length === 0 ? (
-                        <p style={{ margin: 0, fontSize: 13, color: "rgba(148,163,184,0.7)" }}>
-                          No vote records yet.
-                        </p>
-                      ) : (
-                        voteRows.map((row, idx) => {
-                          const supported = row.vote === "approved";
-                          const conf =
-                            row.confidence != null
-                              ? Math.round(Number(row.confidence) * 100)
-                              : "—";
-                          return (
-                            <div
-                              key={idx}
-                              style={{
-                                padding: "14px 14px 12px",
-                                borderRadius: 12,
-                                border: "1px solid rgba(255,255,255,0.06)",
-                                background: "rgba(15,23,42,0.5)",
-                              }}
-                            >
-                              <div
-                                style={{
-                                  display: "flex",
-                                  justifyContent: "space-between",
-                                  alignItems: "baseline",
-                                  gap: 12,
-                                  flexWrap: "wrap",
-                                  marginBottom: 8,
-                                }}
-                              >
-                                <span
-                                  style={{
-                                    fontSize: 12,
-                                    fontWeight: 700,
-                                    letterSpacing: "0.08em",
-                                    color: "rgba(226,232,240,0.9)",
-                                  }}
-                                >
-                                  Reviewer #{idx + 1}
-                                </span>
-                                <span
-                                  style={{
-                                    fontSize: 12,
-                                    fontWeight: 700,
-                                    color: supported ? ACCENT : "#f87171",
-                                  }}
-                                >
-                                  {supported ? "Supported" : "Did not support"}
-                                </span>
-                              </div>
-                              <p
-                                style={{
-                                  margin: "0 0 8px",
-                                  fontSize: 11,
-                                  color: "rgba(148,163,184,0.9)",
-                                }}
-                              >
-                                Confidence:{" "}
-                                {typeof conf === "number" ? `${conf}% confidence` : conf}
-                              </p>
-                              <p
-                                style={{
-                                  margin: 0,
-                                  fontSize: 12,
-                                  lineHeight: 1.5,
-                                  color: "rgba(203,213,225,0.88)",
-                                  display: "-webkit-box",
-                                  WebkitLineClamp: 2,
-                                  WebkitBoxOrient: "vertical",
-                                  overflow: "hidden",
-                                }}
-                              >
-                                {row.reasoning || "—"}
-                              </p>
-                            </div>
-                          );
-                        })
-                      )}
+                      <span
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 700,
+                          letterSpacing: "0.14em",
+                          textTransform: "uppercase",
+                          color: "rgba(148,163,184,0.85)",
+                        }}
+                      >
+                        Average confidence
+                      </span>
+                      <span style={{ fontSize: 15, fontWeight: 700, color: ACCENT }}>
+                        {confidencePct}%
+                      </span>
+                    </div>
+                    <div
+                      style={{
+                        height: 12,
+                        borderRadius: 999,
+                        background: "rgba(255,255,255,0.08)",
+                        overflow: "hidden",
+                      }}
+                    >
+                      <Motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${confidencePct}%` }}
+                        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                        style={{
+                          height: "100%",
+                          borderRadius: 999,
+                          background: ACCENT,
+                          boxShadow: "0 0 14px rgba(181,236,52,0.45)",
+                        }}
+                      />
                     </div>
                   </div>
-                </Motion.div>
-              ) : null}
-            </AnimatePresence>
+
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: 14,
+                      color: "rgba(148,163,184,0.92)",
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    {consensusLabel}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div
+              role="separator"
+              style={{
+                marginTop: 44,
+                marginBottom: 28,
+                border: "none",
+                borderTop: "1px solid rgba(255,255,255,0.08)",
+                width: "100%",
+              }}
+            />
+
+            <div style={{ width: "100%" }}>
+              <button
+                type="button"
+                onClick={() => setLedgerOpen((o) => !o)}
+                style={{
+                  width: "100%",
+                  padding: "14px 20px",
+                  borderRadius: 999,
+                  border: "1px solid rgba(148,163,184,0.35)",
+                  background: "rgba(255,255,255,0.03)",
+                  color: "rgba(226,232,240,0.92)",
+                  fontSize: 11,
+                  fontWeight: 800,
+                  letterSpacing: "0.16em",
+                  textTransform: "uppercase",
+                  cursor: "pointer",
+                  boxSizing: "border-box",
+                }}
+              >
+                {ledgerOpen ? "HIDE DECISION LEDGER" : "VIEW DECISION LEDGER"}
+              </button>
+
+              <AnimatePresence initial={false}>
+                {ledgerOpen ? (
+                  <Motion.div
+                    key="ledger"
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+                    style={{ overflow: "hidden" }}
+                  >
+                    <div
+                      style={{
+                        marginTop: 18,
+                        borderRadius: 16,
+                        border: "1px solid rgba(255,255,255,0.08)",
+                        background: "rgba(2,6,23,0.65)",
+                        padding: "24px 22px 22px",
+                      }}
+                    >
+                      <p
+                        style={{
+                          margin: 0,
+                          fontSize: 11,
+                          fontWeight: 800,
+                          letterSpacing: "0.2em",
+                          textTransform: "uppercase",
+                          color: ACCENT,
+                        }}
+                      >
+                        DECISION LEDGER
+                      </p>
+                      <p
+                        style={{
+                          margin: "10px 0 22px",
+                          fontSize: 12,
+                          color: "rgba(148,163,184,0.75)",
+                          lineHeight: 1.55,
+                        }}
+                      >
+                        All evaluations are anonymized and immutable
+                      </p>
+                      <div className="verdict-ledger-grid">
+                        {voteRows.length === 0 ? (
+                          <p
+                            style={{
+                              margin: 0,
+                              fontSize: 13,
+                              color: "rgba(148,163,184,0.7)",
+                              gridColumn: "1 / -1",
+                            }}
+                          >
+                            No vote records yet.
+                          </p>
+                        ) : (
+                          voteRows.map((row, idx) => {
+                            const supported = row.vote === "approved";
+                            const conf =
+                              row.confidence != null
+                                ? Math.round(Number(row.confidence) * 100)
+                                : "—";
+                            return (
+                              <div
+                                key={idx}
+                                style={{
+                                  padding: "16px 16px 14px",
+                                  borderRadius: 12,
+                                  border: "1px solid rgba(255,255,255,0.06)",
+                                  background: "rgba(15,23,42,0.5)",
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  gap: 10,
+                                  minWidth: 0,
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                    gap: 10,
+                                    flexWrap: "wrap",
+                                  }}
+                                >
+                                  <span
+                                    style={{
+                                      fontSize: 12,
+                                      fontWeight: 700,
+                                      letterSpacing: "0.08em",
+                                      color: "rgba(226,232,240,0.9)",
+                                    }}
+                                  >
+                                    Reviewer #{idx + 1}
+                                  </span>
+                                  <span
+                                    style={{
+                                      fontSize: 10,
+                                      fontWeight: 800,
+                                      letterSpacing: "0.12em",
+                                      textTransform: "uppercase",
+                                      padding: "4px 10px",
+                                      borderRadius: 999,
+                                      border: `1px solid ${
+                                        supported
+                                          ? "rgba(181,236,52,0.45)"
+                                          : "rgba(248,113,113,0.4)"
+                                      }`,
+                                      color: supported ? ACCENT : "#f87171",
+                                      background: supported
+                                        ? "rgba(181,236,52,0.08)"
+                                        : "rgba(248,113,113,0.08)",
+                                    }}
+                                  >
+                                    {supported ? "Supported" : "Did not support"}
+                                  </span>
+                                </div>
+                                <p
+                                  style={{
+                                    margin: 0,
+                                    fontSize: 11,
+                                    color: "rgba(148,163,184,0.9)",
+                                  }}
+                                >
+                                  {typeof conf === "number"
+                                    ? `${conf}% confidence`
+                                    : conf}
+                                </p>
+                                <p
+                                  style={{
+                                    margin: 0,
+                                    fontSize: 12,
+                                    lineHeight: 1.5,
+                                    color: "rgba(203,213,225,0.88)",
+                                    display: "-webkit-box",
+                                    WebkitLineClamp: 2,
+                                    WebkitBoxOrient: "vertical",
+                                    overflow: "hidden",
+                                  }}
+                                >
+                                  {row.reasoning || "—"}
+                                </p>
+                              </div>
+                            );
+                          })
+                        )}
+                      </div>
+                    </div>
+                  </Motion.div>
+                ) : null}
+              </AnimatePresence>
+            </div>
 
             <button
               type="button"
               onClick={() => navigate("/juror-dashboard")}
               style={{
-                marginTop: 24,
+                marginTop: 32,
                 width: "100%",
                 padding: "14px 22px",
                 borderRadius: 999,
@@ -463,6 +541,7 @@ export function VerdictScreen() {
                 textTransform: "uppercase",
                 cursor: "pointer",
                 boxShadow: "0 0 24px rgba(181,236,52,0.2)",
+                boxSizing: "border-box",
               }}
             >
               Back to dashboard

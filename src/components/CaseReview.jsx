@@ -101,18 +101,14 @@ export function CaseReview() {
             packet?.jury_case_id ?? realClaim?.jury_case_id ?? null;
 
           if (!juryCaseId) {
-            console.error("No jury_case_id found for this case - cannot submit vote");
+            console.error("No jury_case_id found - cannot submit vote");
             setEvaluationOpen(false);
-            navigate("/juror-dashboard", {
-              state: {
-                juryEvaluationRecorded: false,
-                message: "Could not submit vote: no jury case found.",
-              },
-            });
+            navigate("/juror-dashboard");
             return;
           }
 
           try {
+            console.log("Submitting vote:", { juryCaseId, jurorAnonymousId, vote, confidence });
             const response = await fetch(`${API_URL}/jury/${juryCaseId}/vote`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -124,22 +120,21 @@ export function CaseReview() {
               }),
             });
             const data = await response.json();
+            console.log("Vote response:", data);
             if (!response.ok) {
               throw new Error(data?.error || "Could not submit vote");
             }
             setEvaluationOpen(false);
             navigate(`/verdict/${juryCaseId}`, {
-              state: {
-                verdict: data,
-                juryEvaluationRecorded: true,
-              },
+              state: { verdict: data },
             });
           } catch (e) {
+            console.error("Vote failed:", e?.message);
             setEvaluationOpen(false);
             navigate("/juror-dashboard", {
               state: {
-                message: e?.message || "Could not submit vote",
                 juryEvaluationRecorded: false,
+                message: e?.message || "Could not submit vote",
               },
             });
           }
