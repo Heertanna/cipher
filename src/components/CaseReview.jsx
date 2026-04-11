@@ -24,7 +24,8 @@ export function CaseReview() {
   );
   const packet = useMemo(() => {
     if (!realClaim) return fallbackPacket;
-    const payload = realClaim.payload && typeof realClaim.payload === "object" ? realClaim.payload : {};
+    const payload =
+      realClaim.payload && typeof realClaim.payload === "object" ? realClaim.payload : {};
     const typeRaw = String(payload.typeOfIssue || payload.issueType || "General");
     const doctorRaw = String(payload.doctorConsulted || "").toLowerCase();
     const juryCaseId = realClaim.jury_case_id ?? null;
@@ -32,11 +33,8 @@ export function CaseReview() {
       caseId: String(realClaim.id),
       caseType: typeRaw || "General",
       symptoms: [String(realClaim.what_happened || "No details provided")],
-      reportsTests:
-        payload.recommendedTreatment ||
-        "See attached documents",
-      treatmentRequested:
-        payload.recommendedTreatment || realClaim.what_happened,
+      reportsTests: payload.recommendedTreatment || "See attached documents",
+      treatmentRequested: payload.recommendedTreatment || realClaim.what_happened,
       doctorNote:
         doctorRaw === "yes" ? "Doctor consulted" : "No doctor consulted",
       cost: `₹${Number(realClaim.cost_inr || 0).toLocaleString("en-IN")}`,
@@ -100,9 +98,7 @@ export function CaseReview() {
             window.sessionStorage.getItem("anonymousId") ||
             "";
           const juryCaseId =
-            packet?.jury_case_id ??
-            realClaim?.jury_case_id ??
-            null;
+            packet?.jury_case_id ?? realClaim?.jury_case_id ?? null;
 
           if (!juryCaseId) {
             console.error("No jury_case_id found for this case - cannot submit vote");
@@ -116,9 +112,7 @@ export function CaseReview() {
             return;
           }
 
-          let decision = "waiting";
           try {
-            console.log("Submitting vote:", { juryCaseId, jurorAnonymousId, vote, confidence });
             const response = await fetch(`${API_URL}/jury/${juryCaseId}/vote`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -133,28 +127,19 @@ export function CaseReview() {
             if (!response.ok) {
               throw new Error(data?.error || "Could not submit vote");
             }
-            decision = data?.final_decision || "waiting";
-            const message =
-              data?.final_decision != null
-                ? `Final decision: ${data.final_decision}`
-                : "Your vote has been recorded.";
             setEvaluationOpen(false);
-            navigate("/juror-dashboard", {
+            navigate(`/verdict/${juryCaseId}`, {
               state: {
+                verdict: data,
                 juryEvaluationRecorded: true,
-                caseId: packet.caseId,
-                decision,
-                message,
               },
             });
           } catch (e) {
             setEvaluationOpen(false);
             navigate("/juror-dashboard", {
               state: {
-                juryEvaluationRecorded: false,
-                caseId: packet.caseId,
-                decision,
                 message: e?.message || "Could not submit vote",
+                juryEvaluationRecorded: false,
               },
             });
           }
@@ -292,12 +277,19 @@ export function CaseReview() {
             >
               Case description
             </p>
-            <p style={{ margin: 0, fontSize: 15, lineHeight: 1.65, color: "rgba(226,232,240,0.95)" }}>
+            <p
+              style={{
+                margin: 0,
+                fontSize: 15,
+                lineHeight: 1.65,
+                color: "rgba(226,232,240,0.95)",
+              }}
+            >
               {realClaim
                 ? String(realClaim.what_happened || "No packet details available")
                 : c
-                ? c.detail || c.description
-                : "No packet is loaded for this identifier. Return to the juror dashboard and open a case from your assigned list."}
+                  ? c.detail || c.description
+                  : "No packet is loaded for this identifier. Return to the juror dashboard and open a case from your assigned list."}
             </p>
           </div>
 
