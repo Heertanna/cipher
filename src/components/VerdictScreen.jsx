@@ -5,6 +5,7 @@ import { FaintBackground } from "./OnboardingCommon.jsx";
 import { API_URL } from "../config/api.js";
 
 const ACCENT = "#b5ec34";
+const AMBER = "#fbbf24";
 
 function formatDecisionRecorded(iso) {
   if (!iso) return null;
@@ -93,6 +94,8 @@ export function VerdictScreen() {
       : "Majority consensus reached";
 
   const voteRows = Array.isArray(data?.votes) ? data.votes : [];
+  const isReEval = decision === "re_evaluation";
+  const statAccent = isReEval ? AMBER : ACCENT;
 
   return (
     <div
@@ -186,7 +189,7 @@ export function VerdictScreen() {
                     fontWeight: 700,
                     letterSpacing: "0.22em",
                     textTransform: "uppercase",
-                    color: ACCENT,
+                    color: isReEval ? AMBER : ACCENT,
                   }}
                 >
                   PROTOCOL DECISION
@@ -261,9 +264,12 @@ export function VerdictScreen() {
                 <div
                   style={{
                     borderRadius: 18,
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    background:
-                      "radial-gradient(circle at 100% 0%, rgba(181,236,52,0.07), transparent 50%), rgba(15,23,42,0.88)",
+                    border: isReEval
+                      ? "1px solid rgba(251,191,36,0.4)"
+                      : "1px solid rgba(255,255,255,0.1)",
+                    background: isReEval
+                      ? "radial-gradient(circle at 100% 0%, rgba(251,191,36,0.12), transparent 50%), rgba(15,23,42,0.88)"
+                      : "radial-gradient(circle at 100% 0%, rgba(181,236,52,0.07), transparent 50%), rgba(15,23,42,0.88)",
                     padding: "28px 26px 26px",
                     boxShadow: "0 24px 80px rgba(0,0,0,0.35)",
                     height: "100%",
@@ -300,7 +306,7 @@ export function VerdictScreen() {
                       >
                         Average confidence
                       </span>
-                      <span style={{ fontSize: 15, fontWeight: 700, color: ACCENT }}>
+                      <span style={{ fontSize: 15, fontWeight: 700, color: statAccent }}>
                         {confidencePct}%
                       </span>
                     </div>
@@ -319,8 +325,10 @@ export function VerdictScreen() {
                         style={{
                           height: "100%",
                           borderRadius: 999,
-                          background: ACCENT,
-                          boxShadow: "0 0 14px rgba(181,236,52,0.45)",
+                          background: statAccent,
+                          boxShadow: isReEval
+                            ? "0 0 14px rgba(251,191,36,0.45)"
+                            : "0 0 14px rgba(181,236,52,0.45)",
                         }}
                       />
                     </div>
@@ -339,6 +347,53 @@ export function VerdictScreen() {
                 </div>
               </div>
             </div>
+
+            {isReEval ? (
+              <>
+                <div
+                  style={{
+                    marginTop: 14,
+                    padding: "18px 20px",
+                    borderRadius: 14,
+                    border: "1px solid rgba(251,191,36,0.45)",
+                    background: "rgba(251,191,36,0.06)",
+                  }}
+                >
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: 14,
+                      lineHeight: 1.6,
+                      color: "rgba(254,243,199,0.95)",
+                    }}
+                  >
+                    This case did not meet the confidence threshold required for a final decision. A new
+                    panel will be assigned.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => navigate(`/re-evaluation/${juryCaseId}`)}
+                  style={{
+                    marginTop: 16,
+                    width: "100%",
+                    padding: "14px 20px",
+                    borderRadius: 999,
+                    border: "1px solid rgba(251,191,36,0.55)",
+                    background: "rgba(251,191,36,0.12)",
+                    color: AMBER,
+                    fontSize: 11,
+                    fontWeight: 800,
+                    letterSpacing: "0.14em",
+                    textTransform: "uppercase",
+                    cursor: "pointer",
+                    boxSizing: "border-box",
+                  }}
+                >
+                  Assemble new panel
+                </button>
+              </>
+            ) : null}
 
             <div
               role="separator"

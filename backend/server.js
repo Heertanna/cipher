@@ -307,6 +307,7 @@ app.post("/jury/:jury_case_id/vote", async (req, res) => {
     const vote = String(req.body?.vote ?? "").trim().toLowerCase();
     const confidence = Number(req.body?.confidence);
     const reasoning = String(req.body?.reasoning ?? "").trim();
+    const demoOutcome = req.body?.demo_outcome;
 
     if (!Number.isFinite(juryCaseId) || juryCaseId <= 0) {
       return res.status(400).json({ error: "jury_case_id is invalid" });
@@ -385,9 +386,13 @@ app.post("/jury/:jury_case_id/vote", async (req, res) => {
     const votesNeeded = Math.max(0, votesRequired - votesCastSoFar);
     const notVoted = assignedIds.filter((id) => !votedSet.has(id));
 
+    const demoReEval = demoOutcome === "re_evaluation";
+
     for (const aid of notVoted.slice(0, votesNeeded)) {
       const simVote = Math.random() < 0.7 ? "approved" : "denied";
-      const simConf = Number((0.65 + Math.random() * 0.3).toFixed(2));
+      const simConf = demoReEval
+        ? Number((0.2 + Math.random() * 0.2).toFixed(2))
+        : Number((0.65 + Math.random() * 0.3).toFixed(2));
       await pool.query(
         `INSERT INTO jury_votes (jury_case_id, juror_anonymous_id, vote, confidence, reasoning)
          VALUES ($1, $2, $3, $4, $5)
@@ -412,13 +417,18 @@ app.post("/jury/:jury_case_id/vote", async (req, res) => {
     const denyCount = Number(agg.deny_count ?? 0);
     const confidenceAvg = agg.confidence_avg == null ? null : Number(agg.confidence_avg);
 
-    let finalDecision = "denied";
-    if (confidenceAvg != null && confidenceAvg < 0.6) {
+    let finalDecision;
+    if (demoReEval) {
       finalDecision = "re_evaluation";
-    } else if (approveCount > denyCount) {
-      finalDecision = "approved";
     } else {
       finalDecision = "denied";
+      if (confidenceAvg != null && confidenceAvg < 0.6) {
+        finalDecision = "re_evaluation";
+      } else if (approveCount > denyCount) {
+        finalDecision = "approved";
+      } else {
+        finalDecision = "denied";
+      }
     }
 
     await pool.query(

@@ -58,6 +58,18 @@ export function CaseReview() {
   }, [realClaim, fallbackPacket, mockJuryCaseId]);
 
   const [evaluationOpen, setEvaluationOpen] = useState(false);
+  const [demoOutcome, setDemoOutcome] = useState(null);
+
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.shiftKey && e.key === "R") {
+        e.preventDefault();
+        setDemoOutcome((prev) => (prev === "re_evaluation" ? null : "re_evaluation"));
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -153,6 +165,7 @@ export function CaseReview() {
                 vote,
                 confidence,
                 reasoning,
+                demo_outcome: demoOutcome,
               }),
             });
             const data = await response.json();
