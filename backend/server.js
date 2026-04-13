@@ -122,6 +122,22 @@ async function ensureJuryTables() {
   await pool.query(`ALTER TABLE jury_cases DROP CONSTRAINT IF EXISTS jury_cases_claim_id_key`);
 }
 
+async function ensureJurorApplicationsTable() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS juror_applications (
+      id SERIAL PRIMARY KEY,
+      anonymous_id TEXT NOT NULL,
+      credential_name TEXT NOT NULL,
+      institution TEXT,
+      year INTEGER,
+      registration_number TEXT,
+      trial_answers JSONB,
+      status VARCHAR(20) DEFAULT 'approved',
+      applied_at TIMESTAMPTZ DEFAULT now()
+    )
+  `);
+}
+
 async function assignJury(claimId) {
   const jurorsResult = await pool.query(
     `SELECT anonymous_id, alias_hash
@@ -282,6 +298,82 @@ app.post("/submit-claim", async (req, res) => {
     });
   } catch (error) {
     console.error("[POST /submit-claim] failed:", error?.message);
+    return res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+app.get("/members/juror-status", async (req, res) => {
+  try {
+    const anonymousId = String(req.query.anonymous_id ?? "").trim();
+    if (!anonymousId) {
+      return res.status(400).json({ error: "anonymous_id is required" });
+    }
+    const result = await pool.query(`SELECT is_juror FROM members WHERE anonymous_id = $1`, [
+      anonymousId,
+    ]);
+    if (result.rowCount === 0) {
+      return res.json({ is_juror: false });
+    }
+    return res.json({ is_juror: Boolean(result.rows[0].is_juror) });
+  } catch (error) {
+    console.error("[GET /members/juror-status] failed:", error?.message);
+    return res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+app.post("/juror/apply", async (req, res) => {
+  try {
+    const anonymousId = String(req.body?.anonymous_id ?? "").trim();
+    const credentialName = String(req.body?.credential_name ?? "").trim();
+    const institution = String(req.body?.institution ?? "").trim();
+    const year = Number(req.body?.year);
+    const registrationNumber = String(req.body?.registration_number ?? "").trim();
+    const trialAnswers = req.body?.trial_answers;
+
+    if (!anonymousId) {
+      return res.status(400).json({ error: "anonymous_id is required" });
+    }
+    if (!credentialName || !institution || !registrationNumber) {
+      return res.status(400).json({ error: "Missing required credential fields" });
+    }
+    if (!Number.isFinite(year) || year < 1950 || year > new Date().getFullYear() + 1) {
+      return res.status(400).json({ error: "Invalid year of completion" });
+    }
+    if (!trialAnswers || typeof trialAnswers !== "object") {
+      return res.status(400).json({ error: "trial_answers is required" });
+    }
+    const { evidence, treatment, cost } = trialAnswers;
+    if (!evidence || !treatment || !cost) {
+      return res.status(400).json({ error: "Complete all trial evaluation questions" });
+    }
+
+    const refNum = Math.floor(Math.random() * 10000);
+    const reference = `JP-${String(refNum).padStart(4, "0")}`;
+
+    await pool.query(
+      `INSERT INTO juror_applications
+        (anonymous_id, credential_name, institution, year, registration_number, trial_answers, status)
+       VALUES ($1, $2, $3, $4, $5, $6::jsonb, 'approved')`,
+      [
+        anonymousId,
+        credentialName,
+        institution,
+        year,
+        registrationNumber,
+        JSON.stringify({ evidence, treatment, cost }),
+      ],
+    );
+
+    const upd = await pool.query(`UPDATE members SET is_juror = true WHERE anonymous_id = $1`, [
+      anonymousId,
+    ]);
+    if (upd.rowCount === 0) {
+      return res.status(404).json({ error: "Member not found. Complete onboarding first." });
+    }
+
+    return res.json({ success: true, reference, status: "approved" });
+  } catch (error) {
+    console.error("[POST /juror/apply] failed:", error?.message);
     return res.status(500).json({ error: "Something went wrong" });
   }
 });
@@ -690,6 +782,7 @@ async function startServer() {
   await seedApprovedProceduresIfEmpty();
   await ensureClaimsTable();
   await ensureJuryTables();
+  await ensureJurorApplicationsTable();
   await seedJurorsIfEmpty();
 
   app.listen(PORT, "0.0.0.0", () => {

@@ -16,6 +16,7 @@ import { JurorDashboard } from "./components/JurorDashboard.jsx";
 import { CaseReview } from "./components/CaseReview.jsx";
 import { VerdictScreen } from "./components/VerdictScreen.jsx";
 import { ReEvaluationFlow } from "./components/ReEvaluationFlow.jsx";
+import { JurorApplication } from "./components/JurorApplication.jsx";
 import { initializeMockJuryCases } from "./data/jurorMockData.js";
 
 /* ───────────────────────────────────────────
@@ -645,6 +646,7 @@ function App() {
       <Route path="/juror-dashboard" element={<JurorDashboard />} />
       <Route path="/verdict/:juryCaseId" element={<VerdictScreen />} />
       <Route path="/re-evaluation/:juryCaseId" element={<ReEvaluationFlow />} />
+      <Route path="/juror-application" element={<JurorApplication />} />
       <Route path="/case-review/:caseId" element={<CaseReview />} />
       <Route path="/protocol-dashboard" element={<ProtocolDashboardRoute />} />
       <Route path="/claim-intake" element={<ClaimIntakeRoute />} />

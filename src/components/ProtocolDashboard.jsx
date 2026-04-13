@@ -8,6 +8,7 @@ import { SystemOverviewHero } from "./SystemOverviewHero.jsx";
 import { SystemActivityCard } from "./SystemActivityCard.jsx";
 import { LiveCasesStack } from "./LiveCasesStack.jsx";
 import { SystemEnergyCore } from "./SystemEnergyCore.jsx";
+import { BecomeReviewerCard } from "./BecomeReviewerCard.jsx";
 export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -121,7 +122,7 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
                 margin: 0,
               }}
             >
-              Care Protocol Dashboard
+              Cipher Dashboard
             </h1>
           </div>
 
@@ -229,6 +230,8 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
             <IdentityCard showJuryMemberBadge={false} />
           </Motion.div>
         </div>
+
+        <BecomeReviewerCard />
 
         <Motion.div
           initial={{ opacity: 0, y: 14 }}

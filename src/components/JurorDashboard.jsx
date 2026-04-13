@@ -8,6 +8,7 @@ import { SystemEnergyCore } from "./SystemEnergyCore.jsx";
 import { JurorAssignedCasesSection } from "./JurorAssignedCasesSection.jsx";
 import { ClaimsCard } from "./ClaimsCard.jsx";
 import { SystemActivityCard } from "./SystemActivityCard.jsx";
+import { BecomeReviewerCard } from "./BecomeReviewerCard.jsx";
 
 /**
  * Same layout and styling as ProtocolDashboard (live system view + hero grid + energy core).
@@ -87,7 +88,7 @@ export function JurorDashboard() {
                 margin: 0,
               }}
             >
-              Care Protocol Dashboard
+              Cipher Dashboard
             </h1>
           </div>
 
@@ -192,6 +193,7 @@ export function JurorDashboard() {
             transition={{ delay: 0.05, duration: 0.35 }}
             style={{ display: "flex", flexDirection: "column", gap: 20 }}
           >
+            <BecomeReviewerCard />
             <SystemOverviewHero />
             <Motion.section
               initial={{ opacity: 0, y: 10 }}
