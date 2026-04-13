@@ -272,7 +272,7 @@ export function JurorDashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.12, duration: 0.35 }}
           >
-            <IdentityCard />
+            <IdentityCard showReputationPanel />
           </Motion.div>
         </div>
 

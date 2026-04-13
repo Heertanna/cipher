@@ -33,10 +33,22 @@ const extraCorsOrigins =
     : [];
 const corsOrigins = [...new Set([...defaultCorsOrigins, ...extraCorsOrigins])];
 
+const localhostOriginRe = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
+
+function corsAllowed(origin) {
+  if (!origin) return true;
+  if (corsOrigins.includes(origin)) return true;
+  // Vite picks any free port (e.g. 5176); allow all local dev origins.
+  if (localhostOriginRe.test(origin)) return true;
+  return false;
+}
+
 app.use(express.json());
 app.use(
   cors({
-    origin: corsOrigins,
+    origin(origin, callback) {
+      callback(null, corsAllowed(origin));
+    },
   }),
 );
 
@@ -66,6 +78,90 @@ function normalizeRoutingPayload(body) {
   };
 }
 
+/** RP rewards participation quality only (not vote outcome or claim cost). Max 21 / case. */
+function calculateJurorRP({ reasoning, confidence }) {
+  const r = String(reasoning ?? "").trim();
+  let rp = 0;
+  rp += 10;
+  if (r.length > 80) rp += 5;
+  if (r.split("|").length >= 3) rp += 3;
+  if (Number(confidence) >= 0.7) rp += 3;
+  return Math.min(21, rp);
+}
+
+function calculatePatientRP(body) {
+  const b = body ?? {};
+  const rec = String(b.recommendedTreatment ?? b.recommended_treatment ?? "").trim();
+  const cost = String(b.costDetails ?? b.cost_details ?? "").trim();
+  const impact = String(b.impactIfUntreated ?? b.impact_if_untreated ?? "").trim();
+  const reportsMeta = b.reportsMeta ?? b.reports_meta;
+  const hasReports = Array.isArray(reportsMeta) && reportsMeta.length > 0;
+  let rp = 0;
+  rp += 5;
+  if (rec) rp += 3;
+  if (cost) rp += 2;
+  if (impact) rp += 2;
+  if (hasReports) rp += 5;
+  return Math.min(17, rp);
+}
+
+const SIMULATED_JUROR_REASONING = "Protocol evaluation completed.";
+
+function rpMetaForPoints(rpRaw) {
+  const rp = Math.max(0, Number(rpRaw) || 0);
+  let rp_level;
+  let bandMin;
+  let bandMax;
+  let nextThreshold;
+  if (rp < 50) {
+    rp_level = "newcomer";
+    bandMin = 0;
+    bandMax = 49;
+    nextThreshold = 50;
+  } else if (rp < 150) {
+    rp_level = "contributor";
+    bandMin = 50;
+    bandMax = 149;
+    nextThreshold = 150;
+  } else if (rp < 300) {
+    rp_level = "trusted";
+    bandMin = 150;
+    bandMax = 299;
+    nextThreshold = 300;
+  } else {
+    rp_level = "expert";
+    bandMin = 300;
+    bandMax = null;
+    nextThreshold = null;
+  }
+
+  let rp_progress_pct;
+  if (rp_level === "expert") {
+    rp_progress_pct = 100;
+  } else {
+    const span = nextThreshold - bandMin;
+    rp_progress_pct = span > 0 ? Math.min(100, Math.round(((rp - bandMin) / span) * 100)) : 0;
+  }
+
+  const rp_next_level_points = nextThreshold != null ? Math.max(0, nextThreshold - rp) : 0;
+
+  const benefits = ["Protocol participation"];
+  if (rp >= 50) benefits.push("Healthcare benefits (free checkups)");
+  if (rp >= 150) {
+    benefits.push("Governance participation (propose protocol changes, vote on rules)");
+  }
+  if (rp >= 300) {
+    benefits.push("Professional credibility + faster care processing (fewer document checks)");
+  }
+
+  return {
+    rp_level,
+    rp_next_level_points,
+    rp_progress_pct,
+    benefits,
+  };
+}
+
 async function ensureClaimsTable() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS claims (
@@ -86,7 +182,8 @@ async function ensureJuryTables() {
   await pool.query(`
     ALTER TABLE members
     ADD COLUMN IF NOT EXISTS is_juror BOOLEAN DEFAULT false,
-    ADD COLUMN IF NOT EXISTS reputation_points INTEGER DEFAULT 0
+    ADD COLUMN IF NOT EXISTS reputation_points INTEGER DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS rp_score INTEGER DEFAULT 0
   `);
 
   await pool.query(`
@@ -290,14 +387,63 @@ app.post("/submit-claim", async (req, res) => {
       juryAssignment = await assignJury(claimId);
     }
 
+    const patientId = String(req.body?.anonymous_id ?? req.body?.anonymousId ?? "").trim();
+    let rpAwardedPatient = 0;
+    if (patientId) {
+      rpAwardedPatient = calculatePatientRP(req.body);
+      if (rpAwardedPatient > 0) {
+        await pool.query(
+          `UPDATE members
+            SET reputation_points = COALESCE(reputation_points, 0) + $2
+          WHERE anonymous_id = $1`,
+          [patientId, rpAwardedPatient],
+        );
+      }
+    }
+
     console.log("[POST /submit-claim] Routing result:", decision);
     return res.json({
       ...decision,
       claim_id: claimId,
       jury_assignment: juryAssignment,
+      rp_awarded: rpAwardedPatient,
     });
   } catch (error) {
     console.error("[POST /submit-claim] failed:", error?.message);
+    return res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+app.get("/members/rp/:anonymous_id", async (req, res) => {
+  try {
+    const anonymousId = String(req.params.anonymous_id ?? "").trim();
+    if (!anonymousId) {
+      return res.status(400).json({ error: "anonymous_id is required" });
+    }
+    const result = await pool.query(
+      `SELECT anonymous_id, reputation_points, tier FROM members WHERE anonymous_id = $1`,
+      [anonymousId],
+    );
+    if (result.rowCount === 0) {
+      const meta = rpMetaForPoints(0);
+      return res.json({
+        anonymous_id: anonymousId,
+        reputation_points: 0,
+        tier: null,
+        ...meta,
+      });
+    }
+    const row = result.rows[0];
+    const reputation_points = Number(row.reputation_points ?? 0);
+    const meta = rpMetaForPoints(reputation_points);
+    return res.json({
+      anonymous_id: row.anonymous_id,
+      reputation_points,
+      tier: row.tier ?? null,
+      ...meta,
+    });
+  } catch (error) {
+    console.error("[GET /members/rp/:anonymous_id] failed:", error?.message);
     return res.status(500).json({ error: "Something went wrong" });
   }
 });
@@ -450,12 +596,28 @@ app.post("/jury/:jury_case_id/vote", async (req, res) => {
       );
     }
 
-    await pool.query(
+    const voteInsert = await pool.query(
       `INSERT INTO jury_votes (jury_case_id, juror_anonymous_id, vote, confidence, reasoning)
        VALUES ($1, $2, $3, $4, $5)
-       ON CONFLICT (jury_case_id, juror_anonymous_id) DO NOTHING`,
+       ON CONFLICT (jury_case_id, juror_anonymous_id) DO NOTHING
+       RETURNING id`,
       [juryCaseId, jurorAnonymousId, vote, confidence, reasoning],
     );
+    const voteWasNew = voteInsert.rowCount > 0;
+    let rpAwarded = 0;
+    if (
+      voteWasNew &&
+      reasoning !== SIMULATED_JUROR_REASONING &&
+      String(reasoning ?? "").trim().length > 0
+    ) {
+      rpAwarded = calculateJurorRP({ reasoning, confidence });
+      await pool.query(
+        `UPDATE members
+            SET reputation_points = COALESCE(reputation_points, 0) + $2
+          WHERE anonymous_id = $1`,
+        [jurorAnonymousId, rpAwarded],
+      );
+    }
 
     const caseRefresh = await pool.query(
       `SELECT id, claim_id, status, votes_required, selected_juror_anonymous_ids
@@ -489,7 +651,7 @@ app.post("/jury/:jury_case_id/vote", async (req, res) => {
         `INSERT INTO jury_votes (jury_case_id, juror_anonymous_id, vote, confidence, reasoning)
          VALUES ($1, $2, $3, $4, $5)
          ON CONFLICT (jury_case_id, juror_anonymous_id) DO NOTHING`,
-        [juryCaseId, aid, simVote, simConf, "Protocol evaluation completed."],
+        [juryCaseId, aid, simVote, simConf, SIMULATED_JUROR_REASONING],
       );
     }
 
@@ -534,16 +696,6 @@ app.post("/jury/:jury_case_id/vote", async (req, res) => {
       [juryCaseId, finalDecision, confidenceAvg, votesRequired],
     );
 
-    if (assignedIds.length > 0) {
-      await pool.query(
-        `UPDATE members
-            SET reputation_points = COALESCE(reputation_points, 0) + 10,
-                rp_score = COALESCE(rp_score, 0) + 10
-          WHERE anonymous_id = ANY($1::text[])`,
-        [assignedIds],
-      );
-    }
-
     const claimPathResult = await pool.query(
       `SELECT routing_path FROM claims WHERE id = $1`,
       [jcRow.claim_id],
@@ -560,6 +712,7 @@ app.post("/jury/:jury_case_id/vote", async (req, res) => {
       deny_count: denyCount,
       votes_cast: votesCast,
       votes_required: votesRequired,
+      rp_awarded: rpAwarded,
     });
   } catch (error) {
     console.error("[POST /jury/:jury_case_id/vote] failed:", error?.message);

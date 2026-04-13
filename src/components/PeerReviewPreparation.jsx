@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion as Motion } from "framer-motion";
 import { ACCENT } from "./OnboardingCommon.jsx";
+import { RpEarnedNotice } from "./RpEarnedNotice.jsx";
 
 const STORAGE_KEY = "cipher_claims_demo";
 
@@ -333,6 +334,7 @@ export function PeerReviewPreparation({
   description,
   onGoDashboard,
   onViewCaseProgress,
+  claimRpAwarded = null,
 }) {
   const [view, setView] = useState("pipeline");
   const [stepIndex, setStepIndex] = useState(0);
@@ -808,6 +810,12 @@ export function PeerReviewPreparation({
               padding: "40px 24px 48px",
             }}
           >
+            <RpEarnedNotice
+              pointsEarned={claimRpAwarded}
+              subtitle="for complete documentation"
+              marginTop={0}
+              style={{ marginBottom: 20 }}
+            />
             <Motion.div
               initial={{ opacity: 0, y: 16, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}

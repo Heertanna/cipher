@@ -4,6 +4,7 @@ import { SmartProcessing } from "./SmartProcessing.jsx";
 import { FastTrackApproval } from "./FastTrackApproval.jsx";
 import { PeerReviewPreparation } from "./PeerReviewPreparation.jsx";
 import { API_URL } from "../config/api.js";
+import { getSession } from "../lib/session.js";
 
 const STORAGE_KEY = "cipher_claims_demo";
 const DRAFT_KEY = "cipher_claim_draft_demo";
@@ -68,6 +69,7 @@ export function ClaimIntake({ onBack, onDone }) {
   const [postProcessingPath, setPostProcessingPath] = useState(null);
   const [routeDecision, setRouteDecision] = useState(null);
   const [routingError, setRoutingError] = useState("");
+  const [claimRpAwarded, setClaimRpAwarded] = useState(null);
 
   const storedDraft = useMemo(() => {
     return safeParse(window.localStorage.getItem(DRAFT_KEY));
@@ -177,35 +179,79 @@ export function ClaimIntake({ onBack, onDone }) {
     setProcessingClaim({ description: whatHappened });
     setRoutingError("");
     setRouteDecision(null);
+    setClaimRpAwarded(null);
 
     // Parse first number from free-form cost details (e.g. "INR 120000")
     const numericCost = Number(String(costDetails || "").replace(/[^\d.]/g, "")) || 0;
+    const { anonymousId } = getSession();
 
     try {
-      const res = await fetch(`${API_URL}/claims/route`, {
+      const res = await fetch(`${API_URL}/submit-claim`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           what_happened: whatHappened,
           cost_inr: numericCost,
+          recommendedTreatment,
+          costDetails,
+          impactIfUntreated,
+          reportsMeta,
+          anonymous_id: anonymousId || undefined,
+          anonymousId: anonymousId || undefined,
         }),
       });
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data?.error || "Could not route claim.");
+        throw new Error(data?.error || "Could not submit claim.");
       }
       setRouteDecision(data);
+      setClaimRpAwarded(Number(data.rp_awarded) || 0);
+      if (data.claim_id != null) {
+        const backendId = String(data.claim_id);
+        setProcessingClaimId(backendId);
+        const rawClaims = window.localStorage.getItem(STORAGE_KEY);
+        const arr = safeParse(rawClaims) || [];
+        if (arr[0]?.id === id) {
+          arr[0] = { ...arr[0], id: backendId };
+          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+        }
+      }
     } catch (e) {
       setRoutingError(e?.message || "Could not route claim.");
-      // Safe fallback: if routing service is unreachable, default to jury.
-      setRouteDecision({
-        path: "PATH_B",
-        reason: "route_service_unavailable",
-      });
+      setClaimRpAwarded(0);
+      try {
+        const res = await fetch(`${API_URL}/claims/route`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            what_happened: whatHappened,
+            cost_inr: numericCost,
+          }),
+        });
+        const data = await res.json();
+        if (res.ok) setRouteDecision(data);
+        else
+          setRouteDecision({
+            path: "PATH_B",
+            reason: "route_service_unavailable",
+          });
+      } catch {
+        setRouteDecision({
+          path: "PATH_B",
+          reason: "route_service_unavailable",
+        });
+      }
     } finally {
       setProcessing(true);
     }
-  }, [claimSummary, reportsMeta, whatHappened, costDetails]);
+  }, [
+    claimSummary,
+    reportsMeta,
+    whatHappened,
+    costDetails,
+    recommendedTreatment,
+    impactIfUntreated,
+  ]);
 
   if (processing) {
     return (
@@ -233,6 +279,7 @@ export function ClaimIntake({ onBack, onDone }) {
         description={whatHappened}
         type={issueType}
         cost={costDetails}
+        claimRpAwarded={claimRpAwarded}
         onGoDashboard={() => onDone?.()}
       />
     );
@@ -243,6 +290,7 @@ export function ClaimIntake({ onBack, onDone }) {
       <PeerReviewPreparation
         claimId={processingClaimId}
         description={whatHappened}
+        claimRpAwarded={claimRpAwarded}
         onGoDashboard={() => onDone?.()}
         onViewCaseProgress={() => onDone?.()}
       />

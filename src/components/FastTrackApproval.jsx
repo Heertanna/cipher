@@ -1,11 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { ACCENT, FaintBackground } from "./OnboardingCommon.jsx";
+import { RpEarnedNotice } from "./RpEarnedNotice.jsx";
 
 export function FastTrackApproval({
   description,
   type,
   cost,
   onGoDashboard,
+  claimRpAwarded = null,
 }) {
   const verifyingMessages = useMemo(
     () => ["Verifying request...", "Validating conditions...", "Approved"],
@@ -176,6 +178,12 @@ export function FastTrackApproval({
           </div>
         ) : (
           <>
+            <RpEarnedNotice
+              pointsEarned={claimRpAwarded}
+              subtitle="for complete documentation"
+              marginTop={0}
+              style={{ marginBottom: 18 }}
+            />
             <div style={{ display: "flex", alignItems: "flex-start", gap: 16 }}>
               <div
                 className={checkGlowPulse}

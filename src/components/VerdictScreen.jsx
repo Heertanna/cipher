@@ -3,6 +3,8 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { AnimatePresence, motion as Motion } from "framer-motion";
 import { FaintBackground } from "./OnboardingCommon.jsx";
 import { API_URL } from "../config/api.js";
+import { getSession } from "../lib/session.js";
+import { RpEarnedNotice } from "./RpEarnedNotice.jsx";
 
 const ACCENT = "#b5ec34";
 const AMBER = "#fbbf24";
@@ -32,6 +34,9 @@ export function VerdictScreen() {
   const [loading, setLoading] = useState(!location.state?.verdict);
   const [error, setError] = useState("");
   const [ledgerOpen, setLedgerOpen] = useState(false);
+  const [rpProfile, setRpProfile] = useState(null);
+
+  const rpFromVote = data?.rp_awarded ?? location.state?.verdict?.rp_awarded;
 
   useEffect(() => {
     let cancelled = false;
@@ -41,7 +46,12 @@ export function VerdictScreen() {
         const res = await fetch(`${API_URL}/jury/case/${juryCaseId}`);
         const json = await res.json();
         if (!res.ok) throw new Error(json?.error || "Could not load verdict");
-        if (!cancelled) setData((prev) => ({ ...(prev || {}), ...json }));
+        if (!cancelled)
+          setData((prev) => ({
+            ...(prev || {}),
+            ...json,
+            rp_awarded: prev?.rp_awarded ?? json?.rp_awarded,
+          }));
       } catch (e) {
         if (!cancelled) setError(e?.message || "Could not load verdict");
       } finally {
@@ -53,6 +63,25 @@ export function VerdictScreen() {
       cancelled = true;
     };
   }, [juryCaseId]);
+
+  useEffect(() => {
+    if (Number(rpFromVote) > 0) return;
+    const { anonymousId } = getSession();
+    if (!anonymousId) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`${API_URL}/members/rp/${encodeURIComponent(anonymousId)}`);
+        const j = await res.json();
+        if (!cancelled && res.ok) setRpProfile(j);
+      } catch {
+        if (!cancelled) setRpProfile(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [juryCaseId, rpFromVote]);
 
   const decision = data?.final_decision;
   const votesRequired = Number(data?.votes_required ?? 8);
@@ -347,6 +376,50 @@ export function VerdictScreen() {
                 </div>
               </div>
             </div>
+
+            {Number(rpFromVote) > 0 ? (
+              <RpEarnedNotice
+                pointsEarned={rpFromVote}
+                subtitle="Awarded for structured evaluation and responsible participation"
+                marginTop={20}
+              />
+            ) : rpProfile?.reputation_points != null ? (
+              <Motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+                style={{
+                  marginTop: 20,
+                  border: "1px solid rgba(181,236,52,0.3)",
+                  background: "rgba(181,236,52,0.05)",
+                  borderRadius: 14,
+                  padding: "16px 18px",
+                }}
+              >
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: 12,
+                    fontWeight: 800,
+                    letterSpacing: "0.14em",
+                    textTransform: "uppercase",
+                    color: ACCENT,
+                  }}
+                >
+                  Your reputation: {rpProfile.reputation_points} RP
+                </p>
+                <p
+                  style={{
+                    margin: "10px 0 0",
+                    fontSize: 13,
+                    color: "rgba(148,163,184,0.95)",
+                    lineHeight: 1.55,
+                  }}
+                >
+                  Awarded for structured evaluation and responsible participation
+                </p>
+              </Motion.div>
+            ) : null}
 
             {isReEval ? (
               <>

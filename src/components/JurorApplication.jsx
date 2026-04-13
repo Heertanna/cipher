@@ -218,7 +218,15 @@ export function JurorApplication() {
       }}
     >
       <FaintBackground />
-      <div style={{ position: "relative", zIndex: 1, maxWidth: 560, margin: "0 auto" }}>
+      <div
+        style={{
+          position: "relative",
+          zIndex: 1,
+          width: "100%",
+          maxWidth: mainStep === 4 ? 920 : 560,
+          margin: "0 auto",
+        }}
+      >
         <AnimatePresence mode="wait">
           {mainStep === 1 && (
             <Motion.div
