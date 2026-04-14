@@ -811,6 +811,10 @@ app.post("/onboarding/identity", async (req, res) => {
        VALUES ($1, $2, 'contributor', $3)`,
       [anonymousId, aliasHash, waitingEndsAt],
     );
+    await pool.query(
+      "UPDATE members SET reputation_points = 150 WHERE anonymous_id = $1",
+      [anonymousId],
+    );
 
     return res.json({
       anonymousId,
