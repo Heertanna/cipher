@@ -17,6 +17,7 @@ import { CaseReview } from "./components/CaseReview.jsx";
 import { VerdictScreen } from "./components/VerdictScreen.jsx";
 import { ReEvaluationFlow } from "./components/ReEvaluationFlow.jsx";
 import { JurorApplication } from "./components/JurorApplication.jsx";
+import { GovernancePanel } from "./components/GovernancePanel.jsx";
 import { initializeMockJuryCases } from "./data/jurorMockData.js";
 
 /* ───────────────────────────────────────────
@@ -648,6 +649,7 @@ function App() {
       <Route path="/re-evaluation/:juryCaseId" element={<ReEvaluationFlow />} />
       <Route path="/juror-application" element={<JurorApplication />} />
       <Route path="/case-review/:caseId" element={<CaseReview />} />
+      <Route path="/governance" element={<GovernancePanel />} />
       <Route path="/protocol-dashboard" element={<ProtocolDashboardRoute />} />
       <Route path="/claim-intake" element={<ClaimIntakeRoute />} />
       <Route path="/emergency-access" element={<EmergencyAccessRoute />} />

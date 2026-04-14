@@ -1,9 +1,7 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { AvatarPreview } from "./AvatarPreview.jsx";
 import { ACCENT } from "./OnboardingCommon.jsx";
 import { motion as Motion } from "framer-motion";
-import { API_URL } from "../config/api.js";
-import { getSession } from "../lib/session.js";
 
 function safeParse(raw) {
   try {
@@ -19,78 +17,7 @@ const PLAN_LABEL = {
   premium: "Premium",
 };
 
-const LEVEL_BADGE = {
-  newcomer: {
-    label: "NEWCOMER",
-    border: "rgba(148,163,184,0.45)",
-    background: "rgba(148,163,184,0.12)",
-    color: "rgba(226,232,240,0.92)",
-  },
-  contributor: {
-    label: "CONTRIBUTOR",
-    border: "rgba(59,130,246,0.55)",
-    background: "rgba(59,130,246,0.14)",
-    color: "rgba(59,130,246,0.95)",
-  },
-  trusted: {
-    label: "TRUSTED",
-    border: "rgba(139,92,246,0.55)",
-    background: "rgba(139,92,246,0.14)",
-    color: "rgba(139,92,246,0.95)",
-  },
-  expert: {
-    label: "EXPERT",
-    border: "rgba(181,236,52,0.55)",
-    background: "rgba(181,236,52,0.12)",
-    color: ACCENT,
-  },
-};
-
-function BenefitRows({ reputationPoints }) {
-  const rp = Number(reputationPoints) || 0;
-  const ok = "\u2713 ";
-  const lock = "\u{1F512} ";
-  const rows = [
-    { min: 0, unlocked: `${ok}Protocol participation`, locked: null },
-    {
-      min: 50,
-      unlocked: `${ok}Healthcare benefits (free checkups)`,
-      locked: `${lock}Healthcare benefits (50 RP needed)`,
-    },
-    {
-      min: 150,
-      unlocked: `${ok}Governance participation (propose protocol changes, vote on rules)`,
-      locked: `${lock}Governance participation (150 RP needed)`,
-    },
-    {
-      min: 300,
-      unlocked: `${ok}Expert credentialing (faster processing + professional credibility)`,
-      locked: `${lock}Expert credentialing (300 RP needed)`,
-    },
-  ];
-  return (
-    <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 8 }}>
-      {rows.map((r) => {
-        const open = rp >= r.min;
-        const text = open ? r.unlocked : r.locked ?? r.unlocked;
-        return (
-          <li
-            key={r.min}
-            style={{
-              fontSize: 12,
-              lineHeight: 1.5,
-              color: open ? "rgba(226,232,240,0.9)" : "rgba(100,116,139,0.85)",
-            }}
-          >
-            {text}
-          </li>
-        );
-      })}
-    </ul>
-  );
-}
-
-export function IdentityCard({ showJuryMemberBadge = true, showReputationPanel = false } = {}) {
+export function IdentityCard({ showJuryMemberBadge = true } = {}) {
   const identity = useMemo(
     () => safeParse(window.localStorage.getItem("cipher_identity")),
     []
@@ -119,37 +46,6 @@ export function IdentityCard({ showJuryMemberBadge = true, showReputationPanel =
       return "Just joined";
     }
   }, [subscription?.createdAt]);
-
-  const [rpData, setRpData] = useState(null);
-  const [rpLoadError, setRpLoadError] = useState("");
-
-  useEffect(() => {
-    if (!showReputationPanel) return;
-    const { anonymousId } = getSession();
-    if (!anonymousId) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch(`${API_URL}/members/rp/${encodeURIComponent(anonymousId)}`);
-        const j = await res.json();
-        if (!res.ok) throw new Error(j?.error || "Could not load reputation");
-        if (!cancelled) {
-          setRpData(j);
-          setRpLoadError("");
-        }
-      } catch (e) {
-        if (!cancelled) setRpLoadError(e?.message || "Could not load reputation");
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [showReputationPanel]);
-
-  const levelKey = rpData?.rp_level || "newcomer";
-  const levelStyle = LEVEL_BADGE[levelKey] || LEVEL_BADGE.newcomer;
-  const repPts = Number(rpData?.reputation_points ?? 0);
-  const progressPct = Math.min(100, Math.max(0, Number(rpData?.rp_progress_pct ?? 0)));
 
   return (
     <Motion.section
@@ -231,7 +127,7 @@ export function IdentityCard({ showJuryMemberBadge = true, showReputationPanel =
               }}
               title="You can participate in peer jury decisions"
             >
-              ⚖️ JURY MEMBER
+              {"\u2696\uFE0F"} JURY MEMBER
             </span>
           ) : null}
         </div>
@@ -349,117 +245,7 @@ export function IdentityCard({ showJuryMemberBadge = true, showReputationPanel =
         >
           Member since: <span style={{ color: "#e2e8f0" }}>{memberSince}</span>
         </p>
-
-        {showReputationPanel ? (
-          <Motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: 0.05 }}
-            style={{
-              marginTop: 8,
-              paddingTop: 18,
-              borderTop: "1px solid rgba(255,255,255,0.08)",
-              display: "flex",
-              flexDirection: "column",
-              gap: 14,
-            }}
-          >
-            <p
-              style={{
-                margin: 0,
-                fontSize: 11,
-                fontWeight: 600,
-                letterSpacing: "0.25em",
-                textTransform: "uppercase",
-                color: "rgba(181,236,52,0.65)",
-              }}
-            >
-              Reputation points
-            </p>
-            {rpLoadError ? (
-              <p style={{ margin: 0, fontSize: 12, color: "#f87171" }}>{rpLoadError}</p>
-            ) : (
-              <>
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: 34,
-                    fontWeight: 800,
-                    color: "#f9fafb",
-                    letterSpacing: "-0.03em",
-                    lineHeight: 1,
-                  }}
-                >
-                  {rpData ? repPts : "—"}
-                </p>
-                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 10 }}>
-                  <span
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      padding: "4px 10px",
-                      borderRadius: 999,
-                      border: `1px solid ${levelStyle.border}`,
-                      background: levelStyle.background,
-                      fontSize: 10,
-                      fontWeight: 700,
-                      letterSpacing: "0.1em",
-                      textTransform: "uppercase",
-                      color: levelStyle.color,
-                    }}
-                  >
-                    {levelStyle.label}
-                  </span>
-                  {levelKey !== "expert" && Number(rpData?.rp_next_level_points) > 0 ? (
-                    <span style={{ fontSize: 11, color: "rgba(148,163,184,0.85)" }}>
-                      {rpData.rp_next_level_points} RP to next level
-                    </span>
-                  ) : null}
-                </div>
-                <div
-                  style={{
-                    height: 6,
-                    borderRadius: 999,
-                    background: "rgba(255,255,255,0.06)",
-                    overflow: "hidden",
-                  }}
-                >
-                  <Motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${progressPct}%` }}
-                    transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                    style={{
-                      height: "100%",
-                      borderRadius: 999,
-                      background: ACCENT,
-                      boxShadow: "0 0 12px rgba(181,236,52,0.35)",
-                    }}
-                  />
-                </div>
-                <p style={{ margin: 0, fontSize: 11, color: "rgba(148,163,184,0.88)", lineHeight: 1.5 }}>
-                  Earned through participation, not outcomes
-                </p>
-                <div>
-                  <p
-                    style={{
-                      margin: "0 0 10px",
-                      fontSize: 10,
-                      fontWeight: 700,
-                      letterSpacing: "0.18em",
-                      textTransform: "uppercase",
-                      color: "rgba(148,163,184,0.75)",
-                    }}
-                  >
-                    Benefits
-                  </p>
-                  <BenefitRows reputationPoints={repPts} />
-                </div>
-              </>
-            )}
-          </Motion.div>
-        ) : null}
       </div>
     </Motion.section>
   );
 }
-

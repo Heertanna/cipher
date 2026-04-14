@@ -420,16 +420,24 @@ app.get("/members/rp/:anonymous_id", async (req, res) => {
     if (!anonymousId) {
       return res.status(400).json({ error: "anonymous_id is required" });
     }
-    const result = await pool.query(
-      `SELECT anonymous_id, reputation_points, tier FROM members WHERE anonymous_id = $1`,
-      [anonymousId],
-    );
+    const [result, votesCount] = await Promise.all([
+      pool.query(
+        `SELECT anonymous_id, reputation_points, tier FROM members WHERE anonymous_id = $1`,
+        [anonymousId],
+      ),
+      pool.query(
+        `SELECT COUNT(*)::int AS n FROM jury_votes WHERE juror_anonymous_id = $1`,
+        [anonymousId],
+      ),
+    ]);
+    const cases_reviewed = Number(votesCount.rows[0]?.n ?? 0);
     if (result.rowCount === 0) {
       const meta = rpMetaForPoints(0);
       return res.json({
         anonymous_id: anonymousId,
         reputation_points: 0,
         tier: null,
+        cases_reviewed,
         ...meta,
       });
     }
@@ -440,6 +448,7 @@ app.get("/members/rp/:anonymous_id", async (req, res) => {
       anonymous_id: row.anonymous_id,
       reputation_points,
       tier: row.tier ?? null,
+      cases_reviewed,
       ...meta,
     });
   } catch (error) {

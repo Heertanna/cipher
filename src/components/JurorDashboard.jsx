@@ -8,8 +8,6 @@ import { SystemEnergyCore } from "./SystemEnergyCore.jsx";
 import { JurorAssignedCasesSection } from "./JurorAssignedCasesSection.jsx";
 import { ClaimsCard } from "./ClaimsCard.jsx";
 import { SystemActivityCard } from "./SystemActivityCard.jsx";
-import { BecomeReviewerCard } from "./BecomeReviewerCard.jsx";
-
 /**
  * Same layout and styling as ProtocolDashboard (live system view + hero grid + energy core).
  * Actions route back to the main protocol flow or shared entry points.
@@ -147,6 +145,22 @@ export function JurorDashboard() {
             <button
               type="button"
               onClick={() => {
+                navigate("/governance");
+                window.scrollTo(0, 0);
+              }}
+              style={{
+                ...btnBase,
+                background: "rgba(15,23,42,0.55)",
+                color: ACCENT,
+                borderColor: "rgba(181,236,52,0.45)",
+              }}
+            >
+              Governance
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
                 navigate("/protocol-dashboard");
                 window.scrollTo(0, 0);
               }}
@@ -193,7 +207,6 @@ export function JurorDashboard() {
             transition={{ delay: 0.05, duration: 0.35 }}
             style={{ display: "flex", flexDirection: "column", gap: 20 }}
           >
-            <BecomeReviewerCard />
             <SystemOverviewHero />
             <Motion.section
               initial={{ opacity: 0, y: 10 }}
@@ -272,14 +285,14 @@ export function JurorDashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.12, duration: 0.35 }}
           >
-            <IdentityCard showReputationPanel />
+            <IdentityCard />
           </Motion.div>
         </div>
 
         <Motion.div
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.16, duration: 0.35 }}
+          transition={{ delay: 0.14, duration: 0.35 }}
         >
           <SystemEnergyCore />
         </Motion.div>
