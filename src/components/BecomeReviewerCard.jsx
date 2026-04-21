@@ -4,11 +4,23 @@ import { motion as Motion } from "framer-motion";
 import { API_URL } from "../config/api.js";
 import { getSession } from "../lib/session.js";
 
-export function BecomeReviewerCard() {
+const glassShell = {
+  background:
+    "linear-gradient(135deg, rgba(181,236,52,0.06) 0%, rgba(10,16,28,0.8) 40%, rgba(10,16,28,0.9) 100%)",
+  backdropFilter: "blur(12px)",
+  WebkitBackdropFilter: "blur(12px)",
+  border: "1px solid rgba(181,236,52,0.1)",
+  borderRadius: "16px",
+  boxShadow: "0 4px 30px rgba(0,0,0,0.3), inset 0 1px 0 rgba(181,236,52,0.05)",
+  padding: "24px",
+};
+
+export function BecomeReviewerCard({ variant } = {}) {
   const navigate = useNavigate();
   const [isJuror, setIsJuror] = useState(() => window.localStorage.getItem("cipher_is_juror") === "true");
 
   useEffect(() => {
+    if (variant === "verifiedJuror") return;
     const { anonymousId } = getSession();
     if (!anonymousId) return;
     fetch(`${API_URL}/members/juror-status?anonymous_id=${encodeURIComponent(anonymousId)}`)
@@ -20,7 +32,53 @@ export function BecomeReviewerCard() {
         else window.localStorage.removeItem("cipher_is_juror");
       })
       .catch(() => {});
-  }, []);
+  }, [variant]);
+
+  if (variant === "verifiedJuror") {
+    return (
+      <Motion.section
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35 }}
+        style={glassShell}
+      >
+        <p
+          style={{
+            margin: 0,
+            fontSize: 11,
+            letterSpacing: "0.15em",
+            textTransform: "uppercase",
+            color: "rgba(181,236,52,0.5)",
+          }}
+        >
+          Reviewer network
+        </p>
+        <p
+          style={{
+            margin: "12px 0 0",
+            fontSize: "16px",
+            fontWeight: 600,
+            color: "#fff",
+            letterSpacing: "-0.01em",
+            lineHeight: 1.4,
+          }}
+        >
+          You are a verified juror
+        </p>
+        <p
+          style={{
+            margin: "10px 0 0",
+            fontSize: 13,
+            lineHeight: 1.55,
+            color: "rgba(255,255,255,0.4)",
+          }}
+        >
+          Your reviews feed the shared pool&apos;s fairness signals. Complete assigned cases on time so
+          members receive timely decisions.
+        </p>
+      </Motion.section>
+    );
+  }
 
   if (isJuror) return null;
 
@@ -29,23 +87,15 @@ export function BecomeReviewerCard() {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35 }}
-      style={{
-        padding: "22px 24px",
-        borderRadius: 18,
-        border: "1px solid rgba(251,191,36,0.42)",
-        background:
-          "linear-gradient(135deg, rgba(251,191,36,0.07), transparent 50%), rgba(15,23,42,0.9)",
-        boxShadow: "0 18px 50px rgba(0,0,0,0.3)",
-      }}
+      style={glassShell}
     >
       <p
         style={{
           margin: 0,
           fontSize: 11,
-          fontWeight: 700,
-          letterSpacing: "0.2em",
+          letterSpacing: "0.15em",
           textTransform: "uppercase",
-          color: "rgba(251,191,36,0.9)",
+          color: "rgba(181,236,52,0.5)",
         }}
       >
         Reviewer network
@@ -53,10 +103,10 @@ export function BecomeReviewerCard() {
       <p
         style={{
           margin: "12px 0 0",
-          fontSize: 17,
-          fontWeight: 750,
-          color: "#fef3c7",
-          letterSpacing: "-0.02em",
+          fontSize: "16px",
+          fontWeight: 600,
+          color: "#fff",
+          letterSpacing: "-0.01em",
           lineHeight: 1.4,
         }}
       >
@@ -67,7 +117,7 @@ export function BecomeReviewerCard() {
           margin: "10px 0 0",
           fontSize: 13,
           lineHeight: 1.55,
-          color: "rgba(226,232,240,0.85)",
+          color: "rgba(255,255,255,0.4)",
         }}
       >
         Apply with your credentials and complete a short trial case. The protocol routes only medical
@@ -81,14 +131,14 @@ export function BecomeReviewerCard() {
         }}
         style={{
           marginTop: 18,
-          padding: "12px 22px",
-          borderRadius: 999,
-          border: "1px solid rgba(251,191,36,0.55)",
-          background: "rgba(251,191,36,0.14)",
-          color: "#fbbf24",
-          fontSize: 11,
-          fontWeight: 800,
-          letterSpacing: "0.14em",
+          padding: "10px 22px",
+          borderRadius: "20px",
+          border: "none",
+          background: "#b5ec34",
+          color: "#000",
+          fontSize: "11px",
+          fontWeight: 700,
+          letterSpacing: "0.1em",
           textTransform: "uppercase",
           cursor: "pointer",
         }}

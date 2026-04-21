@@ -12,12 +12,15 @@ import { PaymentPage } from "./components/PaymentPage.jsx";
 import { ProtocolDashboard } from "./components/ProtocolDashboard.jsx";
 import { ClaimIntake } from "./components/ClaimIntake.jsx";
 import { EmergencyAccess } from "./components/EmergencyAccess.jsx";
+import { HospitalView } from "./components/HospitalView.jsx";
 import { JurorDashboard } from "./components/JurorDashboard.jsx";
 import { CaseReview } from "./components/CaseReview.jsx";
 import { VerdictScreen } from "./components/VerdictScreen.jsx";
 import { ReEvaluationFlow } from "./components/ReEvaluationFlow.jsx";
 import { JurorApplication } from "./components/JurorApplication.jsx";
 import { GovernancePanel } from "./components/GovernancePanel.jsx";
+import { HeroSection } from "./components/HeroSection.jsx";
+import { IntroAnimation } from "./components/IntroAnimation";
 import { initializeMockJuryCases } from "./data/jurorMockData.js";
 
 /* ───────────────────────────────────────────
@@ -214,7 +217,7 @@ function Hero({ onJoin }) {
       style={{
         position: "relative",
         minHeight: "100vh",
-        background: "#050505",
+        background: "transparent",
         color: "#f1f5f9",
         display: "flex",
         flexDirection: "column",
@@ -234,7 +237,7 @@ function Hero({ onJoin }) {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{ width: 10, height: 10, background: "#b5ec34", borderRadius: 2 }} />
+          <img src="/cipher-logo.png" alt="Cipher" style={{ width: 24, height: 24 }} />
           <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#b5ec34" }}>
             Cipher
           </span>
@@ -245,7 +248,7 @@ function Hero({ onJoin }) {
           <span style={{ color: "rgba(181,236,52,0.7)", cursor: "pointer" }}>Governance</span>
           <span style={{ color: "rgba(181,236,52,0.7)", cursor: "pointer" }}>Documentation</span>
           <span onClick={onJoin} style={{ color: "#050505", background: "#b5ec34", padding: "6px 16px", borderRadius: 4, fontWeight: 600, cursor: "pointer" }}>
-            Join Network
+            Log in
           </span>
         </div>
       </nav>
@@ -479,10 +482,14 @@ function EmergencyAccessRoute() {
   );
 }
 
-function PageFlow() {
-  const [page, setPage] = useState("home");
+function PageFlow({ initialPage = "home", blockLandingContent = false }) {
+  const [page, setPage] = useState(initialPage);
   const [selectedPlan, setSelectedPlan] = useState("standard");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setPage(initialPage);
+  }, [initialPage]);
 
   useEffect(() => {
     const subscriptionKey = "cipher_subscription";
@@ -626,9 +633,13 @@ function PageFlow() {
     );
   }
 
+  if (blockLandingContent) {
+    return null;
+  }
+
   return (
     <>
-      <Hero onJoin={() => { setPage("join"); window.scrollTo(0, 0); }} />
+      <HeroSection onJoin={() => { setPage("join"); window.scrollTo(0, 0); }} />
       <PoolHeartbeat />
       <Rulebook />
     </>
@@ -636,6 +647,10 @@ function PageFlow() {
 }
 
 function App() {
+  const [showIntro, setShowIntro] = useState(
+    () => window.location.pathname === '/'
+  );
+
   useEffect(() => {
     initializeMockJuryCases().catch((error) => {
       console.error("Failed to initialize mock jury cases:", error?.message);
@@ -643,18 +658,32 @@ function App() {
   }, []);
 
   return (
-    <Routes>
-      <Route path="/juror-dashboard" element={<JurorDashboard />} />
-      <Route path="/verdict/:juryCaseId" element={<VerdictScreen />} />
-      <Route path="/re-evaluation/:juryCaseId" element={<ReEvaluationFlow />} />
-      <Route path="/juror-application" element={<JurorApplication />} />
-      <Route path="/case-review/:caseId" element={<CaseReview />} />
-      <Route path="/governance" element={<GovernancePanel />} />
-      <Route path="/protocol-dashboard" element={<ProtocolDashboardRoute />} />
-      <Route path="/claim-intake" element={<ClaimIntakeRoute />} />
-      <Route path="/emergency-access" element={<EmergencyAccessRoute />} />
-      <Route path="*" element={<PageFlow />} />
-    </Routes>
+    <div
+      style={{
+        minHeight: "100dvh",
+        background: "transparent",
+      }}
+    >
+      {showIntro && (
+        <IntroAnimation
+          onComplete={() => setShowIntro(false)}
+        />
+      )}
+      <Routes>
+        <Route path="/join" element={<PageFlow initialPage="join" />} />
+        <Route path="/juror-dashboard" element={<JurorDashboard />} />
+        <Route path="/verdict/:juryCaseId" element={<VerdictScreen />} />
+        <Route path="/re-evaluation/:juryCaseId" element={<ReEvaluationFlow />} />
+        <Route path="/juror-application" element={<JurorApplication />} />
+        <Route path="/case-review/:caseId" element={<CaseReview />} />
+        <Route path="/governance" element={<GovernancePanel />} />
+        <Route path="/protocol-dashboard" element={<ProtocolDashboardRoute />} />
+        <Route path="/claim-intake" element={<ClaimIntakeRoute />} />
+        <Route path="/emergency-access" element={<EmergencyAccessRoute />} />
+        <Route path="/hospital-view" element={<HospitalView />} />
+        <Route path="*" element={<PageFlow blockLandingContent={showIntro} />} />
+      </Routes>
+    </div>
   );
 }
 

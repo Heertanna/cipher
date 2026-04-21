@@ -8,6 +8,95 @@ const CARD_COUNT = 3;
 const STACK_X = 18;
 const STACK_Y = 14;
 
+const BREAKDOWN_BAR_TRACK = "rgba(255,255,255,0.08)";
+
+function ContributionBreakdown({ rows }) {
+  return (
+    <>
+      <div
+        style={{
+          borderTop: "1px solid rgba(148,163,184,0.18)",
+          marginTop: 12,
+          paddingTop: 14,
+        }}
+      />
+      <p
+        style={{
+          fontSize: 10,
+          letterSpacing: "0.15em",
+          textTransform: "uppercase",
+          color: "rgba(148,163,184,0.5)",
+          margin: "0 0 10px 0",
+        }}
+      >
+        CONTRIBUTION BREAKDOWN
+      </p>
+      {rows.map((row) => (
+        <div
+          key={row.label}
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 8,
+            gap: 10,
+          }}
+        >
+          <span
+            style={{
+              fontSize: 11,
+              color: "rgba(148,163,184,0.7)",
+              lineHeight: 1.3,
+              flex: "1 1 auto",
+              minWidth: 0,
+            }}
+          >
+            {row.label}
+          </span>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              flexShrink: 0,
+            }}
+          >
+            <span style={{ fontSize: 11, fontWeight: 700, color: "#f9fafb" }}>{row.amount}</span>
+            <div
+              style={{
+                width: 80,
+                height: 4,
+                borderRadius: 999,
+                background: BREAKDOWN_BAR_TRACK,
+                overflow: "hidden",
+              }}
+            >
+              <div
+                style={{
+                  width: `${row.pct}%`,
+                  height: "100%",
+                  background: row.barColor,
+                  borderRadius: 999,
+                }}
+              />
+            </div>
+            <span
+              style={{
+                fontSize: 11,
+                color: "rgba(148,163,184,0.85)",
+                minWidth: 40,
+                textAlign: "right",
+              }}
+            >
+              {row.pctLabel ?? `${row.pct}%`}
+            </span>
+          </div>
+        </div>
+      ))}
+    </>
+  );
+}
+
 function useIsMobile(breakpointPx = 820) {
   const [isMobile, setIsMobile] = useState(false);
 
@@ -46,6 +135,7 @@ function PricingCardContent({ card, onSelectPlan, selectDisabled }) {
       >
         {card.tierSubtitle}
       </p>
+      <ContributionBreakdown rows={card.breakdown} />
       <p style={{ fontSize: 14, color: card.descriptionColor, marginBottom: 20 }}>
         {card.description}
       </p>
@@ -93,13 +183,13 @@ export function PricingCards({ onSelectPlan, selectDisabled = false }) {
               marginBottom: 10,
             }}
           >
-            Basic — ₹499
+            Basic — ₹500
           </p>
         ),
         border: "1px solid rgba(255,255,255,0.1)",
         background:
           "radial-gradient(circle at 0% 0%, rgba(59,130,246,0.18), transparent 55%), rgba(10,12,22,0.96)",
-        price: "₹499",
+        price: "₹500",
         priceFontSize: 26,
         priceColor: "#e5e7eb",
         tierSubtitle: "Basic contribution",
@@ -133,6 +223,26 @@ export function PricingCards({ onSelectPlan, selectDisabled = false }) {
         glowBackground: "radial-gradient(circle at 0% 0%, rgba(59,130,246,0.9), transparent 55%)",
         accentGlowColor: "rgba(59,130,246,0.55)",
         featuredBorder: false,
+        breakdown: [
+          {
+            label: "Claim Coverage Pool",
+            amount: "\u20B9350",
+            pct: 70,
+            barColor: "#b5ec34",
+          },
+          {
+            label: "Emergency Reserve",
+            amount: "\u20B9100",
+            pct: 20,
+            barColor: "#fbbf24",
+          },
+          {
+            label: "Catastrophic Buffer",
+            amount: "\u20B950",
+            pct: 10,
+            barColor: "#f87171",
+          },
+        ],
       },
       {
         id: "standard",
@@ -148,13 +258,13 @@ export function PricingCards({ onSelectPlan, selectDisabled = false }) {
               marginBottom: 10,
             }}
           >
-            🟡 Standard — ₹999 ⭐
+            🟡 Standard — ₹1,000 ⭐
           </p>
         ),
         border: `1px solid ${ACCENT}`,
         background:
           "radial-gradient(circle at 0% 0%, rgba(255,230,150,0.18), transparent 55%), rgba(10,14,26,0.95)",
-        price: "₹999",
+        price: "₹1,000",
         priceFontSize: 28,
         priceColor: "#fefce8",
         tierSubtitle: "Recommended tier",
@@ -188,6 +298,26 @@ export function PricingCards({ onSelectPlan, selectDisabled = false }) {
         glowBackground: "radial-gradient(circle at 20% 0%, rgba(181,236,52,0.9), transparent 60%)",
         accentGlowColor: "rgba(253,224,71,0.85)",
         featuredBorder: true,
+        breakdown: [
+          {
+            label: "Claim Coverage Pool",
+            amount: "\u20B9700",
+            pct: 70,
+            barColor: "#b5ec34",
+          },
+          {
+            label: "Emergency Reserve",
+            amount: "\u20B9200",
+            pct: 20,
+            barColor: "#fbbf24",
+          },
+          {
+            label: "Catastrophic Buffer",
+            amount: "\u20B9100",
+            pct: 10,
+            barColor: "#f87171",
+          },
+        ],
       },
       {
         id: "premium",
@@ -203,13 +333,13 @@ export function PricingCards({ onSelectPlan, selectDisabled = false }) {
               marginBottom: 10,
             }}
           >
-            🔵 Premium — ₹1799
+            🔵 Premium — ₹2,000
           </p>
         ),
         border: "1px solid rgba(96,165,250,0.6)",
         background:
           "radial-gradient(circle at 100% 0%, rgba(96,165,250,0.22), transparent 55%), rgba(8,12,24,0.95)",
-        price: "₹1799",
+        price: "₹2,000",
         priceFontSize: 26,
         priceColor: "#e5f2ff",
         tierSubtitle: "System supporter",
@@ -242,6 +372,28 @@ export function PricingCards({ onSelectPlan, selectDisabled = false }) {
         glowBackground: "radial-gradient(circle at 0% 0%, rgba(56,189,248,0.9), transparent 55%)",
         accentGlowColor: "rgba(56,189,248,0.65)",
         featuredBorder: false,
+        breakdown: [
+          {
+            label: "Claim Coverage Pool",
+            amount: "\u20B91,400",
+            pct: 70,
+            barColor: "#b5ec34",
+          },
+          {
+            label: "Emergency Reserve",
+            amount: "\u20B9450",
+            pct: 22.5,
+            barColor: "#fbbf24",
+            pctLabel: "22.5%",
+          },
+          {
+            label: "Catastrophic Buffer",
+            amount: "\u20B9150",
+            pct: 7.5,
+            barColor: "#f87171",
+            pctLabel: "7.5%",
+          },
+        ],
       },
     ],
     []
@@ -379,7 +531,7 @@ export function PricingCards({ onSelectPlan, selectDisabled = false }) {
       ref={containerRef}
       style={{
         position: "relative",
-        height: 560,
+        height: 720,
         width: "100%",
       }}
     >

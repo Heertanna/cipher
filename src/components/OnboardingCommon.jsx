@@ -11,20 +11,9 @@ export function FaintBackground() {
         zIndex: 0,
         pointerEvents: "none",
         background:
-          "radial-gradient(circle at 10% 0%, rgba(255,226,150,0.12), transparent 55%), radial-gradient(circle at 70% 110%, rgba(181,236,52,0.18), transparent 65%), #02030a",
+          "radial-gradient(circle at 10% 0%, rgba(255,226,150,0.12), transparent 55%), radial-gradient(circle at 70% 110%, rgba(181,236,52,0.18), transparent 65%), transparent",
       }}
-    >
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          opacity: 0.75,
-          backgroundImage:
-            "linear-gradient(rgba(40,40,60,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(40,40,60,0.45) 1px, transparent 1px)",
-          backgroundSize: "32px 32px",
-        }}
-      />
-    </div>
+    />
   );
 }
 

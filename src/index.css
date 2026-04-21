@@ -4,13 +4,19 @@
 
 html {
   height: 100%;
+  min-height: 100vh;
 }
 
 body {
   margin: 0;
-  min-height: 100%;
+  min-height: 100vh;
   min-height: 100dvh;
-  background-color: #050505;
+  background-color: #060810 !important;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px) !important;
+  background-size: 60px 60px !important;
+  background-attachment: fixed !important;
   color: #f9fafb;
   font-family: "Sora", system-ui, -apple-system, sans-serif;
   overflow-x: hidden;
@@ -19,24 +25,16 @@ body {
 #root {
   min-height: 100%;
   min-height: 100dvh;
+  background: transparent !important;
 }
 
 .app-bg {
   position: relative;
-  background-color: #050505;
+  background-color: #060810;
   background-image:
-    radial-gradient(circle at top left, rgba(15, 23, 42, 0.8), transparent 55%),
-    radial-gradient(circle at bottom right, rgba(15, 23, 42, 0.9), transparent 55%);
-}
-
-.app-bg::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.25;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='noStitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
-  mix-blend-mode: soft-light;
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 60px 60px;
 }
 
 .card-grid-outline {

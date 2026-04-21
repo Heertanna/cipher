@@ -301,7 +301,7 @@ export function ClaimIntake({ onBack, onDone }) {
     <div
       style={{
         minHeight: "100vh",
-        background: "#050505",
+        background: "transparent",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",

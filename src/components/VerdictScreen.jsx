@@ -132,7 +132,7 @@ export function VerdictScreen() {
       style={{
         position: "relative",
         minHeight: "100dvh",
-        background: "#02030a",
+        background: "transparent",
         boxSizing: "border-box",
         display: "flex",
         justifyContent: "center",

@@ -5,7 +5,6 @@ import { ACCENT, FaintBackground } from "./OnboardingCommon.jsx";
 import { API_URL } from "../config/api.js";
 import { getSession } from "../lib/session.js";
 
-const BG = "#02030a";
 const SUPPORT = "rgba(34,197,94,0.85)";
 const OPPOSE = "rgba(248,113,113,0.85)";
 
@@ -438,7 +437,7 @@ export function GovernancePanel() {
       style={{
         position: "relative",
         minHeight: "100vh",
-        background: BG,
+        background: "transparent",
         padding: "80px 24px 48px",
         display: "flex",
         justifyContent: "center",

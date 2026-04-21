@@ -529,7 +529,7 @@ export function PeerReviewPreparation({
         position: "fixed",
         inset: 0,
         zIndex: 2400,
-        background: "#03040c",
+        background: "transparent",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",

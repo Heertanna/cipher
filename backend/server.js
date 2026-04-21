@@ -457,6 +457,43 @@ app.get("/members/rp/:anonymous_id", async (req, res) => {
   }
 });
 
+app.get("/stats", async (_req, res) => {
+  try {
+    const claimsResult = await pool.query(`
+      SELECT
+        COUNT(*)::int AS total_cases,
+        COUNT(*) FILTER (WHERE routing_path = 'PATH_A')::int AS path_a_count,
+        COUNT(*) FILTER (WHERE routing_path = 'PATH_B')::int AS path_b_count
+      FROM claims
+    `);
+
+    const juryResult = await pool.query(`
+      SELECT
+        COUNT(*) FILTER (WHERE final_decision = 'approved')::int AS approved,
+        COUNT(*) FILTER (WHERE final_decision = 'denied')::int AS denied,
+        COUNT(*) FILTER (WHERE final_decision = 're_evaluation')::int AS re_evaluation,
+        ROUND(AVG(confidence_avg) * 100)::int AS avg_confidence_pct
+      FROM jury_cases
+      WHERE status = 'decided'
+    `);
+
+    const claims = claimsResult.rows[0] ?? {};
+    const jury = juryResult.rows[0] ?? {};
+    return res.json({
+      total_cases: Number(claims.total_cases ?? 0),
+      approved: Number(jury.approved ?? 0),
+      denied: Number(jury.denied ?? 0),
+      re_evaluation: Number(jury.re_evaluation ?? 0),
+      path_a_count: Number(claims.path_a_count ?? 0),
+      path_b_count: Number(claims.path_b_count ?? 0),
+      avg_confidence_pct: Number(jury.avg_confidence_pct ?? 0),
+    });
+  } catch (error) {
+    console.error("[GET /stats] failed:", error?.message);
+    return res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
 app.get("/members/juror-status", async (req, res) => {
   try {
     const anonymousId = String(req.query.anonymous_id ?? "").trim();

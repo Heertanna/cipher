@@ -5,7 +5,6 @@ import { FaintBackground, ACCENT } from "./OnboardingCommon.jsx";
 import { API_URL } from "../config/api.js";
 import { getSession } from "../lib/session.js";
 
-const BG = "#02030a";
 const transition = { duration: 0.35, ease: [0.22, 1, 0.36, 1] };
 
 const CREDENTIAL_TYPES = [
@@ -212,7 +211,7 @@ export function JurorApplication() {
       style={{
         position: "relative",
         minHeight: "100dvh",
-        background: BG,
+        background: "transparent",
         padding: "56px 22px 48px",
         boxSizing: "border-box",
       }}

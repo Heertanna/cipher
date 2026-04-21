@@ -20,12 +20,12 @@ export function CaseCard({
 
   const headerBg = isLight
     ? "linear-gradient(120deg, rgba(59,130,246,0.45), rgba(59,130,246,0.12))"
-    : "linear-gradient(120deg, rgba(15,23,42,0.95), rgba(30,64,175,0.72))";
+    : "linear-gradient(120deg, rgba(181,236,52,0.12), rgba(181,236,52,0.05))";
 
-  const cardBg = isLight ? "rgba(248,250,252,0.98)" : "rgba(15,23,42,0.92)";
+  const cardBg = isLight ? "rgba(248,250,252,0.98)" : "rgba(10,16,28,0.9)";
   const cardBorder = isLight
     ? "1px solid rgba(15,23,42,0.10)"
-    : "1px solid rgba(148,163,184,0.35)";
+    : "1px solid rgba(181,236,52,0.12)";
 
   const titleColor = isLight ? "rgba(15,23,42,1)" : "rgba(226,232,240,0.96)";
   const subColor = isLight ? "rgba(71,85,105,1)" : "rgba(148,163,184,0.95)";
@@ -63,7 +63,7 @@ export function CaseCard({
           background: headerBg,
           borderBottom: isLight
             ? "1px solid rgba(15,23,42,0.08)"
-            : "1px solid rgba(15,23,42,0.7)",
+            : "1px solid rgba(181,236,52,0.14)",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -73,7 +73,7 @@ export function CaseCard({
               height: 10,
               borderRadius: 999,
               background: isLight ? "rgba(59,130,246,0.95)" : "rgba(181,236,52,0.95)",
-              boxShadow: "0 0 12px rgba(59,130,246,0.35)",
+              boxShadow: "0 0 12px rgba(181,236,52,0.35)",
             }}
           />
           <p
@@ -141,7 +141,7 @@ export function CaseCard({
             height: detail === "focus" ? 10 : 8,
             borderRadius: 999,
             background: trackBg,
-            border: isLight ? "1px solid rgba(15,23,42,0.08)" : "1px solid rgba(148,163,184,0.35)",
+            border: isLight ? "1px solid rgba(15,23,42,0.08)" : "1px solid rgba(181,236,52,0.2)",
             overflow: "hidden",
           }}
         >
@@ -150,7 +150,7 @@ export function CaseCard({
               width: `${c.progress}%`,
               height: "100%",
               borderRadius: 999,
-              background: `linear-gradient(90deg, ${fillColor}, rgba(56,189,248,1))`,
+              background: `linear-gradient(90deg, ${fillColor}, rgba(181,236,52,0.7))`,
             }}
           />
         </div>

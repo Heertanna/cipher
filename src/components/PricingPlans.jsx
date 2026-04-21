@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { ACCENT, FaintBackground } from "./OnboardingCommon.jsx";
+import { ACCENT } from "./OnboardingCommon.jsx";
 import { PricingCards } from "./PricingCards.jsx";
 import { setTier } from "../lib/api.js";
 import { getSession } from "../lib/session.js";
@@ -52,17 +52,18 @@ export function PricingPlans({
   return (
     <div
       style={{
+        position: "relative",
         minHeight: "100vh",
-        background: "#02030a",
+        backgroundColor: "#060810",
+        backgroundImage:
+          "linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px), radial-gradient(ellipse at bottom left, rgba(180, 200, 20, 0.12) 0%, #060810 65%)",
+        backgroundSize: "60px 60px, 60px 60px, 100% 100%",
         display: "flex",
         alignItems: "flex-start",
         justifyContent: "center",
         padding: "96px 24px 72px",
-        position: "relative",
       }}
     >
-      <FaintBackground />
-
       <div
         style={{
           width: "100%",
@@ -217,6 +218,23 @@ export function PricingPlans({
             submitTierForPlan(planId);
           }}
         />
+
+        <p
+          style={{
+            fontSize: 12,
+            color: "rgba(148,163,184,0.5)",
+            textAlign: "center",
+            marginTop: 24,
+            marginBottom: 0,
+            maxWidth: 560,
+            marginLeft: "auto",
+            marginRight: "auto",
+            lineHeight: 1.6,
+          }}
+        >
+          All contributions are split across three dedicated reserves. Emergency and catastrophic
+          reserves are never used for routine claims — only their designated purpose.
+        </p>
 
         {/* legacy pricing grid (hidden) */}
         <div

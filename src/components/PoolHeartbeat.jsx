@@ -37,7 +37,7 @@ export function PoolHeartbeat() {
 
   useEffect(() => {
     function tick(time) {
-      if (time - lastTime.current > 350) {
+      if (time - lastTime.current > 600) {
         lastTime.current = time;
         setOffset((o) => o + 1);
       }
@@ -54,11 +54,16 @@ export function PoolHeartbeat() {
   const svgW = pad * 2 + (COLS - 1) * DOT_GAP;
   const svgH = pad * 2 + (ROWS - 1) * DOT_GAP;
 
+  const canvasWidth = svgW;
+  const canvasHeight = svgH;
+  /** Flat / resting portions of the waveform sit ~60% down the chart */
+  const baselineY = canvasHeight * 0.6;
+
   return (
     <section
       style={{
         position: "relative",
-        background: "#050505",
+        background: "transparent",
         padding: "80px 0 60px",
         overflow: "hidden",
       }}
@@ -124,11 +129,44 @@ export function PoolHeartbeat() {
             viewBox={`0 0 ${svgW} ${svgH}`}
             style={{ width: "100%", height: "auto", display: "block" }}
           >
+            <g aria-hidden="true">
+              <line
+                x1={40}
+                y1={baselineY}
+                x2={canvasWidth - 40}
+                y2={baselineY}
+                stroke="rgba(255,255,255,0.08)"
+                strokeWidth={0.5}
+                strokeDasharray="4 4"
+              />
+              <text
+                x={20}
+                y={30}
+                fill="rgba(181,236,52,0.3)"
+                fontSize={9}
+                fontFamily="sans-serif"
+              >
+                APPROVED
+              </text>
+              <text
+                x={20}
+                y={canvasHeight - 14}
+                fill="rgba(255,255,255,0.2)"
+                fontSize={9}
+                fontFamily="sans-serif"
+              >
+                REJECTED
+              </text>
+            </g>
             {Array.from({ length: ROWS }).map((_, row) =>
               Array.from({ length: COLS }).map((_, col) => {
+                const activeRow = dataRows[col];
+                if (row < activeRow) {
+                  return null;
+                }
+
                 const cx = pad + col * DOT_GAP;
                 const cy = pad + row * DOT_GAP;
-                const activeRow = dataRows[col];
                 const isActive = row === activeRow;
                 const belowCurve = row > activeRow;
                 const distBelow = row - activeRow;
@@ -142,12 +180,9 @@ export function PoolHeartbeat() {
                   r = 5 - distBelow * 0.7;
                   const o = (0.65 - distBelow * 0.15).toFixed(2);
                   fill = `rgba(255,255,255,${o})`;
-                } else if (belowCurve) {
-                  r = 3;
-                  fill = "rgba(255,255,255,0.18)";
                 } else {
                   r = 3;
-                  fill = "rgba(255,255,255,0.1)";
+                  fill = "rgba(255,255,255,0.18)";
                 }
 
                 return (
@@ -162,6 +197,27 @@ export function PoolHeartbeat() {
               })
             )}
           </svg>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              padding: "8px 40px 0",
+              opacity: 0.15,
+              fontSize: 9,
+              color: "#fff",
+              letterSpacing: "0.1em",
+            }}
+          >
+            <span>11:00</span>
+            <span>11:15</span>
+            <span>11:30</span>
+            <span>11:45</span>
+            <span>12:00</span>
+            <span>12:15</span>
+            <span>12:30</span>
+            <span>12:45</span>
+            <span>NOW</span>
+          </div>
         </div>
 
         <div

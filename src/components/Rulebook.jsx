@@ -87,7 +87,7 @@ export function Rulebook() {
       style={{
         position: "relative",
         height: `${TOTAL_VH}vh`,
-        background: "#050505",
+        background: "transparent",
       }}
     >
       {/* sticky viewport */}
@@ -192,7 +192,7 @@ export function Rulebook() {
               transition: "all 0.6s ease",
             }}
           >
-            The Care Protocol Rulebook
+            cipher rulerbook
           </p>
           <p
             style={{

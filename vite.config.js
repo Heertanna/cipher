@@ -9,4 +9,7 @@ const pagesBase = '/cipher/'
 export default defineConfig(({ command }) => ({
   base: command === 'serve' ? '/' : pagesBase,
   plugins: [react()],
+  server: {
+    historyApiFallback: true,
+  },
 }))

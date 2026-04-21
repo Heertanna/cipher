@@ -1,16 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { animate } from "framer-motion";
 import { ACCENT } from "./OnboardingCommon.jsx";
 import { API_URL } from "../config/api.js";
 import { getSession } from "../lib/session.js";
-
-function safeParse(raw) {
-  try {
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
 
 const MOCK_OVERVIEW = {
   status: "Stable", // Stable | Watch | Critical
@@ -49,11 +41,6 @@ function statusColor(status) {
 }
 
 export function SystemOverviewHero() {
-  const identity = useMemo(
-    () => safeParse(window.localStorage.getItem("cipher_identity")),
-    []
-  );
-  const alias = identity?.alias || "Member";
   const status = MOCK_OVERVIEW.status;
   const color = statusColor(status);
 
@@ -127,18 +114,7 @@ export function SystemOverviewHero() {
         >
           System overview
         </p>
-        <h2
-          style={{
-            margin: 0,
-            fontSize: "clamp(2rem, 4.2vw, 3rem)",
-            letterSpacing: "-0.03em",
-            color: "#f9fafb",
-            fontWeight: 800,
-          }}
-        >
-          Hello, {alias}
-        </h2>
-        <p style={{ margin: "8px 0 0", color: "rgba(148,163,184,0.95)" }}>
+        <p style={{ margin: 0, color: "rgba(148,163,184,0.95)" }}>
           System status:{" "}
           <span style={{ color, fontWeight: 700, letterSpacing: "0.08em" }}>{status}</span>
         </p>

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { ACCENT, FaintBackground, Label } from "./OnboardingCommon.jsx";
+import { ACCENT, Label } from "./OnboardingCommon.jsx";
 
 function safeParse(raw) {
   try {
@@ -112,17 +112,18 @@ export function PaymentPage({ planId, onBack, onDone }) {
   return (
     <div
       style={{
+        position: "relative",
         minHeight: "100vh",
-        background: "#02030a",
+        backgroundColor: "#060810",
+        backgroundImage:
+          "linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px), radial-gradient(ellipse at bottom left, rgba(180, 200, 20, 0.12) 0%, #060810 65%)",
+        backgroundSize: "60px 60px, 60px 60px, 100% 100%",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         padding: "80px 24px",
-        position: "relative",
       }}
     >
-      <FaintBackground />
-
       <div
         style={{
           width: "100%",

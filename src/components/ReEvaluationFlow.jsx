@@ -140,7 +140,7 @@ export function ReEvaluationFlow() {
       style={{
         position: "relative",
         minHeight: "100dvh",
-        background: "#02030a",
+        background: "transparent",
         padding: "48px 24px",
         display: "flex",
         alignItems: "center",

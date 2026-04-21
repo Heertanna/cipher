@@ -66,7 +66,7 @@ export function JuryPostSubmissionScreen({
         position: "fixed",
         inset: 0,
         zIndex: 50,
-        background: "#02030a",
+        background: "transparent",
         overflowY: "auto",
         overflowX: "hidden",
         WebkitOverflowScrolling: "touch",
