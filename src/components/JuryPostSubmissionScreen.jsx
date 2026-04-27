@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { motion as Motion } from "framer-motion";
-import { ACCENT, FaintBackground } from "./OnboardingCommon.jsx";
+import { ACCENT } from "./OnboardingCommon.jsx";
+import { PROTOCOL_PAGE_BACKGROUND } from "../lib/protocolPageBackground.js";
 
 const FINAL_LABELS = {
   support: "Support",
@@ -66,14 +67,12 @@ export function JuryPostSubmissionScreen({
         position: "fixed",
         inset: 0,
         zIndex: 50,
-        background: "transparent",
+        ...PROTOCOL_PAGE_BACKGROUND,
         overflowY: "auto",
         overflowX: "hidden",
         WebkitOverflowScrolling: "touch",
       }}
     >
-      <FaintBackground />
-
       <Motion.main
         variants={container}
         initial="hidden"
@@ -122,7 +121,7 @@ export function JuryPostSubmissionScreen({
           <p
             style={{
               margin: 0,
-              fontSize: 13,
+              fontSize: 14,
               fontWeight: 700,
               letterSpacing: "0.14em",
               textTransform: "uppercase",
@@ -148,7 +147,7 @@ export function JuryPostSubmissionScreen({
           <p
             style={{
               margin: "0 0 14px",
-              fontSize: 10,
+              fontSize: 14,
               fontWeight: 700,
               letterSpacing: "0.2em",
               textTransform: "uppercase",
@@ -202,7 +201,7 @@ export function JuryPostSubmissionScreen({
           <p
             style={{
               margin: "0 0 12px",
-              fontSize: 11,
+              fontSize: 14,
               fontWeight: 700,
               letterSpacing: "0.12em",
               textTransform: "uppercase",
@@ -239,7 +238,7 @@ export function JuryPostSubmissionScreen({
               display: "flex",
               justifyContent: "space-between",
               marginTop: 8,
-              fontSize: 10,
+              fontSize: 14,
               fontWeight: 700,
               letterSpacing: "0.1em",
               textTransform: "uppercase",
@@ -255,7 +254,7 @@ export function JuryPostSubmissionScreen({
           <p
             style={{
               margin: "0 0 6px",
-              fontSize: 10,
+              fontSize: 14,
               fontWeight: 700,
               letterSpacing: "0.18em",
               textTransform: "uppercase",
@@ -278,7 +277,7 @@ export function JuryPostSubmissionScreen({
           <p
             style={{
               margin: "6px 0 0",
-              fontSize: 11,
+              fontSize: 14,
               color: "rgba(148,163,184,0.55)",
             }}
           >
@@ -300,7 +299,7 @@ export function JuryPostSubmissionScreen({
           <p
             style={{
               margin: "8px 0 0",
-              fontSize: 13,
+              fontSize: 14,
               color: "rgba(148,163,184,0.85)",
             }}
           >
@@ -333,7 +332,7 @@ export function JuryPostSubmissionScreen({
               <p
                 style={{
                   margin: "6px 0 0",
-                  fontSize: 12,
+                  fontSize: 14,
                   lineHeight: 1.5,
                   color: "rgba(148,163,184,0.78)",
                 }}
@@ -404,7 +403,7 @@ export function JuryPostSubmissionScreen({
               width: "100%",
               padding: "14px 22px",
               borderRadius: 999,
-              fontSize: 11,
+              fontSize: 14,
               fontWeight: 800,
               letterSpacing: "0.16em",
               textTransform: "uppercase",
@@ -426,7 +425,7 @@ export function JuryPostSubmissionScreen({
               width: "100%",
               padding: "14px 22px",
               borderRadius: 999,
-              fontSize: 11,
+              fontSize: 14,
               fontWeight: 700,
               letterSpacing: "0.12em",
               textTransform: "uppercase",
@@ -447,7 +446,7 @@ export function JuryPostSubmissionScreen({
               width: "100%",
               padding: "14px 22px",
               borderRadius: 999,
-              fontSize: 11,
+              fontSize: 14,
               fontWeight: 700,
               letterSpacing: "0.12em",
               textTransform: "uppercase",

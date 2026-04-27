@@ -8,9 +8,11 @@ import {
   CLAIMS_UPDATED_EVENT,
   readClaimsFromStorage,
 } from "../lib/verdictClaimSync.js";
+import { PROTOCOL_PAGE_BACKGROUND } from "../lib/protocolPageBackground.js";
 import { LiveCasesStack } from "./LiveCasesStack.jsx";
 import { BecomeReviewerCard } from "./BecomeReviewerCard.jsx";
 import { DottedCircleStat } from "./DottedCircleStat.jsx";
+import { useLiveActivity, useLivePool } from "../data/useLiveData.js";
 
 function safeParse(raw) {
   try {
@@ -32,6 +34,106 @@ const LEVEL_DISPLAY = {
   trusted: "TRUSTED",
   expert: "EXPERT",
 };
+
+function HeartRateIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      className="protocol-label-icon protocol-label-icon-heart"
+    >
+      <path
+        className="protocol-heart-rate-path"
+        d="M2.5 13.5h4l2.1-4.2 3.1 8.2 2.6-5.4h7.2"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function ShieldIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="protocol-label-icon">
+      <path
+        d="M12 2.8 5.2 5.7v5.5c0 4.2 2.6 7.9 6.8 10 4.2-2.1 6.8-5.8 6.8-10V5.7L12 2.8Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M9.5 12.1 11.1 13.8 14.7 10.1"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function MedicalCrossIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="protocol-label-icon">
+      <path
+        d="M10 4.5h4v5.5h5.5v4H14v5.5h-4V14H4.5v-4H10V4.5Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function RoleBadgeIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="protocol-label-icon">
+      <circle cx="12" cy="8.2" r="3.1" fill="none" stroke="currentColor" strokeWidth="1.7" />
+      <path
+        d="M5.8 19.2c1.3-3.4 3.6-5.1 6.2-5.1s4.9 1.7 6.2 5.1"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function TierStackIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="protocol-label-icon">
+      <path
+        d="M4.5 7.2h15M6.5 12h11M8.5 16.8h7"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function ActivityPulseIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="protocol-label-icon">
+      <path
+        d="M3 12h4l2-4 3.2 8 2.6-5H21"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 
 export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
   const navigate = useNavigate();
@@ -107,6 +209,8 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
     () => ({ approvedPct: 67, deniedPct: 21, reEvalPct: 12 }),
     []
   );
+  const livePool = useLivePool();
+  const liveActivity = useLiveActivity();
 
   const glassCardShell = {
     background:
@@ -139,11 +243,18 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
   };
 
   const statLabelStyle = {
-    fontSize: 11,
+    fontSize: 14,
     letterSpacing: "0.15em",
     color: "rgba(255,255,255,0.3)",
     marginBottom: "6px",
     textTransform: "uppercase",
+  };
+
+  const statLabelWithIconStyle = {
+    ...statLabelStyle,
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 8,
   };
 
   const statValueLarge = { fontSize: 32, fontWeight: 700, color: ACCENT };
@@ -151,7 +262,7 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
 
   const actionButtonBase = {
     padding: "10px 22px",
-    fontSize: "11px",
+    fontSize: "14px",
     fontWeight: 700,
     letterSpacing: "0.1em",
     textTransform: "uppercase",
@@ -189,7 +300,7 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
     boxSizing: "border-box",
     margin: "4px 8px",
     padding: "10px 22px",
-    fontSize: "11px",
+    fontSize: "14px",
     fontWeight: 600,
     letterSpacing: "0.08em",
     textTransform: "uppercase",
@@ -233,10 +344,7 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
         width: "100%",
         maxWidth: "100%",
         minHeight: "100vh",
-        backgroundColor: "#060810",
-        backgroundImage:
-          "linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px), radial-gradient(ellipse at bottom left, rgba(180, 200, 20, 0.12) 0%, #060810 65%)",
-        backgroundSize: "60px 60px, 60px 60px, 100% 100%",
+        ...PROTOCOL_PAGE_BACKGROUND,
         overflow: "auto",
         overflowX: "hidden",
         cursor: "crosshair",
@@ -280,7 +388,7 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
           <span
             style={{
               color: ACCENT,
-              fontSize: 13,
+              fontSize: 14,
               letterSpacing: "0.16em",
               fontWeight: 800,
             }}
@@ -299,12 +407,12 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
             flexWrap: "wrap",
             gap: "8px 14px",
             color: "rgba(255,255,255,0.62)",
-            fontSize: 10,
+            fontSize: 14,
             letterSpacing: "0.16em",
             textTransform: "uppercase",
           }}
         >
-          {["Protocol", "How It Works", "Governance", "Documentation"].map((item) => (
+          {["Protocol", "How It Works", "Governance"].map((item) => (
             <button
               key={item}
               type="button"
@@ -458,7 +566,7 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
             <span
               style={{
                 fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-                fontSize: 12,
+                fontSize: 14,
                 color: "rgba(255,255,255,0.85)",
                 minWidth: 0,
                 overflow: "hidden",
@@ -470,7 +578,7 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
             </span>
             <span
               style={{
-                fontSize: 10,
+                fontSize: 14,
                 fontWeight: 700,
                 letterSpacing: "0.12em",
                 color: ACCENT,
@@ -533,7 +641,7 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
               >
                 <span
                   style={{
-                    fontSize: 13,
+                    fontSize: 14,
                     textTransform: "uppercase",
                     letterSpacing: "0.15em",
                     color: "rgba(181,236,52,0.5)",
@@ -604,7 +712,7 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
                   <p
                     style={{
                       margin: "12px 0 0",
-                      fontSize: 12,
+                      fontSize: 14,
                       color: "rgba(255,255,255,0.2)",
                       textAlign: "center",
                       maxWidth: 280,
@@ -629,17 +737,21 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
                     <div
                       key={c.id}
                       className="protocol-dashboard-claim-row"
+                      onClick={() => {
+                        navigate("/case-progress", { state: { claim: c } });
+                        window.scrollTo(0, 0);
+                      }}
                       style={{
                         ...glassCardShell,
                         padding: "12px 14px",
                         transition: "all 0.3s ease",
-                        cursor: "default",
+                        cursor: "pointer",
                       }}
                     >
                       <p
                         style={{
                           margin: 0,
-                          fontSize: 11,
+                          fontSize: 14,
                           letterSpacing: "0.12em",
                           color: "rgba(148,163,184,0.9)",
                           textTransform: "uppercase",
@@ -650,7 +762,7 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
                       <p
                         style={{
                           margin: "6px 0 0",
-                          fontSize: 13,
+                          fontSize: 14,
                           color: "rgba(226,232,240,0.92)",
                         }}
                       >
@@ -687,13 +799,16 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
               }}
             >
               <div style={statCardShell}>
-                <div style={statLabelStyle}>Reputation</div>
+                <div style={statLabelWithIconStyle}>
+                  <HeartRateIcon />
+                  <span>Reputation</span>
+                </div>
                 <div style={statValueLarge}>
                   {reputationPoints == null ? "—" : reputationPoints}
                 </div>
                 <div
                   style={{
-                    fontSize: 11,
+                    fontSize: 14,
                     letterSpacing: "0.1em",
                     color: "rgba(181,236,52,0.5)",
                     marginTop: "4px",
@@ -704,11 +819,14 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
               </div>
 
               <div style={statCardShell}>
-                <div style={statLabelStyle}>Pool Health</div>
+                <div style={statLabelWithIconStyle}>
+                  <ShieldIcon />
+                  <span>Pool Health</span>
+                </div>
                 <div style={statValueLarge}>+2.1%</div>
                 <div
                   style={{
-                    fontSize: 11,
+                    fontSize: 14,
                     color: "rgba(255,255,255,0.2)",
                     marginTop: "4px",
                   }}
@@ -718,7 +836,10 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
               </div>
 
               <div style={statCardShell}>
-                <div style={statLabelStyle}>Your role</div>
+                <div style={statLabelWithIconStyle}>
+                  <RoleBadgeIcon />
+                  <span>Your role</span>
+                </div>
                 {!isJuror ? (
                   <div>
                     <div
@@ -761,7 +882,10 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
               </div>
 
               <div style={statCardShell}>
-                <div style={statLabelStyle}>Contribution Tier</div>
+                <div style={statLabelWithIconStyle}>
+                  <TierStackIcon />
+                  <span>Contribution Tier</span>
+                </div>
                 <div style={statValueMedium}>{tierLabel}</div>
               </div>
             </div>
@@ -782,16 +906,27 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
               alignItems: "stretch",
             }}
           >
-            <div style={{ ...statCardShell, padding: "28px", minHeight: 360, height: "100%" }}>
+            <div
+              style={{
+                ...statCardShell,
+                padding: "24px",
+                minHeight: 380,
+                overflow: "visible",
+              }}
+            >
               <div
                 style={{
                   ...statLabelStyle,
-                  fontSize: 12,
+                  fontSize: 14,
                   color: "rgba(181,236,52,0.9)",
                   marginBottom: "14px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
                 }}
               >
-                Pool health
+                <ShieldIcon />
+                <span>Pool health</span>
               </div>
               <div
                 style={{
@@ -802,10 +937,12 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
                 }}
               >
                 <div>
-                  <div style={{ fontSize: "28px", fontWeight: 700, color: "#b5ec34" }}>72%</div>
+                  <div style={{ fontSize: "28px", fontWeight: 700, color: "#b5ec34" }}>
+                    {Math.round(Number(livePool.stability || 0))}%
+                  </div>
                   <div
                     style={{
-                      fontSize: "10px",
+                      fontSize: "14px",
                       color: "rgba(181,236,52,0.5)",
                       letterSpacing: "0.1em",
                       marginTop: "2px",
@@ -815,10 +952,12 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
                   </div>
                 </div>
                 <div>
-                  <div style={{ fontSize: "28px", fontWeight: 700, color: "#fff" }}>₹3.1M</div>
+                  <div style={{ fontSize: "28px", fontWeight: 700, color: "#fff" }}>
+                    ₹{(Number(livePool.totalReserve || 0) / 1000000).toFixed(1)}M
+                  </div>
                   <div
                     style={{
-                      fontSize: "10px",
+                      fontSize: "14px",
                       color: "rgba(255,255,255,0.3)",
                       letterSpacing: "0.1em",
                       marginTop: "2px",
@@ -828,17 +967,23 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
                   </div>
                 </div>
                 <div>
-                  <div style={{ fontSize: "28px", fontWeight: 700, color: "#fff" }}>38</div>
-                  <div
-                    style={{
-                      fontSize: "10px",
-                      color: "rgba(255,255,255,0.3)",
-                      letterSpacing: "0.1em",
-                      marginTop: "2px",
-                    }}
-                  >
-                    ACTIVE CLAIMS
+                  <div style={{ fontSize: "28px", fontWeight: 700, color: "#fff" }}>
+                    {Number(livePool.activeClaims || 0)}
                   </div>
+                    <div
+                      style={{
+                        fontSize: "14px",
+                        color: "rgba(255,255,255,0.3)",
+                        letterSpacing: "0.1em",
+                        marginTop: "2px",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 8,
+                      }}
+                    >
+                      <MedicalCrossIcon />
+                      <span>ACTIVE CLAIMS</span>
+                    </div>
                 </div>
               </div>
               <div
@@ -848,7 +993,7 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
                   alignItems: "flex-start",
                   gap: 24,
                   flexWrap: "nowrap",
-                  overflow: "hidden",
+                  overflow: "visible",
                 }}
               >
                 <div style={{ display: "flex", justifyContent: "center", flex: 1, minWidth: 0 }}>
@@ -857,6 +1002,7 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
                     color="#b5ec34"
                     text="cases were approved after peer jury review."
                     delayMs={0}
+                    compact
                   />
                 </div>
                 <div style={{ display: "flex", justifyContent: "center", flex: 1, minWidth: 0 }}>
@@ -865,6 +1011,7 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
                     color="#f87171"
                     text="cases were denied due to insufficient evidence."
                     delayMs={180}
+                    compact
                   />
                 </div>
                 <div style={{ display: "flex", justifyContent: "center", flex: 1, minWidth: 0 }}>
@@ -873,56 +1020,96 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
                     color="#fbbf24"
                     text="cases moved to re-evaluation for deeper review."
                     delayMs={360}
+                    compact
                   />
                 </div>
               </div>
-              <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.15)", marginTop: "16px" }}>
+              <div style={{ fontSize: "14px", color: "rgba(255,255,255,0.15)", marginTop: "16px" }}>
                 Live aggregate data. No individual cases exposed.
               </div>
             </div>
 
-            <div style={{ ...statCardShell, padding: "28px", minHeight: 360, height: "100%" }}>
-              <div style={{ ...statLabelStyle, fontSize: 12, marginBottom: "8px" }}>System activity</div>
-              {[
-                { text: "3 claims approved today", time: "2m", positive: true },
-                { text: "Pool dropped by 2%", time: "17m", positive: false },
-                { text: "Jury assigned to case #A392", time: "32m", positive: true },
-                { text: "Reserve recovered by 1.2%", time: "1h", positive: true },
-              ].map((item) => (
-                <div
-                  key={`${item.text}-${item.time}`}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                    padding: "14px 0",
-                    borderBottom: "1px solid rgba(255,255,255,0.03)",
-                  }}
-                >
-                  <span
-                    style={{
-                      width: 6,
-                      height: 6,
-                      borderRadius: "50%",
-                      background: item.positive ? "#b5ec34" : "rgba(255,255,255,0.25)",
-                      flexShrink: 0,
-                    }}
-                  />
-                  <span style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", flex: 1 }}>
-                    {item.text}
-                  </span>
-                  <span
-                    style={{
-                      fontSize: 11,
-                      color: "rgba(255,255,255,0.15)",
-                      fontFamily:
-                        "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-                    }}
-                  >
-                    {item.time}
-                  </span>
-                </div>
-              ))}
+            <div
+              style={{
+                ...statCardShell,
+                padding: "24px",
+                minHeight: 380,
+                height: 380,
+                maxHeight: 380,
+                overflow: "hidden",
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <div
+                style={{
+                  ...statLabelStyle,
+                  fontSize: 14,
+                  marginBottom: "8px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                }}
+              >
+                <ActivityPulseIcon />
+                <span>System activity</span>
+              </div>
+              <div
+                className="protocol-activity-scroll"
+                style={{
+                  flex: 1,
+                  height: 380,
+                  overflowY: "auto",
+                  paddingRight: 4,
+                  scrollbarWidth: "thin",
+                  scrollbarColor: "rgba(255,255,255,0.1) transparent",
+                }}
+              >
+                {liveActivity.map((item) => {
+                  const text = String(item.message || item.text || "");
+                  const time = String(item.time || "just now");
+                  const lowered = text.toLowerCase();
+                  const positive =
+                    !lowered.includes("dropped") &&
+                    !lowered.includes("denied") &&
+                    !lowered.includes("re-evaluation");
+                  return (
+                    <div
+                      key={`${text}-${time}`}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        padding: "12px 0",
+                        borderBottom: "1px solid rgba(255,255,255,0.03)",
+                      }}
+                    >
+                      <span
+                        style={{
+                          width: 6,
+                          height: 6,
+                          borderRadius: "50%",
+                          background: positive ? "#b5ec34" : "rgba(255,255,255,0.25)",
+                          flexShrink: 0,
+                        }}
+                      />
+                      <span style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", flex: 1 }}>
+                        {text}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: 14,
+                          color: "rgba(255,255,255,0.15)",
+                          fontFamily:
+                            "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+                        }}
+                      >
+                        {time}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </Motion.div>
@@ -957,6 +1144,44 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
             border-color: rgba(181,236,52,0.2);
             box-shadow: 0 8px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(181,236,52,0.08);
             transform: translateY(-2px);
+          }
+          .protocol-activity-scroll::-webkit-scrollbar {
+            width: 6px;
+          }
+          .protocol-activity-scroll::-webkit-scrollbar-track {
+            background: transparent;
+          }
+          .protocol-activity-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.12);
+            border-radius: 999px;
+          }
+          .protocol-activity-scroll::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.2);
+          }
+          .protocol-label-icon {
+            width: 17px;
+            height: 17px;
+            color: rgba(255,255,255,0.6);
+            opacity: 0.6;
+            flex-shrink: 0;
+            animation: protocolIconBreath 3.2s ease-in-out infinite;
+          }
+          .protocol-label-icon-heart {
+            animation-duration: 2.8s;
+          }
+          .protocol-heart-rate-path {
+            stroke-dasharray: 30;
+            stroke-dashoffset: 0;
+            animation: protocolHeartTrace 2.6s ease-in-out infinite;
+          }
+          @keyframes protocolIconBreath {
+            0%, 100% { opacity: 0.5; transform: translateY(0); }
+            50% { opacity: 0.68; transform: translateY(-0.6px); }
+          }
+          @keyframes protocolHeartTrace {
+            0% { stroke-dashoffset: 20; }
+            45% { stroke-dashoffset: 0; }
+            100% { stroke-dashoffset: -20; }
           }
         `}</style>
           </div>

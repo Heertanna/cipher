@@ -283,7 +283,7 @@ export function Rulebook() {
                     </span>
                     <span
                       style={{
-                        fontSize: 12,
+                        fontSize: 14,
                         fontWeight: 700,
                         color: numColor,
                         letterSpacing: "0.15em",

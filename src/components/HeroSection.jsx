@@ -375,7 +375,7 @@ export function HeroSection({ onJoin }) {
           <span
             style={{
               color: ACCENT,
-              fontSize: 13,
+              fontSize: 14,
               letterSpacing: "0.16em",
               fontWeight: 800,
             }}
@@ -390,12 +390,12 @@ export function HeroSection({ onJoin }) {
             alignItems: "center",
             gap: 26,
             color: "rgba(255,255,255,0.62)",
-            fontSize: 10,
+            fontSize: 14,
             letterSpacing: "0.16em",
             textTransform: "uppercase",
           }}
         >
-          {["Protocol", "How It Works", "Governance", "Documentation"].map((item) => (
+          {["Protocol", "How It Works", "Governance"].map((item) => (
             <button
               key={item}
               type="button"
@@ -429,7 +429,7 @@ export function HeroSection({ onJoin }) {
             border: "1px solid rgba(181,236,52,0.65)",
             background: "rgba(2,6,12,0.85)",
             color: "rgba(255,255,255,0.96)",
-            fontSize: 10,
+            fontSize: 14,
             letterSpacing: "0.15em",
             textTransform: "uppercase",
             padding: "10px 16px",
@@ -456,7 +456,7 @@ export function HeroSection({ onJoin }) {
         <p
           style={{
             margin: 0,
-            fontSize: 13,
+            fontSize: 14,
             letterSpacing: "0.22em",
             color: "rgba(255,255,255,0.3)",
             textTransform: "uppercase",
@@ -490,7 +490,7 @@ export function HeroSection({ onJoin }) {
               border: "none",
               borderRadius: 999,
               padding: "11px 16px",
-              fontSize: 11,
+              fontSize: 14,
               letterSpacing: "0.14em",
               textTransform: "uppercase",
               fontWeight: 700,
@@ -507,7 +507,7 @@ export function HeroSection({ onJoin }) {
               border: "1px solid rgba(255,255,255,0.2)",
               borderRadius: 999,
               padding: "11px 16px",
-              fontSize: 11,
+              fontSize: 14,
               letterSpacing: "0.14em",
               textTransform: "uppercase",
               fontWeight: 600,
@@ -551,7 +551,7 @@ export function HeroSection({ onJoin }) {
           left: "50%",
           transform: "translateX(-50%)",
           color: "rgba(255,255,255,0.18)",
-          fontSize: 9,
+          fontSize: 14,
           letterSpacing: "0.14em",
           textTransform: "uppercase",
           whiteSpace: "nowrap",

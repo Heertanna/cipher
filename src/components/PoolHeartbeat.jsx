@@ -80,7 +80,7 @@ export function PoolHeartbeat() {
           <div>
             <p
               style={{
-                fontSize: 11,
+                fontSize: 14,
                 fontWeight: 600,
                 letterSpacing: "0.25em",
                 textTransform: "uppercase",
@@ -106,11 +106,11 @@ export function PoolHeartbeat() {
           </div>
           <div style={{ display: "flex", gap: 32, alignItems: "flex-end", paddingTop: 12 }}>
             <div style={{ textAlign: "right" }}>
-              <p style={{ fontSize: 11, color: "rgba(181,236,52,0.5)", letterSpacing: "0.15em", textTransform: "uppercase" }}>Approved</p>
+              <p style={{ fontSize: 14, color: "rgba(181,236,52,0.5)", letterSpacing: "0.15em", textTransform: "uppercase" }}>Approved</p>
               <p style={{ fontSize: 22, fontWeight: 700, color: ACCENT }}>↑ 247</p>
             </div>
             <div style={{ textAlign: "right" }}>
-              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", letterSpacing: "0.15em", textTransform: "uppercase" }}>Rejected</p>
+              <p style={{ fontSize: 14, color: "rgba(255,255,255,0.35)", letterSpacing: "0.15em", textTransform: "uppercase" }}>Rejected</p>
               <p style={{ fontSize: 22, fontWeight: 700, color: "rgba(255,255,255,0.5)" }}>↓ 18</p>
             </div>
           </div>
@@ -203,7 +203,7 @@ export function PoolHeartbeat() {
               justifyContent: "space-between",
               padding: "8px 40px 0",
               opacity: 0.15,
-              fontSize: 9,
+              fontSize: 14,
               color: "#fff",
               letterSpacing: "0.1em",
             }}
@@ -225,7 +225,7 @@ export function PoolHeartbeat() {
             display: "flex",
             justifyContent: "space-between",
             marginTop: 16,
-            fontSize: 10,
+            fontSize: 14,
             color: "rgba(181,236,52,0.35)",
             letterSpacing: "0.15em",
             textTransform: "uppercase",
@@ -264,7 +264,7 @@ export function PoolHeartbeat() {
             >
               <p
                 style={{
-                  fontSize: 10,
+                  fontSize: 14,
                   fontWeight: 600,
                   letterSpacing: "0.2em",
                   textTransform: "uppercase",
@@ -286,7 +286,7 @@ export function PoolHeartbeat() {
               </p>
               <p
                 style={{
-                  fontSize: 11,
+                  fontSize: 14,
                   color: card.accent ? "rgba(5,5,5,0.5)" : "rgba(181,236,52,0.5)",
                   letterSpacing: "0.04em",
                 }}

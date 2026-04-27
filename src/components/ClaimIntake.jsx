@@ -1,13 +1,18 @@
-import React, { useCallback, useMemo, useState } from "react";
-import { FaintBackground, Label, Select, TextArea, ACCENT } from "./OnboardingCommon.jsx";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { SmartProcessing } from "./SmartProcessing.jsx";
 import { FastTrackApproval } from "./FastTrackApproval.jsx";
 import { PeerReviewPreparation } from "./PeerReviewPreparation.jsx";
 import { API_URL } from "../config/api.js";
 import { getSession } from "../lib/session.js";
+import { PROTOCOL_PAGE_BACKGROUND, PROTOCOL_DASHBOARD_CARD } from "../lib/protocolPageBackground.js";
+import { addMockClaim } from "../data/mockDatabase.js";
+import humanBody from "../assets/human.png";
 
 const STORAGE_KEY = "cipher_claims_demo";
 const DRAFT_KEY = "cipher_claim_draft_demo";
+const CLAIM_ACCENT = "#b4c814";
+/** Matches `src/index.css` body — same as the rest of the app */
+const FONT_BODY = '"Sora", system-ui, -apple-system, sans-serif';
 
 function safeParse(raw) {
   try {
@@ -27,9 +32,28 @@ async function fileToSha256Hex(file) {
     .join("");
 }
 
+function FieldTag({ children }) {
+  return (
+    <div
+      style={{
+        fontFamily: FONT_BODY,
+        fontSize: 14,
+        fontWeight: 600,
+        textTransform: "uppercase",
+        letterSpacing: "0.12em",
+        color: "rgba(255,255,255,0.62)",
+        marginBottom: 8,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
 function Input({ value, onChange, placeholder, type = "text", step }) {
   return (
     <input
+      className="claim-journey-field"
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
@@ -37,32 +61,81 @@ function Input({ value, onChange, placeholder, type = "text", step }) {
       step={step}
       style={{
         width: "100%",
-        padding: "14px 16px",
-        background: "rgba(255,255,255,0.03)",
+        padding: "14px 15px",
+        background: "rgba(255,255,255,0.025)",
         border: "1px solid rgba(255,255,255,0.1)",
-        borderRadius: 8,
+        borderRadius: 12,
         color: "#f1f5f9",
-        fontSize: 15,
-        fontFamily: "inherit",
+        fontSize: 14,
+        fontFamily: FONT_BODY,
         outline: "none",
         transition: "border-color 0.3s ease, box-shadow 0.3s ease",
         boxSizing: "border-box",
-      }}
-      onFocus={(e) => {
-        e.target.style.borderColor = "rgba(181,236,52,0.5)";
-        e.target.style.boxShadow =
-          "0 0 0 2px rgba(181,236,52,0.1), 0 0 20px rgba(181,236,52,0.06)";
-      }}
-      onBlur={(e) => {
-        e.target.style.borderColor = "rgba(255,255,255,0.1)";
-        e.target.style.boxShadow = "none";
       }}
     />
   );
 }
 
-export function ClaimIntake({ onBack, onDone }) {
+function JourneyTextArea({ value, onChange, placeholder, rows = 3, maxLength }) {
+  return (
+    <textarea
+      className="claim-journey-field"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      rows={rows}
+      maxLength={maxLength}
+      style={{
+        width: "100%",
+        padding: "14px 15px",
+        background: "rgba(255,255,255,0.025)",
+        border: "1px solid rgba(255,255,255,0.1)",
+        borderRadius: 12,
+        color: "#f1f5f9",
+        fontSize: 14,
+        fontFamily: FONT_BODY,
+        outline: "none",
+        resize: "vertical",
+        minHeight: 75,
+        transition: "border-color 0.3s ease, box-shadow 0.3s ease",
+        boxSizing: "border-box",
+      }}
+    />
+  );
+}
+
+function JourneySelect({ value, onChange, options }) {
+  return (
+    <select
+      className="claim-journey-field"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      style={{
+        width: "100%",
+        padding: "14px 15px",
+        background: "rgba(255,255,255,0.025)",
+        border: "1px solid rgba(255,255,255,0.1)",
+        borderRadius: 12,
+        color: "#f1f5f9",
+        fontSize: 14,
+        fontFamily: FONT_BODY,
+        outline: "none",
+        transition: "border-color 0.3s ease, box-shadow 0.3s ease",
+        boxSizing: "border-box",
+      }}
+    >
+      {options.map((option) => (
+        <option key={option} value={option} style={{ background: "#0b1020", color: "#f1f5f9" }}>
+          {option}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+export function ClaimIntake({ onBack, onDone, onViewCaseProgress }) {
   const [step, setStep] = useState(1);
+  const [stepDirection, setStepDirection] = useState(1);
   const [processing, setProcessing] = useState(false);
   const [processingClaim, setProcessingClaim] = useState(null);
   const [processingClaimId, setProcessingClaimId] = useState(null);
@@ -76,6 +149,7 @@ export function ClaimIntake({ onBack, onDone }) {
   }, []);
 
   const [whatHappened, setWhatHappened] = useState(storedDraft?.whatHappened ?? "");
+  const [whatHappenedCount, setWhatHappenedCount] = useState(0);
   const [whenHappened, setWhenHappened] = useState(storedDraft?.whenHappened ?? "");
   const [timeStatus, setTimeStatus] = useState(storedDraft?.timeStatus ?? "Ongoing");
   const [issueType, setIssueType] = useState(storedDraft?.issueType ?? "Emergency");
@@ -92,6 +166,10 @@ export function ClaimIntake({ onBack, onDone }) {
   );
 
   const [reportsMeta, setReportsMeta] = useState(storedDraft?.reportsMeta ?? []);
+
+  useEffect(() => {
+    setWhatHappenedCount((whatHappened || "").length);
+  }, [whatHappened]);
 
   const persistDraft = useCallback(
     (patch) => {
@@ -158,20 +236,103 @@ export function ClaimIntake({ onBack, onDone }) {
     ]
   );
 
+  const completionFields = useMemo(
+    () => [
+      { key: "whatHappened", label: "incident summary", value: whatHappened },
+      { key: "whenHappened", label: "incident date", value: whenHappened },
+      { key: "timeStatus", label: "status timeline", value: timeStatus },
+      { key: "issueType", label: "issue type", value: issueType },
+      { key: "doctorConsulted", label: "doctor consultation", value: doctorConsulted },
+      { key: "recommendedTreatment", label: "treatment details", value: recommendedTreatment },
+      { key: "costDetails", label: "cost details", value: costDetails },
+      { key: "financialContext", label: "financial context", value: financialContext },
+      { key: "impactIfUntreated", label: "impact details", value: impactIfUntreated },
+      { key: "reportsMeta", label: "supporting documents", value: reportsMeta?.length ? "yes" : "" },
+    ],
+    [
+      whatHappened,
+      whenHappened,
+      timeStatus,
+      issueType,
+      doctorConsulted,
+      recommendedTreatment,
+      costDetails,
+      financialContext,
+      impactIfUntreated,
+      reportsMeta,
+    ]
+  );
+
+  const strengthPct = useMemo(() => {
+    const filled = completionFields.filter((field) => String(field.value || "").trim()).length;
+    return Math.max(8, Math.round((filled / completionFields.length) * 100));
+  }, [completionFields]);
+
+  const strengthTip = useMemo(() => {
+    const firstMissing = completionFields.find((field) => !String(field.value || "").trim());
+    if (!firstMissing) return "Ready for review. Your claim has strong contextual detail.";
+    if (strengthPct >= 80) return `Almost complete. Add ${firstMissing.label} for maximum confidence.`;
+    return `⚠ Add ${firstMissing.label} to reach ${Math.min(100, strengthPct + 15)}%.`;
+  }, [completionFields, strengthPct]);
+
+  const handleReportsSelection = useCallback(
+    async (e) => {
+      const files = Array.from(e.target.files || []);
+      if (!files.length) {
+        setReportsMeta([]);
+        persistDraft({ reportsMeta: [] });
+        return;
+      }
+      const metas = await Promise.all(
+        files.map(async (f) => {
+          const base = {
+            name: f.name,
+            size: f.size,
+            type: f.type,
+          };
+          try {
+            const sha256 = await fileToSha256Hex(f);
+            return { ...base, sha256 };
+          } catch {
+            return base;
+          }
+        })
+      );
+      setReportsMeta(metas);
+      persistDraft({ reportsMeta: metas });
+    },
+    [persistDraft]
+  );
+
   const submit = useCallback(async () => {
     const existingRaw = window.localStorage.getItem(STORAGE_KEY);
     const existing = safeParse(existingRaw) || [];
+    const { anonymousId } = getSession();
 
     const id = `C${Math.floor(Date.now() / 1000)}`;
     const newClaim = {
       id,
-      status: "Pending",
-      stage: "Pre-check",
+      status: "Under Jury Review",
+      stage: "Jury review",
       createdAt: Date.now(),
       ...claimSummary,
       reportsAttached: reportsMeta?.length > 0,
       reportsCount: reportsMeta?.length || 0,
     };
+
+    addMockClaim({
+      id,
+      memberId: anonymousId || "mbr_002",
+      complaint: whatHappened || "General claim",
+      dateFiled: new Date().toISOString().slice(0, 10),
+      status: "Under Jury Review",
+      juryPanel: 8,
+      juryVoted: 0,
+      progress: 8,
+      estimatedCost: Number(String(costDetails || "").replace(/[^\d.]/g, "")) || 0,
+      treatment: recommendedTreatment || "Not specified",
+      category: issueType || "General",
+    });
 
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify([newClaim, ...existing].slice(0, 20)));
     window.localStorage.removeItem(DRAFT_KEY);
@@ -183,7 +344,6 @@ export function ClaimIntake({ onBack, onDone }) {
 
     // Parse first number from free-form cost details (e.g. "INR 120000")
     const numericCost = Number(String(costDetails || "").replace(/[^\d.]/g, "")) || 0;
-    const { anonymousId } = getSession();
 
     try {
       const res = await fetch(`${API_URL}/submit-claim`, {
@@ -253,6 +413,24 @@ export function ClaimIntake({ onBack, onDone }) {
     impactIfUntreated,
   ]);
 
+  const goForward = useCallback(() => {
+    if (step < 3) {
+      setStepDirection(1);
+      setStep((prev) => prev + 1);
+      return;
+    }
+    submit();
+  }, [step, submit]);
+
+  const goBackward = useCallback(() => {
+    if (step > 1) {
+      setStepDirection(-1);
+      setStep((prev) => prev - 1);
+      return;
+    }
+    onBack?.();
+  }, [step, onBack]);
+
   if (processing) {
     return (
       <SmartProcessing
@@ -292,7 +470,20 @@ export function ClaimIntake({ onBack, onDone }) {
         description={whatHappened}
         claimRpAwarded={claimRpAwarded}
         onGoDashboard={() => onDone?.()}
-        onViewCaseProgress={() => onDone?.()}
+        onViewCaseProgress={() => {
+          let storedClaims = [];
+          try {
+            storedClaims = JSON.parse(window.localStorage.getItem("cipher_claims_demo") || "[]");
+          } catch {
+            storedClaims = [];
+          }
+          const claim =
+            storedClaims.find((c) => c.id === processingClaimId) ||
+            processingClaim ||
+            { id: processingClaimId, whatHappened, typeOfIssue: issueType, costDetails };
+          if (typeof onViewCaseProgress === "function") onViewCaseProgress(claim);
+          else onDone?.();
+        }}
       />
     );
   }
@@ -301,523 +492,756 @@ export function ClaimIntake({ onBack, onDone }) {
     <div
       style={{
         minHeight: "100vh",
-        background: "transparent",
+        ...PROTOCOL_PAGE_BACKGROUND,
         display: "flex",
+        flexDirection: "column",
         alignItems: "center",
-        justifyContent: "center",
-        padding: "80px 24px",
+        justifyContent: "flex-start",
+        padding: "12px 24px",
         position: "relative",
+        fontFamily: FONT_BODY,
       }}
     >
-      <FaintBackground />
+      <div style={{ width: "100%", maxWidth: 1180, display: "flex", flexDirection: "column" }}>
+        <div
+          style={{
+            width: "100%",
+            maxWidth: 1180,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 16,
+            padding: "0 4px",
+            gap: 14,
+            flexWrap: "wrap",
+          }}
+        >
+          <div>
+            <div
+              style={{
+                fontSize: 11,
+                letterSpacing: "0.12em",
+                color: "#b4c814",
+                fontFamily: "monospace",
+                textTransform: "uppercase",
+              }}
+            >
+              ONBOARDING - STEP {step} OF 3
+            </div>
+            <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
+              {[1, 2, 3].map((dot) => (
+                <div
+                  key={dot}
+                  style={{
+                    width: step === dot ? 28 : 20,
+                    height: 3,
+                    borderRadius: 2,
+                    background:
+                      step === dot ? "#b4c814" : dot < step ? "rgba(180,200,20,0.35)" : "rgba(255,255,255,0.1)",
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div style={{ flex: 1, minWidth: 260, display: "flex", justifyContent: "center" }}>
+            <svg width="320" height="24" viewBox="0 0 320 24" aria-hidden="true">
+              <path
+                d="M0,12 L40,12 L55,12 L65,2 L75,22 L85,12 L100,12 L170,12 L185,12 L195,4 L205,20 L215,12 L235,12 L320,12"
+                stroke={CLAIM_ACCENT}
+                strokeWidth="1.4"
+                fill="none"
+                style={{
+                  strokeDasharray: 560,
+                  strokeDashoffset: 560,
+                  animation: "drawEcg 1.8s ease forwards, ecgLoop 3s linear 2s infinite",
+                }}
+              />
+            </svg>
+          </div>
+
+          <div
+            style={{
+              width: 34,
+              height: 34,
+              borderRadius: 999,
+              border: "1px solid rgba(180,200,20,0.35)",
+              background: "rgba(180,200,20,0.08)",
+              color: "#d9f99d",
+              display: "grid",
+              placeItems: "center",
+              fontSize: 14,
+            }}
+          >
+            ♥
+          </div>
+        </div>
 
       <div
         style={{
           width: "100%",
-          maxWidth: 820,
+          maxWidth: 1180,
+          height: "calc(100vh - 80px)",
+          minHeight: 750,
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
           position: "relative",
           zIndex: 1,
-          borderRadius: 18,
+          borderRadius: 24,
           border: "1px solid rgba(255,255,255,0.08)",
-          background: "rgba(255,255,255,0.02)",
-          padding: "32px 32px",
+          background: "rgba(8,11,18,0.98)",
           boxShadow: "0 20px 70px rgba(0,0,0,0.35)",
+          animation: "fadeUp 500ms ease both",
         }}
       >
-        {/* top row: step indicator + back */}
         <div
+          className="claim-journey-grid"
           style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginBottom: 24,
-            gap: 16,
+            flex: 1,
+            display: "grid",
+            gridTemplateColumns: "380px 1fr",
+            overflow: "hidden",
+            minHeight: 0,
           }}
         >
-          <div>
-            <p
-              style={{
-                fontSize: 11,
-                fontWeight: 700,
-                letterSpacing: "0.25em",
-                textTransform: "uppercase",
-                color: "rgba(181,236,52,0.45)",
-                marginBottom: 10,
-              }}
-            >
-              Onboarding — Step {step} of 3
-            </p>
-            <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+          <aside
+            style={{
+              position: "relative",
+              flex: 1,
+              padding: "32px 36px",
+              borderRight: "1px solid rgba(255,255,255,0.08)",
+              background:
+                "radial-gradient(circle at 22% 14%, rgba(180,200,20,0.16) 0%, rgba(8,11,18,0.98) 52%), rgba(8,11,18,0.92)",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              overflow: "hidden",
+              minHeight: 0,
+            }}
+          >
+            <div>
               <div
                 style={{
-                  width: 60,
-                  height: 4,
+                  display: "inline-flex",
+                  padding: "6px 10px",
                   borderRadius: 999,
-                  background: "rgba(255,255,255,0.08)",
+                  border: "1px solid rgba(180,200,20,0.32)",
+                  color: "rgba(180,200,20,0.95)",
+                  background: "rgba(180,200,20,0.08)",
+                  fontFamily: FONT_BODY,
+                  fontSize: 11,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                }}
+              >
+                Submit a claim
+              </div>
+              <h2
+                style={{
+                  margin: "16px 0 0",
+                  fontSize: 28,
+                  lineHeight: 1.06,
+                  color: "#f8fafc",
+                  fontWeight: 700,
+                  letterSpacing: "-0.03em",
+                }}
+              >
+                Let's understand
+                <br />
+                <span style={{ color: CLAIM_ACCENT }}>what happened</span>
+              </h2>
+              <p style={{ margin: "12px 0 0", color: "rgba(226,232,240,0.7)", fontSize: 14, lineHeight: 1.65 }}>
+                We'll take it step by step. Your community is here to help.
+              </p>
+            </div>
+
+            <div
+              style={{
+                position: "relative",
+                flex: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                minHeight: 0,
+                overflow: "hidden",
+              }}
+            >
+              <img
+                src={humanBody}
+                alt="body"
+                style={{
+                  height: "100%",
+                  width: "auto",
+                  maxHeight: 500,
+                  objectFit: "contain",
+                  opacity: 0.75,
+                  filter: "brightness(0.4) sepia(1) hue-rotate(50deg) saturate(6) contrast(1.2)",
+                  maskImage:
+                    "radial-gradient(ellipse 80% 90% at 50% 50%, black 40%, transparent 100%)",
+                  WebkitMaskImage:
+                    "radial-gradient(ellipse 80% 90% at 50% 50%, black 40%, transparent 100%)",
+                  animation: "floatSway 5s ease-in-out infinite",
+                  display: "block",
+                }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  background:
+                    "radial-gradient(ellipse 60% 70% at 50% 50%, rgba(180,200,20,0.04) 0%, transparent 80%)",
+                  pointerEvents: "none",
+                }}
+              />
+            </div>
+
+            <div
+              style={{
+                border: "1px solid rgba(180,200,20,0.2)",
+                background: "rgba(180,200,20,0.08)",
+                borderRadius: 12,
+                padding: "10px 12px",
+                color: "rgba(231,255,160,0.9)",
+                fontSize: 12,
+                lineHeight: 1.4,
+              }}
+            >
+              ◇ Your information is secure and confidential
+            </div>
+          </aside>
+
+          <section
+            style={{
+              ...PROTOCOL_DASHBOARD_CARD,
+              padding: "32px 36px",
+              overflowY: "auto",
+              scrollbarWidth: "thin",
+              scrollbarColor: "rgba(255,255,255,0.08) transparent",
+              display: "flex",
+              flexDirection: "column",
+              gap: 14,
+              minHeight: 0,
+              boxSizing: "border-box",
+            }}
+          >
+            <div
+              key={step}
+              className={`claim-step-pane ${stepDirection > 0 ? "claim-step-forward" : "claim-step-back"}`}
+              style={{ flex: 1 }}
+            >
+              {step === 1 ? (
+                <div style={{ display: "grid", gridTemplateColumns: "38px minmax(0,1fr)", gap: 12 }}>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 8 }}>
+                    {["◎", "▦", "⊕", "♦"].map((icon, idx) => (
+                      <React.Fragment key={icon}>
+                        <div
+                          style={{
+                            width: 36,
+                            height: 36,
+                            borderRadius: "50%",
+                            border: `1px solid ${
+                              idx === 0 ? "rgba(180,200,20,0.4)" : "rgba(255,255,255,0.1)"
+                            }`,
+                            background: idx === 0 ? "rgba(180,200,20,0.06)" : "rgba(255,255,255,0.03)",
+                            color: idx === 0 ? "#b4c814" : "rgba(255,255,255,0.4)",
+                            boxShadow: idx === 0 ? "0 0 20px rgba(180,200,20,0.25)" : "none",
+                            display: "grid",
+                            placeItems: "center",
+                            fontSize: 14,
+                            fontFamily: "monospace",
+                            flexShrink: 0,
+                          }}
+                        >
+                          {icon}
+                        </div>
+                        {idx < 3 ? (
+                          <div
+                            style={{
+                              width: 1,
+                              height: 98,
+                              borderLeft: "1px dashed rgba(255,255,255,0.1)",
+                              margin: "6px 0",
+                            }}
+                          />
+                        ) : null}
+                      </React.Fragment>
+                    ))}
+                  </div>
+
+                  <div style={{ display: "grid", gap: 12 }}>
+                    <div>
+                      <FieldTag>1. What happened?</FieldTag>
+                      <div style={{ position: "relative" }}>
+                        <JourneyTextArea
+                          value={whatHappened}
+                          onChange={(v) => {
+                            setWhatHappened(v);
+                            setWhatHappenedCount(v.length);
+                            persistDraft({ whatHappened: v });
+                          }}
+                          placeholder="Short description of the incident, condition, or event"
+                          rows={4}
+                          maxLength={500}
+                        />
+                        <span
+                          style={{
+                            position: "absolute",
+                            bottom: 8,
+                            right: 12,
+                            fontSize: 11,
+                            color: "rgba(255,255,255,0.2)",
+                            fontFamily: "monospace",
+                          }}
+                        >
+                          {whatHappenedCount}/500
+                        </span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <FieldTag>2. When did it happen?</FieldTag>
+                      <Input
+                        type="date"
+                        value={whenHappened}
+                        onChange={(v) => {
+                          setWhenHappened(v);
+                          persistDraft({ whenHappened: v });
+                        }}
+                      />
+                    </div>
+
+                    <div>
+                      <FieldTag>3. Ongoing or completed?</FieldTag>
+                      <JourneySelect
+                        value={timeStatus}
+                        onChange={(v) => {
+                          setTimeStatus(v);
+                          persistDraft({ timeStatus: v });
+                        }}
+                        options={["Ongoing", "Completed"]}
+                      />
+                    </div>
+
+                    <div>
+                      <FieldTag>4. Type of issue</FieldTag>
+                      <JourneySelect
+                        value={issueType}
+                        onChange={(v) => {
+                          setIssueType(v);
+                          persistDraft({ issueType: v });
+                        }}
+                        options={["Emergency", "Planned", "Ongoing condition"]}
+                      />
+                    </div>
+
+                    <div>
+                      <FieldTag>5. Doctor consulted?</FieldTag>
+                      <JourneySelect
+                        value={doctorConsulted}
+                        onChange={(v) => {
+                          setDoctorConsulted(v);
+                          persistDraft({ doctorConsulted: v });
+                        }}
+                        options={["Yes", "No"]}
+                      />
+                    </div>
+
+                    <div>
+                      <FieldTag>Upload supporting documents (optional)</FieldTag>
+                      <label
+                        style={{
+                          border: "1px dashed rgba(255,255,255,0.12)",
+                          borderRadius: 10,
+                          padding: 14,
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          gap: 8,
+                          background: "rgba(255,255,255,0.02)",
+                          cursor: "pointer",
+                          transition: "all 0.2s ease",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.borderColor = "rgba(180,200,20,0.3)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)";
+                        }}
+                      >
+                        <input
+                          type="file"
+                          multiple
+                          accept="application/pdf,image/*"
+                          onChange={handleReportsSelection}
+                          style={{ display: "none" }}
+                        />
+                        <span style={{ fontSize: 24, opacity: 0.5, fontFamily: "monospace" }}>□</span>
+                        <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)" }}>Drag & drop files here</div>
+                        <span
+                          style={{
+                            padding: "8px 20px",
+                            background: "rgba(255,255,255,0.06)",
+                            border: "1px solid rgba(255,255,255,0.15)",
+                            borderRadius: 8,
+                            color: "#fff",
+                            fontSize: 12,
+                            fontWeight: 700,
+                            letterSpacing: "0.08em",
+                          }}
+                        >
+                          CHOOSE FILES
+                        </span>
+                        <div style={{ fontSize: 11, color: "rgba(255,255,255,0.2)" }}>PDF, JPG, PNG up to 10MB</div>
+                        {reportsMeta.length > 0 ? (
+                          <div style={{ fontSize: 11, color: "#b4c814" }}>{reportsMeta.length} file(s) selected</div>
+                        ) : null}
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
+              {step === 2 ? (
+                <div style={{ display: "grid", gap: 12 }}>
+                  <div>
+                    <FieldTag>Recommended treatment</FieldTag>
+                    <JourneyTextArea
+                      value={recommendedTreatment}
+                      onChange={(v) => {
+                        setRecommendedTreatment(v);
+                        persistDraft({ recommendedTreatment: v });
+                      }}
+                      placeholder="What treatment has been recommended (if known)"
+                      rows={4}
+                    />
+                  </div>
+                  <div>
+                    <FieldTag>Cost details</FieldTag>
+                    <Input
+                      value={costDetails}
+                      onChange={(v) => {
+                        setCostDetails(v);
+                        persistDraft({ costDetails: v });
+                      }}
+                      placeholder="Estimated cost, currency, and notes (e.g. INR 120000)"
+                    />
+                  </div>
+                  <div>
+                    <FieldTag>Financial situation</FieldTag>
+                    <JourneySelect
+                      value={financialContext}
+                      onChange={(v) => {
+                        setFinancialContext(v);
+                        persistDraft({ financialContext: v });
+                      }}
+                      options={["Stable", "Struggling", "Severe strain"]}
+                    />
+                  </div>
+                  <div>
+                    <FieldTag>Impact if not treated</FieldTag>
+                    <JourneyTextArea
+                      value={impactIfUntreated}
+                      onChange={(v) => {
+                        setImpactIfUntreated(v);
+                        persistDraft({ impactIfUntreated: v });
+                      }}
+                      placeholder="What happens if this isn’t treated soon?"
+                      rows={4}
+                    />
+                  </div>
+                </div>
+              ) : null}
+
+              {step === 3 ? (
+                <div style={{ display: "grid", gap: 12 }}>
+                  <div
+                    style={{
+                      border: "1px dashed rgba(180,200,20,0.34)",
+                      background: "rgba(180,200,20,0.04)",
+                      borderRadius: 14,
+                      padding: 14,
+                    }}
+                  >
+                    <FieldTag>Document upload area</FieldTag>
+                    <input
+                      type="file"
+                      multiple
+                      accept="application/pdf,image/*"
+                      onChange={handleReportsSelection}
+                      style={{ width: "100%", color: "rgba(255,255,255,0.86)", fontSize: 14 }}
+                    />
+                    <p style={{ margin: "8px 0 0", fontSize: 13, color: "rgba(255,255,255,0.55)" }}>
+                      {reportsMeta?.length
+                        ? `${reportsMeta.length} file(s) ready. Metadata only is stored in this demo.`
+                        : "Optional: attach PDFs/images to strengthen peer review context."}
+                    </p>
+                  </div>
+                  <div
+                    style={{
+                      border: "1px solid rgba(255,255,255,0.08)",
+                      background: "rgba(255,255,255,0.02)",
+                      borderRadius: 14,
+                      padding: 14,
+                    }}
+                  >
+                    <FieldTag>Summary review</FieldTag>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                      {[
+                        ["What happened", whatHappened || "—"],
+                        ["When did it happen", whenHappened || "—"],
+                        ["Status", timeStatus || "—"],
+                        ["Issue type", issueType || "—"],
+                        ["Doctor consulted", doctorConsulted || "—"],
+                        ["Treatment", recommendedTreatment || "—"],
+                        ["Cost details", costDetails || "—"],
+                        ["Financial context", financialContext || "—"],
+                        ["Impact if not treated", impactIfUntreated || "—"],
+                      ].map(([label, value]) => (
+                        <div key={label} style={{ gridColumn: label === "Impact if not treated" ? "1 / -1" : "auto" }}>
+                          <div
+                            style={{
+                              fontFamily: FONT_BODY,
+                              fontSize: 11,
+                              letterSpacing: "0.11em",
+                              color: "rgba(255,255,255,0.45)",
+                              textTransform: "uppercase",
+                            }}
+                          >
+                            {label}
+                          </div>
+                          <div
+                            style={{
+                              marginTop: 4,
+                              fontSize: 14,
+                              lineHeight: 1.5,
+                              color: "rgba(248,250,252,0.92)",
+                              whiteSpace: "pre-wrap",
+                            }}
+                          >
+                            {value}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+
+            <div
+              style={{
+                marginTop: 16,
+                background: "rgba(255,255,255,0.025)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                borderRadius: 10,
+                padding: "14px 16px",
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <span
+                  style={{
+                    fontFamily: FONT_BODY,
+                    fontSize: 12,
+                    letterSpacing: "0.11em",
+                    color: "rgba(255,255,255,0.62)",
+                  }}
+                >
+                  CLAIM STRENGTH
+                </span>
+                <span style={{ color: CLAIM_ACCENT, fontSize: 13, fontWeight: 700 }}>{strengthPct}%</span>
+              </div>
+              <div
+                style={{
+                  height: 3,
+                  background: "rgba(255,255,255,0.07)",
+                  borderRadius: 2,
+                  margin: "8px 0",
                   overflow: "hidden",
                 }}
               >
                 <div
                   style={{
-                    width: `${(step / 3) * 100}%`,
                     height: "100%",
-                    background: ACCENT,
-                    opacity: 0.65,
+                    width: `${strengthPct}%`,
+                    background: "linear-gradient(90deg, rgba(180,200,20,0.5), #b4c814)",
+                    transition: "width 0.5s ease",
                   }}
                 />
               </div>
-              <span
+              <div style={{ fontSize: 11, color: "rgba(180,200,20,0.65)" }}>{strengthTip}</div>
+            </div>
+
+            {step === 1 ? (
+              <div
                 style={{
-                  fontSize: 11,
-                  color: "rgba(255,255,255,0.25)",
-                  letterSpacing: "0.08em",
-                  textTransform: "uppercase",
+                  marginTop: 12,
+                  padding: "12px 16px",
+                  background: "rgba(180,200,20,0.06)",
+                  border: "1px solid rgba(180,200,20,0.15)",
+                  borderRadius: 10,
+                  fontSize: 13,
+                  color: "rgba(255,255,255,0.6)",
+                  display: "flex",
+                  gap: 8,
+                  alignItems: "center",
                 }}
               >
-                Submit a claim
-              </span>
-            </div>
-          </div>
+                <span>◉</span>
+                <span>You can proceed now. Supporting documents can be added later.</span>
+              </div>
+            ) : null}
 
+            {routingError ? (
+              <div style={{ marginTop: 10, fontSize: 13, color: "#fda4af" }}>{routingError}</div>
+            ) : null}
+
+            <div
+              style={{
+                marginTop: 16,
+                paddingTop: 4,
+                display: "flex",
+                justifyContent: "space-between",
+                gap: 10,
+                flexWrap: "wrap",
+              }}
+            >
+              <button
+                type="button"
+                onClick={goBackward}
+                style={{
+                  minWidth: 130,
+                  borderRadius: 12,
+                  border: "1px solid rgba(255,255,255,0.18)",
+                  background: "transparent",
+                  color: "rgba(236,253,245,0.9)",
+                  padding: "12px 18px",
+                  fontSize: 13,
+                  letterSpacing: "0.08em",
+                  fontWeight: 700,
+                  fontFamily: FONT_BODY,
+                  cursor: "pointer",
+                }}
+              >
+                BACK
+              </button>
+              <button
+                type="button"
+                onClick={goForward}
+                disabled={!requiredOk}
+                style={{
+                  minWidth: 190,
+                  borderRadius: 12,
+                  border: "none",
+                  background: CLAIM_ACCENT,
+                  color: "#060810",
+                  padding: "12px 20px",
+                  fontSize: 13,
+                  letterSpacing: "0.08em",
+                  fontWeight: 800,
+                  fontFamily: FONT_BODY,
+                  cursor: "pointer",
+                  boxShadow: "0 0 20px rgba(180,200,20,0.25)",
+                }}
+              >
+                {step < 3 ? "NEXT →" : "SUBMIT FOR REVIEW →"}
+              </button>
+            </div>
+          </section>
+        </div>
+
+        <div
+          style={{
+            flexShrink: 0,
+            borderTop: "1px solid rgba(255,255,255,0.08)",
+            padding: "16px 32px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 16,
+            flexWrap: "wrap",
+            color: "rgba(226,232,240,0.56)",
+            fontSize: 12,
+            letterSpacing: "0.05em",
+          }}
+        >
           <button
+            type="button"
             onClick={onBack}
             style={{
-              background: "none",
               border: "none",
-              color: "rgba(181,236,52,0.5)",
-              fontSize: 12,
-              fontWeight: 600,
-              letterSpacing: "0.15em",
-              textTransform: "uppercase",
+              background: "none",
+              color: "rgba(226,232,240,0.72)",
               cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              fontFamily: "inherit",
+              fontFamily: FONT_BODY,
+              letterSpacing: "0.08em",
+              fontSize: 12,
               padding: 0,
             }}
           >
-            ← Back
+            ← BACK TO DASHBOARD
           </button>
-        </div>
-
-        <div style={{ marginBottom: 18 }}>
-          <h1
-            style={{
-              fontSize: "clamp(1.8rem, 3.6vw, 2.2rem)",
-              fontWeight: 800,
-              color: "#f1f5f9",
-              textTransform: "uppercase",
-              letterSpacing: "-0.01em",
-              marginBottom: 10,
-              lineHeight: 1.05,
-            }}
-          >
-            Submit a Claim
-          </h1>
-          <p
-            style={{
-              fontSize: 14,
-              lineHeight: 1.7,
-              color: "rgba(255,255,255,0.4)",
-              maxWidth: 620,
-              margin: 0,
-            }}
-          >
-            Basic intake to start protocol review. You can edit details later.
-          </p>
-        </div>
-
-        {step === 1 && (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
-            <div style={{ gridColumn: "1 / -1" }}>
-              <Label>What happened</Label>
-              <TextArea
-                value={whatHappened}
-                onChange={(v) => {
-                  setWhatHappened(v);
-                  persistDraft({ whatHappened: v });
-                }}
-                placeholder="Short description of the incident, condition, or event"
-                rows={3}
-              />
-            </div>
-
-            <div>
-              <Label>When did it happen</Label>
-              <Input
-                type="date"
-                value={whenHappened}
-                onChange={(v) => {
-                  setWhenHappened(v);
-                  persistDraft({ whenHappened: v });
-                }}
-              />
-            </div>
-
-            <div>
-              <Label>Ongoing or completed</Label>
-              <Select
-                value={timeStatus}
-                onChange={(v) => {
-                  setTimeStatus(v);
-                  persistDraft({ timeStatus: v });
-                }}
-                options={["Ongoing", "Completed"]}
-                placeholder={null}
-              />
-            </div>
-
-            <div>
-              <Label>Type of issue</Label>
-              <Select
-                value={issueType}
-                onChange={(v) => {
-                  setIssueType(v);
-                  persistDraft({ issueType: v });
-                }}
-                options={["Emergency", "Planned", "Ongoing condition"]}
-                placeholder={null}
-              />
-            </div>
-
-            <div>
-              <Label>Doctor consulted</Label>
-              <Select
-                value={doctorConsulted}
-                onChange={(v) => {
-                  setDoctorConsulted(v);
-                  persistDraft({ doctorConsulted: v });
-                }}
-                options={["Yes", "No"]}
-                placeholder={null}
-              />
-            </div>
-
-            <div style={{ gridColumn: "1 / -1" }}>
-              <Label>Recommended treatment</Label>
-              <TextArea
-                value={recommendedTreatment}
-                onChange={(v) => {
-                  setRecommendedTreatment(v);
-                  persistDraft({ recommendedTreatment: v });
-                }}
-                placeholder="What treatment has been recommended (if known)"
-                rows={2}
-              />
-            </div>
-
-            <div style={{ gridColumn: "1 / -1" }}>
-              <Label>Cost details</Label>
-              <Input
-                value={costDetails}
-                onChange={(v) => {
-                  setCostDetails(v);
-                  persistDraft({ costDetails: v });
-                }}
-                placeholder="Estimated cost, currency, and any notes (e.g. INR 120000)"
-              />
-            </div>
-
-            <div>
-              <Label>Financial situation</Label>
-              <Select
-                value={financialContext}
-                onChange={(v) => {
-                  setFinancialContext(v);
-                  persistDraft({ financialContext: v });
-                }}
-                options={["Stable", "Struggling", "Severe strain"]}
-                placeholder={null}
-              />
-            </div>
-
-            <div style={{ gridColumn: "1 / -1" }}>
-              <Label>Impact if not treated</Label>
-              <TextArea
-                value={impactIfUntreated}
-                onChange={(v) => {
-                  setImpactIfUntreated(v);
-                  persistDraft({ impactIfUntreated: v });
-                }}
-                placeholder="What happens if this isn’t treated soon?"
-                rows={3}
-              />
-            </div>
-
-            <div style={{ gridColumn: "1 / -1" }}>
-              <Label>Medical reports (optional)</Label>
-              <div
-                style={{
-                  padding: 16,
-                  borderRadius: 10,
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  background: "rgba(255,255,255,0.03)",
-                }}
-              >
-                <input
-                  type="file"
-                  multiple
-                  accept="application/pdf,image/*"
-                  onChange={async (e) => {
-                    const files = Array.from(e.target.files || []);
-                    if (!files.length) {
-                      setReportsMeta([]);
-                      persistDraft({ reportsMeta: [] });
-                      return;
-                    }
-
-                    // Compute lightweight metadata (hashes best-effort).
-                    const metas = await Promise.all(
-                      files.map(async (f) => {
-                        const base = {
-                          name: f.name,
-                          size: f.size,
-                          type: f.type,
-                        };
-                        try {
-                          const sha256 = await fileToSha256Hex(f);
-                          return { ...base, sha256 };
-                        } catch {
-                          return base;
-                        }
-                      })
-                    );
-
-                    setReportsMeta(metas);
-                    persistDraft({ reportsMeta: metas });
-                  }}
-                  style={{
-                    width: "100%",
-                    color: "#f1f5f9",
-                    fontFamily: "inherit",
-                  }}
-                />
-                <p style={{ margin: "10px 0 0", fontSize: 12, color: "rgba(255,255,255,0.35)" }}>
-                  {reportsMeta?.length
-                    ? `${reportsMeta.length} report(s) attached (metadata saved in this demo).`
-                    : "Optional: attach PDFs/images. This demo stores only lightweight metadata."}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {step === 2 && (
-          <div>
-            <div
-              style={{
-                padding: 18,
-                borderRadius: 14,
-                border: "1px solid rgba(255,255,255,0.08)",
-                background: "rgba(255,255,255,0.02)",
-              }}
-            >
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: 11,
-                  fontWeight: 700,
-                  letterSpacing: "0.2em",
-                  textTransform: "uppercase",
-                  color: "rgba(255,255,255,0.35)",
-                  marginBottom: 14,
-                }}
-              >
-                Review (basic)
-              </p>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-                {[
-                  ["What happened", whatHappened || "—"],
-                  ["When", whenHappened || "—"],
-                  ["Ongoing/Completed", timeStatus],
-                  ["Issue type", issueType],
-                  ["Doctor consulted", doctorConsulted],
-                  ["Financial situation", financialContext],
-                  ["Recommended treatment", recommendedTreatment || "—"],
-                  ["Cost details", costDetails || "—"],
-                  ["Impact if not treated", impactIfUntreated || "—"],
-                  [
-                    "Medical reports",
-                    reportsMeta?.length
-                      ? `${reportsMeta.length} attached`
-                      : "No reports attached",
-                  ],
-                ].map(([k, v]) => (
-                  <div key={k} style={{ gridColumn: k === "Impact if not treated" ? "1 / -1" : undefined }}>
-                    <p
-                      style={{
-                        margin: 0,
-                        fontSize: 11,
-                        color: "rgba(255,255,255,0.4)",
-                        letterSpacing: "0.08em",
-                        textTransform: "uppercase",
-                        fontWeight: 700,
-                      }}
-                    >
-                      {k}
-                    </p>
-                    <p
-                      style={{
-                        margin: "6px 0 0",
-                        fontSize: 13,
-                        color: "rgba(241,245,249,0.92)",
-                        lineHeight: 1.6,
-                        whiteSpace: "pre-wrap",
-                      }}
-                    >
-                      {v}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {step === 3 && (
-          <div
-            style={{
-              padding: 18,
-              borderRadius: 14,
-              border: "1px solid rgba(181,236,52,0.2)",
-              background: "radial-gradient(circle at 10% 0%, rgba(181,236,52,0.14), transparent 55%), rgba(255,255,255,0.02)",
-            }}
-          >
-            <p
-              style={{
-                margin: 0,
-                fontSize: 11,
-                fontWeight: 800,
-                letterSpacing: "0.22em",
-                textTransform: "uppercase",
-                color: ACCENT,
-              }}
-            >
-              Submitted
-            </p>
-            <h2
-              style={{
-                margin: "10px 0 8px",
-                fontSize: 22,
-                fontWeight: 900,
-                color: "#f1f5f9",
-                letterSpacing: "-0.02em",
-              }}
-            >
-              Your claim is now in Pre-check.
-            </h2>
-            <p style={{ margin: 0, fontSize: 14, lineHeight: 1.7, color: "rgba(255,255,255,0.45)" }}>
-              You can return to the dashboard to see the updated stage.
-            </p>
-          </div>
-        )}
-
-        {/* footer actions */}
-        <div
-          style={{
-            marginTop: 28,
-            paddingTop: 22,
-            borderTop: "1px solid rgba(255,255,255,0.08)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 16,
-            flexWrap: "wrap",
-          }}
-        >
-          <p
-            style={{
-              margin: 0,
-              fontSize: 12,
-              color: "rgba(255,255,255,0.25)",
-              letterSpacing: "0.02em",
-            }}
-          >
-            {step === 1
-              ? "Basic info is enough to start review."
-              : step === 2
-              ? "Confirm to submit for protocol processing."
-              : "Back to dashboard to continue."}
-          </p>
-          {routingError ? (
-            <p style={{ margin: 0, fontSize: 12, color: "#fda4af", letterSpacing: "0.01em" }}>
-              {routingError}
-            </p>
-          ) : null}
-
-          {step === 1 && (
-            <button
-              onClick={() => {
-                submit();
-              }}
-              style={{
-                padding: "14px 40px",
-                border: "none",
-                borderRadius: 6,
-                background: ACCENT,
-                color: "#050505",
-                fontSize: 14,
-                fontWeight: 700,
-                letterSpacing: "0.15em",
-                textTransform: "uppercase",
-                cursor: "pointer",
-                fontFamily: "inherit",
-                transition: "opacity 0.2s ease",
-                whiteSpace: "nowrap",
-              }}
-            >
-              Next
-            </button>
-          )}
-
-          {step === 2 && (
-            <button
-              onClick={() => submit()}
-              style={{
-                padding: "14px 40px",
-                border: "none",
-                borderRadius: 6,
-                background: ACCENT,
-                color: "#050505",
-                fontSize: 14,
-                fontWeight: 700,
-                letterSpacing: "0.15em",
-                textTransform: "uppercase",
-                cursor: "pointer",
-                fontFamily: "inherit",
-                transition: "opacity 0.2s ease",
-                whiteSpace: "nowrap",
-              }}
-            >
-              submit
-            </button>
-          )}
-
-          {step === 3 && (
-            <button
-              onClick={onDone}
-              style={{
-                padding: "14px 40px",
-                border: "none",
-                borderRadius: 6,
-                background: ACCENT,
-                color: "#050505",
-                fontSize: 14,
-                fontWeight: 700,
-                letterSpacing: "0.15em",
-                textTransform: "uppercase",
-                cursor: "pointer",
-                fontFamily: "inherit",
-                transition: "opacity 0.2s ease",
-                whiteSpace: "nowrap",
-              }}
-            >
-              Return to dashboard
-            </button>
-          )}
+          <div>◈ Encrypted · ◎ Peer reviewed · ◉ 48hr response</div>
         </div>
       </div>
+      </div>
+
+      <style>{`
+        .claim-journey-field:focus {
+          border-color: #b4c814 !important;
+          box-shadow: 0 0 0 3px rgba(180,200,20,0.07) !important;
+        }
+        .claim-step-pane {
+          animation: fadeUp 350ms ease both;
+        }
+        .claim-step-forward {
+          animation: stepInFromRight 350ms ease both;
+        }
+        .claim-step-back {
+          animation: stepInFromLeft 350ms ease both;
+        }
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(14px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes stepInFromRight {
+          from { opacity: 0; transform: translateX(24px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes stepInFromLeft {
+          from { opacity: 0; transform: translateX(-24px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes drawEcg { to { stroke-dashoffset: 0; } }
+        @keyframes ecgLoop {
+          0% { stroke-dashoffset: 0; }
+          80% { stroke-dashoffset: -500; }
+          81% { stroke-dashoffset: 500; }
+          100% { stroke-dashoffset: 0; }
+        }
+        @keyframes heartBeat {
+          0%, 100% { transform: scale(1); }
+          30% { transform: scale(1.1); }
+          60% { transform: scale(0.98); }
+        }
+        @keyframes heartPulse {
+          0%,100% { opacity: 0.7; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.15); }
+        }
+        @keyframes floatSway {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-8px); }
+        }
+        @keyframes orbPulse {
+          0%, 100% { opacity: 0.78; transform: translateX(-50%) scale(1); }
+          50% { opacity: 1; transform: translateX(-50%) scale(1.16); }
+        }
+        @media (max-width: 920px) {
+          .claim-journey-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

@@ -100,7 +100,7 @@ export function DocumentSubmit({ onBack, onContinue }) {
           <div>
             <p
               style={{
-                fontSize: 11,
+                fontSize: 14,
                 fontWeight: 600,
                 letterSpacing: "0.25em",
                 textTransform: "uppercase",
@@ -130,7 +130,7 @@ export function DocumentSubmit({ onBack, onContinue }) {
               background: "none",
               border: "none",
               color: "rgba(181,236,52,0.5)",
-              fontSize: 12,
+              fontSize: 14,
               fontWeight: 600,
               letterSpacing: "0.15em",
               textTransform: "uppercase",
@@ -190,7 +190,7 @@ export function DocumentSubmit({ onBack, onContinue }) {
                 borderRadius: 999,
                 border: `1px solid rgba(181,236,52,0.5)`,
                 color: ACCENT,
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: 600,
                 letterSpacing: "0.14em",
                 textTransform: "uppercase",
@@ -207,7 +207,7 @@ export function DocumentSubmit({ onBack, onContinue }) {
             </label>
             <p
               style={{
-                fontSize: 11,
+                fontSize: 14,
                 color: "rgba(255,255,255,0.3)",
                 marginTop: 10,
               }}
@@ -229,7 +229,7 @@ export function DocumentSubmit({ onBack, onContinue }) {
                   <li
                     key={file.name + idx}
                     style={{
-                      fontSize: 12,
+                      fontSize: 14,
                       color: "rgba(255,255,255,0.7)",
                       padding: "6px 0",
                       borderBottom:
@@ -280,7 +280,7 @@ export function DocumentSubmit({ onBack, onContinue }) {
                       healthState === state
                         ? "rgba(255,255,255,0.9)"
                         : "rgba(255,255,255,0.55)",
-                    fontSize: 11,
+                    fontSize: 14,
                     fontWeight: 600,
                     letterSpacing: "0.16em",
                     textTransform: "uppercase",
@@ -324,7 +324,7 @@ export function DocumentSubmit({ onBack, onContinue }) {
               style={{
                 display: "flex",
                 justifyContent: "space-between",
-                fontSize: 11,
+                fontSize: 14,
                 color: "rgba(255,255,255,0.4)",
               }}
             >
@@ -367,7 +367,7 @@ export function DocumentSubmit({ onBack, onContinue }) {
           <p
             style={{
               margin: 0,
-              fontSize: 11,
+              fontSize: 14,
               color: "rgba(255,255,255,0.35)",
             }}
           >
@@ -394,7 +394,7 @@ export function DocumentSubmit({ onBack, onContinue }) {
                 background: "none",
                 border: "none",
                 color: submitting ? "rgba(181,236,52,0.2)" : "rgba(181,236,52,0.5)",
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: 600,
                 letterSpacing: "0.15em",
                 textTransform: "uppercase",
@@ -414,7 +414,7 @@ export function DocumentSubmit({ onBack, onContinue }) {
             {uploadProgress != null && uploadProgress < 100 ? (
               <span
                 style={{
-                  fontSize: 11,
+                  fontSize: 14,
                   color: "rgba(255,255,255,0.45)",
                   letterSpacing: "0.06em",
                 }}
@@ -472,7 +472,7 @@ export function DocumentSubmit({ onBack, onContinue }) {
         </div>
 
         {error ? (
-          <p style={{ marginTop: 14, fontSize: 13, color: "#fda4af", lineHeight: 1.5 }}>{error}</p>
+          <p style={{ marginTop: 14, fontSize: 14, color: "#fda4af", lineHeight: 1.5 }}>{error}</p>
         ) : null}
       </div>
     </div>

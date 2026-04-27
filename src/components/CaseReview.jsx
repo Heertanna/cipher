@@ -9,6 +9,7 @@ import {
 } from "../data/jurorMockData.js";
 import { JuryEvaluationFlow } from "./JuryEvaluationFlow.jsx";
 import { API_URL } from "../config/api.js";
+import { PROTOCOL_PAGE_BACKGROUND } from "../lib/protocolPageBackground.js";
 
 function isNumericClaimCaseId(caseIdParam) {
   const idNum = Number(caseIdParam);
@@ -237,7 +238,7 @@ export function CaseReview() {
       style={{
         position: "relative",
         minHeight: "100dvh",
-        background: "transparent",
+        ...PROTOCOL_PAGE_BACKGROUND,
         overflowX: "hidden",
       }}
     >
@@ -278,7 +279,7 @@ export function CaseReview() {
           <span
             style={{
               color: ACCENT,
-              fontSize: 13,
+              fontSize: 14,
               letterSpacing: "0.16em",
               fontWeight: 800,
             }}
@@ -297,12 +298,12 @@ export function CaseReview() {
             flexWrap: "wrap",
             gap: "8px 14px",
             color: "rgba(255,255,255,0.62)",
-            fontSize: 10,
+            fontSize: 14,
             letterSpacing: "0.16em",
             textTransform: "uppercase",
           }}
         >
-          {["Protocol", "How It Works", "Governance", "Documentation"].map((item) => (
+          {["Protocol", "How It Works", "Governance"].map((item) => (
             <button
               key={item}
               type="button"
@@ -342,7 +343,7 @@ export function CaseReview() {
             border: "1px solid rgba(255,255,255,0.15)",
             background: "transparent",
             color: "rgba(255,255,255,0.5)",
-            fontSize: "11px",
+            fontSize: "14px",
             letterSpacing: "0.1em",
             textTransform: "uppercase",
             padding: "10px 22px",
@@ -383,7 +384,7 @@ export function CaseReview() {
               border: "none",
               background: "transparent",
               padding: 0,
-              fontSize: 12,
+              fontSize: 14,
               color: "rgba(181,236,52,0.5)",
               cursor: "pointer",
               letterSpacing: "0.04em",
@@ -393,6 +394,19 @@ export function CaseReview() {
           </button>
         </div>
 
+        <div
+          className="case-review-layout"
+          style={{
+            width: "100%",
+            maxWidth: 1200,
+            margin: "0 auto",
+            display: "grid",
+            gridTemplateColumns: "minmax(0, 1.45fr) minmax(0, 0.9fr)",
+            gap: 20,
+            alignItems: "start",
+            padding: "10px 0 0",
+          }}
+        >
         <Motion.main
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -401,9 +415,7 @@ export function CaseReview() {
             position: "relative",
             zIndex: 1,
             width: "100%",
-            maxWidth: 800,
-            margin: "0 auto",
-            padding: 40,
+            padding: 20,
           }}
         >
           <div style={{ position: "relative" }}>
@@ -478,7 +490,7 @@ export function CaseReview() {
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <span
                       style={{
-                        fontSize: 9,
+                        fontSize: 14,
                         letterSpacing: "0.12em",
                         color: "rgba(181,236,52,0.35)",
                         textTransform: "uppercase",
@@ -490,7 +502,7 @@ export function CaseReview() {
                       style={{
                         border: "2px solid rgba(181,236,52,0.35)",
                         padding: "4px 12px",
-                        fontSize: 11,
+                        fontSize: 14,
                         letterSpacing: "0.12em",
                         color: "#b5ec34",
                         transform: "rotate(-2deg)",
@@ -505,12 +517,12 @@ export function CaseReview() {
 
                 <div style={{ padding: "24px 22px 30px" }}>
                   {loadingClaim ? (
-                    <p style={{ margin: "0 0 16px", fontSize: 13, color: "rgba(148,163,184,0.9)" }}>
+                    <p style={{ margin: "0 0 16px", fontSize: 14, color: "rgba(148,163,184,0.9)" }}>
                       Loading live case data...
                     </p>
                   ) : null}
                   {claimError ? (
-                    <p style={{ margin: "0 0 16px", fontSize: 13, color: "#fda4af" }}>
+                    <p style={{ margin: "0 0 16px", fontSize: 14, color: "#fda4af" }}>
                       {claimError}. Showing fallback mock packet.
                     </p>
                   ) : null}
@@ -557,7 +569,7 @@ export function CaseReview() {
                     <div
                       style={{
                         marginBottom: 6,
-                        fontSize: 10,
+                        fontSize: 14,
                         letterSpacing: "0.12em",
                         color: "rgba(255,255,255,0.2)",
                         textTransform: "uppercase",
@@ -578,7 +590,7 @@ export function CaseReview() {
                     <div
                       style={{
                         marginBottom: 6,
-                        fontSize: 10,
+                        fontSize: 14,
                         letterSpacing: "0.12em",
                         color: "rgba(255,255,255,0.2)",
                         textTransform: "uppercase",
@@ -599,7 +611,7 @@ export function CaseReview() {
                     <div
                       style={{
                         marginBottom: 6,
-                        fontSize: 10,
+                        fontSize: 14,
                         letterSpacing: "0.12em",
                         color: "rgba(255,255,255,0.2)",
                         textTransform: "uppercase",
@@ -622,7 +634,7 @@ export function CaseReview() {
                     <div
                       style={{
                         marginBottom: 6,
-                        fontSize: 10,
+                        fontSize: 14,
                         letterSpacing: "0.12em",
                         color: "rgba(255,255,255,0.2)",
                         textTransform: "uppercase",
@@ -643,7 +655,7 @@ export function CaseReview() {
                     <div
                       style={{
                         marginBottom: 6,
-                        fontSize: 10,
+                        fontSize: 14,
                         letterSpacing: "0.12em",
                         color: "rgba(255,255,255,0.2)",
                         textTransform: "uppercase",
@@ -694,7 +706,7 @@ export function CaseReview() {
                     <div
                       style={{
                         marginTop: 6,
-                        fontSize: 10,
+                        fontSize: 14,
                         fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
                         color: "rgba(255,255,255,0.15)",
                         letterSpacing: "0.08em",
@@ -717,7 +729,7 @@ export function CaseReview() {
                       border: `1px solid ${canStartEvaluation ? "rgba(181,236,52,0.55)" : "rgba(148,163,184,0.3)"}`,
                       background: canStartEvaluation ? ACCENT : "rgba(30,41,59,0.6)",
                       color: canStartEvaluation ? "#020617" : "rgba(148,163,184,0.6)",
-                      fontSize: 11,
+                      fontSize: 14,
                       fontWeight: 700,
                       letterSpacing: "0.1em",
                       textTransform: "uppercase",
@@ -734,7 +746,7 @@ export function CaseReview() {
                     position: "absolute",
                     bottom: 10,
                     right: 14,
-                    fontSize: 8,
+                    fontSize: 14,
                     letterSpacing: "0.1em",
                     color: "rgba(255,255,255,0.1)",
                     textTransform: "uppercase",
@@ -750,8 +762,7 @@ export function CaseReview() {
 
         <div
           style={{
-            maxWidth: 800,
-            margin: "24px auto",
+            margin: 0,
             padding: 24,
             background: "rgba(255,255,255,0.03)",
             border: "1px solid rgba(255,255,255,0.06)",
@@ -760,7 +771,7 @@ export function CaseReview() {
         >
           <div
             style={{
-              fontSize: 11,
+              fontSize: 14,
               letterSpacing: "0.15em",
               color: "rgba(181,236,52,0.5)",
               marginBottom: 16,
@@ -813,10 +824,10 @@ export function CaseReview() {
                     ) : null}
                   </div>
                   <div style={{ flex: 1, display: "flex", justifyContent: "space-between", gap: 12 }}>
-                    <span style={{ fontSize: 13, color: "rgba(226,232,240,0.92)" }}>{event.label}</span>
+                    <span style={{ fontSize: 14, color: "rgba(226,232,240,0.92)" }}>{event.label}</span>
                     <span
                       style={{
-                        fontSize: 10,
+                        fontSize: 14,
                         color: "rgba(148,163,184,0.75)",
                         fontFamily:
                           "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
@@ -831,8 +842,14 @@ export function CaseReview() {
             })}
           </div>
         </div>
+        </div>
 
         <style>{`
+          @media (max-width: 1100px) {
+            .case-review-layout {
+              grid-template-columns: 1fr !important;
+            }
+          }
           @keyframes caseReviewPulse {
             0%, 100% { opacity: 0.75; transform: scale(1); }
             50% { opacity: 1; transform: scale(1.2); }

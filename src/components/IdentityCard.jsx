@@ -99,7 +99,7 @@ export function IdentityCard({ showJuryMemberBadge = true } = {}) {
         >
           <p
             style={{
-              fontSize: 11,
+              fontSize: 14,
               fontWeight: 600,
               letterSpacing: "0.25em",
               textTransform: "uppercase",
@@ -119,7 +119,7 @@ export function IdentityCard({ showJuryMemberBadge = true } = {}) {
                 borderRadius: 999,
                 border: "1px solid rgba(181,236,52,0.38)",
                 background: "rgba(181,236,52,0.1)",
-                fontSize: 10,
+                fontSize: 14,
                 fontWeight: 800,
                 letterSpacing: "0.14em",
                 textTransform: "uppercase",
@@ -135,7 +135,7 @@ export function IdentityCard({ showJuryMemberBadge = true } = {}) {
         <div>
           <p
             style={{
-              fontSize: 12,
+              fontSize: 14,
               letterSpacing: "0.16em",
               textTransform: "uppercase",
               color: "rgba(148,163,184,0.9)",
@@ -162,7 +162,7 @@ export function IdentityCard({ showJuryMemberBadge = true } = {}) {
         <div>
           <p
             style={{
-              fontSize: 12,
+              fontSize: 14,
               letterSpacing: "0.16em",
               textTransform: "uppercase",
               color: "rgba(148,163,184,0.9)",
@@ -208,7 +208,7 @@ export function IdentityCard({ showJuryMemberBadge = true } = {}) {
           />
           <span
             style={{
-              fontSize: 12,
+              fontSize: 14,
               fontWeight: 700,
               letterSpacing: "0.16em",
               textTransform: "uppercase",
@@ -224,7 +224,7 @@ export function IdentityCard({ showJuryMemberBadge = true } = {}) {
         <p
           style={{
             margin: 0,
-            fontSize: 13,
+            fontSize: 14,
             color: "rgba(148,163,184,0.9)",
             maxWidth: 440,
             lineHeight: 1.75,
@@ -237,7 +237,7 @@ export function IdentityCard({ showJuryMemberBadge = true } = {}) {
           style={{
             margin: 0,
             marginTop: 4,
-            fontSize: 11,
+            fontSize: 14,
             color: "rgba(148,163,184,0.95)",
             letterSpacing: "0.1em",
             textTransform: "uppercase",

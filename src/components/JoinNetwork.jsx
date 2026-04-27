@@ -151,7 +151,7 @@ export function JoinNetwork({ onBack, onContinue }) {
 
           <p
             style={{
-              fontSize: 11,
+              fontSize: 14,
               fontWeight: 600,
               letterSpacing: "0.25em",
               textTransform: "uppercase",
@@ -185,7 +185,7 @@ export function JoinNetwork({ onBack, onContinue }) {
             }}
           >
             <div>
-              <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", marginBottom: 6 }}>
+              <p style={{ fontSize: 14, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", marginBottom: 6 }}>
                 Alias
               </p>
               <p style={{ fontSize: 18, fontWeight: 700, color: "#f1f5f9" }}>
@@ -250,7 +250,7 @@ export function JoinNetwork({ onBack, onContinue }) {
             background: "none",
             border: "none",
             color: "rgba(181,236,52,0.5)",
-            fontSize: 12,
+            fontSize: 14,
             fontWeight: 600,
             letterSpacing: "0.15em",
             textTransform: "uppercase",
@@ -271,7 +271,7 @@ export function JoinNetwork({ onBack, onContinue }) {
 
         <p
           style={{
-            fontSize: 11,
+            fontSize: 14,
             fontWeight: 600,
             letterSpacing: "0.25em",
             textTransform: "uppercase",
@@ -314,7 +314,7 @@ export function JoinNetwork({ onBack, onContinue }) {
             <label
               style={{
                 display: "block",
-                fontSize: 10,
+                fontSize: 14,
                 fontWeight: 700,
                 letterSpacing: "0.2em",
                 textTransform: "uppercase",
@@ -347,7 +347,7 @@ export function JoinNetwork({ onBack, onContinue }) {
               }}
               autoComplete="username"
             />
-            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", marginTop: 8, letterSpacing: "0.03em" }}>
+            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.2)", marginTop: 8, letterSpacing: "0.03em" }}>
               This is how you will appear in the network.
             </p>
           </div>
@@ -356,7 +356,7 @@ export function JoinNetwork({ onBack, onContinue }) {
             <label
               style={{
                 display: "block",
-                fontSize: 10,
+                fontSize: 14,
                 fontWeight: 700,
                 letterSpacing: "0.2em",
                 textTransform: "uppercase",
@@ -373,7 +373,7 @@ export function JoinNetwork({ onBack, onContinue }) {
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="new-password"
             />
-            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", marginTop: 8, letterSpacing: "0.03em" }}>
+            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.2)", marginTop: 8, letterSpacing: "0.03em" }}>
               Used to protect your health data encryption. Never shared with the protocol in plain form.
             </p>
           </div>
@@ -388,14 +388,14 @@ export function JoinNetwork({ onBack, onContinue }) {
             borderRadius: 10,
           }}
         >
-          <p style={{ fontSize: 12, lineHeight: 1.7, color: "rgba(255,255,255,0.3)", letterSpacing: "0.02em" }}>
+          <p style={{ fontSize: 14, lineHeight: 1.7, color: "rgba(255,255,255,0.3)", letterSpacing: "0.02em" }}>
             <span style={{ color: "rgba(181,236,52,0.6)", fontWeight: 600 }}>Your identity is anonymous.</span>{" "}
             The protocol never stores personal information — only encrypted identifiers.
           </p>
         </div>
 
         {error ? (
-          <p style={{ marginTop: 16, fontSize: 13, color: "#fda4af", lineHeight: 1.5 }}>{error}</p>
+          <p style={{ marginTop: 16, fontSize: 14, color: "#fda4af", lineHeight: 1.5 }}>{error}</p>
         ) : null}
 
         <div style={{ marginTop: 40, display: "flex", gap: 12 }}>

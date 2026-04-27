@@ -27,7 +27,7 @@ export function RpEarnedNotice({
       <p
         style={{
           margin: 0,
-          fontSize: 12,
+          fontSize: 14,
           fontWeight: 800,
           letterSpacing: "0.14em",
           textTransform: "uppercase",
@@ -40,7 +40,7 @@ export function RpEarnedNotice({
         <p
           style={{
             margin: "10px 0 0",
-            fontSize: 13,
+            fontSize: 14,
             color: "rgba(148,163,184,0.95)",
             lineHeight: 1.55,
           }}

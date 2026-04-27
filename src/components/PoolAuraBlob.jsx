@@ -89,7 +89,7 @@ export function PoolAuraBlob() {
           <p
             style={{
               margin: 0,
-              fontSize: 11,
+              fontSize: 14,
               letterSpacing: "0.18em",
               textTransform: "uppercase",
               opacity: 0.9,
@@ -116,7 +116,7 @@ export function PoolAuraBlob() {
             </span>
             <span
               style={{
-                fontSize: 13,
+                fontSize: 14,
                 fontWeight: 700,
                 letterSpacing: "0.14em",
                 textTransform: "uppercase",
@@ -129,7 +129,7 @@ export function PoolAuraBlob() {
           <p
             style={{
               margin: "6px 0 0",
-              fontSize: 12,
+              fontSize: 14,
               opacity: 0.9,
             }}
           >
@@ -140,7 +140,7 @@ export function PoolAuraBlob() {
 
         <div
           style={{
-            fontSize: 11,
+            fontSize: 14,
             lineHeight: 1.5,
             opacity: 0.95,
           }}
@@ -152,7 +152,7 @@ export function PoolAuraBlob() {
         <p
           style={{
             margin: 0,
-            fontSize: 10,
+            fontSize: 14,
             letterSpacing: "0.16em",
             textTransform: "uppercase",
             opacity: 0.9,
@@ -172,13 +172,13 @@ export function PoolAuraBlob() {
             flexDirection: "column",
             justifyContent: "space-between",
             color: "#f9fafb",
-            fontSize: 12,
+            fontSize: 14,
           }}
         >
           <p
             style={{
               margin: 0,
-              fontSize: 11,
+              fontSize: 14,
               letterSpacing: "0.18em",
               textTransform: "uppercase",
               opacity: 0.85,

@@ -112,7 +112,7 @@ export function HealthProfile({ onBack, onContinue }) {
           <div>
             <p
               style={{
-                fontSize: 11,
+                fontSize: 14,
                 fontWeight: 600,
                 letterSpacing: "0.25em",
                 textTransform: "uppercase",
@@ -143,7 +143,7 @@ export function HealthProfile({ onBack, onContinue }) {
               </div>
               <span
                 style={{
-                  fontSize: 11,
+                  fontSize: 14,
                   color: "rgba(255,255,255,0.25)",
                   letterSpacing: "0.08em",
                   textTransform: "uppercase",
@@ -160,7 +160,7 @@ export function HealthProfile({ onBack, onContinue }) {
               background: "none",
               border: "none",
               color: "rgba(181,236,52,0.5)",
-              fontSize: 12,
+              fontSize: 14,
               fontWeight: 600,
               letterSpacing: "0.15em",
               textTransform: "uppercase",
@@ -222,7 +222,7 @@ export function HealthProfile({ onBack, onContinue }) {
           <div>
             <p
               style={{
-                fontSize: 10,
+                fontSize: 14,
                 fontWeight: 700,
                 letterSpacing: "0.2em",
                 textTransform: "uppercase",
@@ -241,7 +241,7 @@ export function HealthProfile({ onBack, onContinue }) {
               <div style={{ marginTop: 14 }}>
                 <p
                   style={{
-                    fontSize: 10,
+                    fontSize: 14,
                     fontWeight: 600,
                     letterSpacing: "0.18em",
                     textTransform: "uppercase",
@@ -280,7 +280,7 @@ export function HealthProfile({ onBack, onContinue }) {
               />
               <p
                 style={{
-                  fontSize: 11,
+                  fontSize: 14,
                   color: "rgba(255,255,255,0.2)",
                   marginTop: 8,
                   letterSpacing: "0.03em",
@@ -303,7 +303,7 @@ export function HealthProfile({ onBack, onContinue }) {
               />
               <p
                 style={{
-                  fontSize: 11,
+                  fontSize: 14,
                   color: "rgba(255,255,255,0.2)",
                   marginTop: 8,
                   letterSpacing: "0.03em",
@@ -338,7 +338,7 @@ export function HealthProfile({ onBack, onContinue }) {
               />
               <p
                 style={{
-                  fontSize: 11,
+                  fontSize: 14,
                   color: "rgba(255,255,255,0.2)",
                   marginTop: 8,
                   letterSpacing: "0.03em",
@@ -360,7 +360,7 @@ export function HealthProfile({ onBack, onContinue }) {
               />
               <p
                 style={{
-                  fontSize: 11,
+                  fontSize: 14,
                   color: "rgba(255,255,255,0.2)",
                   marginTop: 8,
                   letterSpacing: "0.03em",
@@ -388,7 +388,7 @@ export function HealthProfile({ onBack, onContinue }) {
           <p
             style={{
               margin: 0,
-              fontSize: 12,
+              fontSize: 14,
               color: "rgba(255,255,255,0.25)",
               letterSpacing: "0.02em",
             }}
@@ -449,7 +449,7 @@ export function HealthProfile({ onBack, onContinue }) {
         </div>
 
         {error ? (
-          <p style={{ marginTop: 14, fontSize: 13, color: "#fda4af", lineHeight: 1.5 }}>{error}</p>
+          <p style={{ marginTop: 14, fontSize: 14, color: "#fda4af", lineHeight: 1.5 }}>{error}</p>
         ) : null}
 
         {/* responsive note */}

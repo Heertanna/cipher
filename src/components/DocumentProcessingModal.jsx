@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { ACCENT } from "./OnboardingCommon.jsx";
+import {
+  PROTOCOL_DASHBOARD_CARD,
+  PROTOCOL_PAGE_BACKGROUND,
+} from "../lib/protocolPageBackground.js";
 
 const STEPS = [
   {
@@ -57,7 +61,7 @@ export function DocumentProcessingModal({ onFinished }) {
       style={{
         position: "fixed",
         inset: 0,
-        background: "rgba(0,0,0,0.65)",
+        ...PROTOCOL_PAGE_BACKGROUND,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -66,19 +70,17 @@ export function DocumentProcessingModal({ onFinished }) {
     >
       <div
         style={{
+          ...PROTOCOL_DASHBOARD_CARD,
           width: "100%",
           maxWidth: 520,
           borderRadius: 20,
-          border: "1px solid rgba(255,255,255,0.12)",
-          background:
-            "radial-gradient(circle at top, rgba(181,236,52,0.08), transparent 60%), rgba(10,15,25,0.96)",
           padding: "28px 28px 24px",
           boxShadow: "0 24px 80px rgba(0,0,0,0.8)",
         }}
       >
         <p
           style={{
-            fontSize: 11,
+            fontSize: 14,
             fontWeight: 600,
             letterSpacing: "0.25em",
             textTransform: "uppercase",
@@ -102,7 +104,7 @@ export function DocumentProcessingModal({ onFinished }) {
         </h2>
         <p
           style={{
-            fontSize: 13,
+            fontSize: 14,
             lineHeight: 1.6,
             color: "rgba(255,255,255,0.5)",
             marginTop: 8,
@@ -150,7 +152,7 @@ export function DocumentProcessingModal({ onFinished }) {
                     alignItems: "center",
                     justifyContent: "center",
                     color: "#020617",
-                    fontSize: 10,
+                    fontSize: 14,
                     fontWeight: 700,
                   }}
                 >
@@ -185,7 +187,7 @@ export function DocumentProcessingModal({ onFinished }) {
                 {icon}
                 <span
                   style={{
-                    fontSize: 13,
+                    fontSize: 14,
                     color: "rgba(226,232,240,0.9)",
                   }}
                 >
@@ -212,7 +214,7 @@ export function DocumentProcessingModal({ onFinished }) {
               border: "none",
               background: isLast ? ACCENT : "rgba(148,163,184,0.3)",
               color: isLast ? "#020617" : "rgba(15,23,42,0.8)",
-              fontSize: 12,
+              fontSize: 14,
               fontWeight: 700,
               letterSpacing: "0.16em",
               textTransform: "uppercase",

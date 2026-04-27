@@ -87,7 +87,7 @@ export function StepItem({ label, state, active }) {
         <p
           style={{
             margin: 0,
-            fontSize: 13,
+            fontSize: 14,
             fontWeight: 850,
             letterSpacing: "0.01em",
             color: isIdle ? "rgba(148,163,184,0.85)" : "rgba(241,245,249,0.95)",

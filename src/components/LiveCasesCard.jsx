@@ -52,7 +52,7 @@ export function LiveCasesCard() {
         <p
           style={{
             margin: 0,
-            fontSize: 11,
+            fontSize: 14,
             fontWeight: 600,
             letterSpacing: "0.25em",
             textTransform: "uppercase",
@@ -61,7 +61,7 @@ export function LiveCasesCard() {
         >
           Live Cases
         </p>
-        <span style={{ color: "rgba(148,163,184,0.85)", fontSize: 12 }}>
+        <span style={{ color: "rgba(148,163,184,0.85)", fontSize: 14 }}>
           Spectate mode
         </span>
       </div>
@@ -141,7 +141,7 @@ export function LiveCasesCard() {
                   <p
                     style={{
                       margin: 0,
-                      fontSize: 11,
+                      fontSize: 14,
                       letterSpacing: "0.14em",
                       textTransform: "uppercase",
                       color: titleColor,
@@ -181,7 +181,7 @@ export function LiveCasesCard() {
                   Case #{c.id}
                 </p>
 
-                <p style={{ margin: 0, fontSize: 12, color: subColor, lineHeight: 1.5 }}>
+                <p style={{ margin: 0, fontSize: 14, color: subColor, lineHeight: 1.5 }}>
                   {c.stage} · {c.status}
                 </p>
 
@@ -204,7 +204,7 @@ export function LiveCasesCard() {
                   />
                 </div>
 
-                <p style={{ margin: "8px 0 0", fontSize: 11, color: subColor }}>
+                <p style={{ margin: "8px 0 0", fontSize: 14, color: subColor }}>
                   {c.jurors} jurors evaluating
                 </p>
               </div>
@@ -226,7 +226,7 @@ export function LiveCasesCard() {
                     <p
                       style={{
                         margin: 0,
-                        fontSize: 12,
+                        fontSize: 14,
                         color: subColor,
                         lineHeight: 1.6,
                       }}

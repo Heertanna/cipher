@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion as Motion } from "framer-motion";
-import { FaintBackground, ACCENT } from "./OnboardingCommon.jsx";
-import { API_URL } from "../config/api.js";
+import { ACCENT } from "./OnboardingCommon.jsx";
 import { getSession } from "../lib/session.js";
+import { MOCK_CLAIMS, incrementJuryVote } from "../data/mockDatabase.js";
+import {
+  PROTOCOL_DASHBOARD_CARD,
+  PROTOCOL_PAGE_BACKGROUND,
+} from "../lib/protocolPageBackground.js";
 
 const transition = { duration: 0.35, ease: [0.22, 1, 0.36, 1] };
 
@@ -85,7 +89,7 @@ function ContextBlock({ title, children }) {
       <p
         style={{
           margin: "0 0 10px",
-          fontSize: 10,
+          fontSize: 14,
           fontWeight: 700,
           letterSpacing: "0.2em",
           textTransform: "uppercase",
@@ -172,25 +176,11 @@ export function JurorApplication() {
     }
     setSubmitting(true);
     try {
-      const res = await fetch(`${API_URL}/juror/apply`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          anonymous_id: anonymousId,
-          credential_name: credentialName.trim(),
-          institution: institution.trim(),
-          year: Number(year),
-          registration_number: registrationNumber.trim(),
-          trial_answers: { evidence, treatment, cost },
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || "Application failed");
+      const activeCase = MOCK_CLAIMS.find((c) => c.status === "Under Jury Review");
+      if (activeCase) incrementJuryVote(activeCase.id);
       window.localStorage.setItem("cipher_is_juror", "true");
-      setReference(String(data.reference || ""));
+      setReference((prev) => prev || `JR-${String(Date.now()).slice(-6)}`);
       setMainStep(5);
-    } catch (e) {
-      setApplyError(e?.message || "Could not submit application.");
     } finally {
       setSubmitting(false);
     }
@@ -198,7 +188,7 @@ export function JurorApplication() {
 
   const labelStyle = {
     display: "block",
-    fontSize: 11,
+    fontSize: 14,
     fontWeight: 700,
     letterSpacing: "0.16em",
     textTransform: "uppercase",
@@ -211,12 +201,11 @@ export function JurorApplication() {
       style={{
         position: "relative",
         minHeight: "100dvh",
-        background: "transparent",
+        ...PROTOCOL_PAGE_BACKGROUND,
         padding: "56px 22px 48px",
         boxSizing: "border-box",
       }}
     >
-      <FaintBackground />
       <div
         style={{
           position: "relative",
@@ -237,7 +226,7 @@ export function JurorApplication() {
             >
               <p
                 style={{
-                  fontSize: 11,
+                  fontSize: 14,
                   fontWeight: 700,
                   letterSpacing: "0.28em",
                   textTransform: "uppercase",
@@ -290,7 +279,7 @@ export function JurorApplication() {
                     }}
                   >
                     <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "#e2e8f0" }}>{c.title}</p>
-                    <p style={{ margin: "8px 0 0", fontSize: 12, lineHeight: 1.5, color: "rgba(148,163,184,0.9)" }}>
+                    <p style={{ margin: "8px 0 0", fontSize: 14, lineHeight: 1.5, color: "rgba(148,163,184,0.9)" }}>
                       {c.detail}
                     </p>
                   </div>
@@ -306,7 +295,7 @@ export function JurorApplication() {
                   border: "1px solid rgba(181,236,52,0.5)",
                   background: ACCENT,
                   color: "#020617",
-                  fontSize: 12,
+                  fontSize: 14,
                   fontWeight: 800,
                   letterSpacing: "0.14em",
                   textTransform: "uppercase",
@@ -385,9 +374,9 @@ export function JurorApplication() {
                     type="file"
                     accept=".pdf,image/*"
                     onChange={(e) => setDocLabel(e.target.files?.[0]?.name || "")}
-                    style={{ fontSize: 13, color: "rgba(226,232,240,0.85)" }}
+                    style={{ fontSize: 14, color: "rgba(226,232,240,0.85)" }}
                   />
-                  <p style={{ margin: "8px 0 0", fontSize: 12, color: "rgba(148,163,184,0.8)" }}>
+                  <p style={{ margin: "8px 0 0", fontSize: 14, color: "rgba(148,163,184,0.8)" }}>
                     Upload degree certificate or license{docLabel ? ` — ${docLabel}` : ""}
                   </p>
                 </div>
@@ -406,7 +395,7 @@ export function JurorApplication() {
                   border: "1px solid rgba(181,236,52,0.5)",
                   background: ACCENT,
                   color: "#020617",
-                  fontSize: 12,
+                  fontSize: 14,
                   fontWeight: 800,
                   letterSpacing: "0.12em",
                   textTransform: "uppercase",
@@ -429,7 +418,7 @@ export function JurorApplication() {
             >
               <p
                 style={{
-                  fontSize: 11,
+                  fontSize: 14,
                   fontWeight: 700,
                   letterSpacing: "0.24em",
                   textTransform: "uppercase",
@@ -458,44 +447,62 @@ export function JurorApplication() {
 
               <div
                 style={{
+                  ...PROTOCOL_DASHBOARD_CARD,
                   borderRadius: 18,
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  background: "rgba(15,23,42,0.75)",
-                  padding: "20px 20px 22px",
+                  padding: 0,
+                  overflow: "hidden",
                   display: "flex",
                   flexDirection: "column",
-                  gap: 14,
                 }}
               >
-                <p
+                <div
                   style={{
-                    margin: 0,
-                    fontSize: 10,
-                    fontWeight: 700,
-                    letterSpacing: "0.22em",
-                    textTransform: "uppercase",
-                    color: "rgba(181,236,52,0.75)",
+                    background: "rgba(181,236,52,0.06)",
+                    padding: "12px 20px",
+                    borderBottom: "1px solid rgba(181,236,52,0.1)",
                   }}
                 >
-                  Case details
-                </p>
-                <ContextBlock title="Description">
-                  <p style={{ margin: 0 }}>
-                    Patient presents with recurring upper respiratory infection. Doctor recommends a standard
-                    antibiotic course.
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: 14,
+                      fontWeight: 700,
+                      letterSpacing: "0.22em",
+                      textTransform: "uppercase",
+                      color: "rgba(181,236,52,0.75)",
+                    }}
+                  >
+                    Case details
                   </p>
-                </ContextBlock>
-                <ContextBlock title="Symptoms">
-                  <p style={{ margin: 0 }}>Sore throat, mild fever (37.8°C), nasal congestion</p>
-                </ContextBlock>
-                <ContextBlock title="Recommended treatment">
-                  <p style={{ margin: 0 }}>Amoxicillin 500mg, 5-day course</p>
-                </ContextBlock>
-                <ContextBlock title="Estimated cost">
-                  <p style={{ margin: 0, fontWeight: 700, color: "#f9fafb" }}>
-                    {"\u20B9"}2,400
-                  </p>
-                </ContextBlock>
+                </div>
+                <div
+                  style={{
+                    padding: "16px 18px 18px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 12,
+                    backgroundImage:
+                      "repeating-linear-gradient(transparent, transparent 34px, rgba(181,236,52,0.03) 34px, rgba(181,236,52,0.03) 35px)",
+                  }}
+                >
+                  <ContextBlock title="Description">
+                    <p style={{ margin: 0 }}>
+                      Patient presents with recurring upper respiratory infection. Doctor recommends a
+                      standard antibiotic course.
+                    </p>
+                  </ContextBlock>
+                  <ContextBlock title="Symptoms">
+                    <p style={{ margin: 0 }}>Sore throat, mild fever (37.8°C), nasal congestion</p>
+                  </ContextBlock>
+                  <ContextBlock title="Recommended treatment">
+                    <p style={{ margin: 0 }}>Amoxicillin 500mg, 5-day course</p>
+                  </ContextBlock>
+                  <ContextBlock title="Estimated cost">
+                    <p style={{ margin: 0, fontWeight: 700, color: "#f9fafb" }}>
+                      {"\u20B9"}2,400
+                    </p>
+                  </ContextBlock>
+                </div>
               </div>
 
               <div>
@@ -554,7 +561,7 @@ export function JurorApplication() {
                   border: "1px solid rgba(181,236,52,0.5)",
                   background: submitting ? "rgba(181,236,52,0.35)" : ACCENT,
                   color: "#020617",
-                  fontSize: 12,
+                  fontSize: 14,
                   fontWeight: 800,
                   letterSpacing: "0.12em",
                   textTransform: "uppercase",
@@ -638,7 +645,7 @@ export function JurorApplication() {
                     border: "1px solid rgba(181,236,52,0.5)",
                     background: ACCENT,
                     color: "#020617",
-                    fontSize: 12,
+                    fontSize: 14,
                     fontWeight: 800,
                     letterSpacing: "0.12em",
                     textTransform: "uppercase",
@@ -656,7 +663,7 @@ export function JurorApplication() {
                     border: "1px solid rgba(255,255,255,0.2)",
                     background: "transparent",
                     color: "rgba(226,232,240,0.95)",
-                    fontSize: 12,
+                    fontSize: 14,
                     fontWeight: 700,
                     letterSpacing: "0.1em",
                     textTransform: "uppercase",
@@ -683,7 +690,7 @@ export function JurorApplication() {
               position: "fixed",
               inset: 0,
               zIndex: 100,
-              background: "rgba(2,3,10,0.92)",
+              background: "rgba(0,0,0,0.7)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -696,9 +703,8 @@ export function JurorApplication() {
                 maxWidth: 400,
                 width: "100%",
                 padding: "36px 32px",
+                ...PROTOCOL_DASHBOARD_CARD,
                 borderRadius: 20,
-                border: "1px solid rgba(255,255,255,0.12)",
-                background: "rgba(15,23,42,0.95)",
                 textAlign: "center",
               }}
             >

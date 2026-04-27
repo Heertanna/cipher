@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion as Motion } from "framer-motion";
 import { ACCENT } from "./OnboardingCommon.jsx";
 import { StepItem } from "./StepItem.jsx";
+import { PROTOCOL_DASHBOARD_CARD } from "../lib/protocolPageBackground.js";
 
 const sleep = (ms) => new Promise((r) => window.setTimeout(r, ms));
 
@@ -88,7 +89,7 @@ export function SmartProcessing({ claimData, routeDecision, onContinue }) {
         position: "fixed",
         inset: 0,
         zIndex: 2200,
-        background: "rgba(0,0,0,0.62)",
+        background: "rgba(2,6,12,0.52)",
         backdropFilter: "blur(10px)",
         display: "flex",
         alignItems: "center",
@@ -110,18 +111,16 @@ export function SmartProcessing({ claimData, routeDecision, onContinue }) {
         style={{
           width: "100%",
           maxWidth: 740,
+          ...PROTOCOL_DASHBOARD_CARD,
           borderRadius: 18,
-          border: "1px solid rgba(255,255,255,0.10)",
-          background:
-            "linear-gradient(145deg, rgba(15,23,42,0.98), rgba(15,23,42,0.86))",
-          boxShadow: "0 24px 80px rgba(0,0,0,0.45)",
+          boxShadow: "0 24px 80px rgba(0,0,0,0.45), inset 0 1px 0 rgba(181,236,52,0.05)",
           padding: 22,
         }}
       >
         <p
           style={{
             margin: 0,
-            fontSize: 11,
+            fontSize: 14,
             fontWeight: 950,
             letterSpacing: "0.22em",
             textTransform: "uppercase",
@@ -169,8 +168,8 @@ export function SmartProcessing({ claimData, routeDecision, onContinue }) {
               style={{
                 marginTop: 18,
                 borderRadius: 14,
-                border: "1px solid rgba(255,255,255,0.08)",
-                background: "rgba(255,255,255,0.02)",
+                border: "1px solid rgba(181,236,52,0.12)",
+                background: "rgba(10,16,28,0.55)",
                 padding: 16,
               }}
             >
@@ -188,7 +187,7 @@ export function SmartProcessing({ claimData, routeDecision, onContinue }) {
               <p
                 style={{
                   margin: "6px 0 0",
-                  fontSize: 13,
+                  fontSize: 14,
                   color: "rgba(148,163,184,0.95)",
                   lineHeight: 1.6,
                 }}
@@ -206,7 +205,7 @@ export function SmartProcessing({ claimData, routeDecision, onContinue }) {
                     border: "1px solid rgba(148,163,184,0.35)",
                     background: ACCENT,
                     color: "#050505",
-                    fontSize: 12,
+                    fontSize: 14,
                     fontWeight: 950,
                     letterSpacing: "0.14em",
                     textTransform: "uppercase",

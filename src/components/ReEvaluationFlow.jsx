@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion as Motion } from "framer-motion";
-import { FaintBackground } from "./OnboardingCommon.jsx";
 import { API_URL } from "../config/api.js";
+import { PROTOCOL_PAGE_BACKGROUND } from "../lib/protocolPageBackground.js";
 
 const AMBER = "#fbbf24";
 const GREEN = "#b5ec34";
@@ -125,7 +125,7 @@ export function ReEvaluationFlow() {
             <div key={i} style={{ textAlign: "center" }}>
               <LockCircle active={active} variant="green" />
               {active && i === litCount - 1 ? (
-                <p style={{ margin: "6px 0 0", fontSize: 9, color: "rgba(148,163,184,0.85)" }}>Reviewer secured</p>
+                <p style={{ margin: "6px 0 0", fontSize: 14, color: "rgba(148,163,184,0.85)" }}>Reviewer secured</p>
               ) : null}
             </div>
           );
@@ -140,7 +140,7 @@ export function ReEvaluationFlow() {
       style={{
         position: "relative",
         minHeight: "100dvh",
-        background: "transparent",
+        ...PROTOCOL_PAGE_BACKGROUND,
         padding: "48px 24px",
         display: "flex",
         alignItems: "center",
@@ -148,7 +148,6 @@ export function ReEvaluationFlow() {
         fontFamily: "inherit",
       }}
     >
-      <FaintBackground />
       <Motion.div
         key={stage}
         initial={{ opacity: 0, y: 12 }}
@@ -171,7 +170,7 @@ export function ReEvaluationFlow() {
             <p style={{ margin: "14px 0 0", fontSize: 15, color: "rgba(148,163,184,0.9)", lineHeight: 1.55 }}>
               The protocol has flagged this case for additional review
             </p>
-            <p style={{ marginTop: 12, fontSize: 12, color: AMBER, letterSpacing: "0.2em" }}>CASE ESCALATED</p>
+            <p style={{ marginTop: 12, fontSize: 14, color: AMBER, letterSpacing: "0.2em" }}>CASE ESCALATED</p>
           </>
         )}
 
@@ -215,7 +214,7 @@ export function ReEvaluationFlow() {
               </span>
             </p>
             {assignError ? (
-              <p style={{ color: "#f87171", fontSize: 13, marginBottom: 12 }}>{assignError}</p>
+              <p style={{ color: "#f87171", fontSize: 14, marginBottom: 12 }}>{assignError}</p>
             ) : null}
             <button
               type="button"
@@ -227,7 +226,7 @@ export function ReEvaluationFlow() {
                 border: `1px solid rgba(181,236,52,0.45)`,
                 background: GREEN,
                 color: "#020617",
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: 800,
                 letterSpacing: "0.12em",
                 textTransform: "uppercase",

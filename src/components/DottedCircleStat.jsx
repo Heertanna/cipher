@@ -1,16 +1,20 @@
 import React, { useEffect, useState } from "react";
 
 const DOT_COUNT = 36;
-const RING_SIZE = 190;
-const CENTER = RING_SIZE / 2;
-const DOT_RING_RADIUS = 88;
-const DOT_RADIUS = 3;
 
-export function DottedCircleStat({ percentage, color, text, delayMs = 0 }) {
+export function DottedCircleStat({ percentage, color, text, delayMs = 0, compact = false }) {
   const [filledDots, setFilledDots] = useState(0);
   const [displayPct, setDisplayPct] = useState(0);
   const targetPct = Math.max(0, Math.min(100, Number(percentage) || 0));
   const targetDots = Math.round((targetPct / 100) * DOT_COUNT);
+  const ringSize = compact ? 168 : 190;
+  const center = ringSize / 2;
+  const dotRingRadius = compact ? 78 : 88;
+  const dotRadius = compact ? 2.7 : 3;
+  const innerSize = compact ? 128 : 150;
+  const pctFontSize = compact ? 29 : 32;
+  const textFontSize = compact ? 13 : 14;
+  const textMaxWidth = compact ? 106 : 120;
 
   useEffect(() => {
     let cancelled = false;
@@ -36,18 +40,18 @@ export function DottedCircleStat({ percentage, color, text, delayMs = 0 }) {
   }, [delayMs, targetDots, targetPct]);
 
   return (
-    <div style={{ width: RING_SIZE, height: RING_SIZE, position: "relative", flexShrink: 0 }}>
-      <svg width={RING_SIZE} height={RING_SIZE} viewBox={`0 0 ${RING_SIZE} ${RING_SIZE}`}>
+    <div style={{ width: ringSize, height: ringSize, position: "relative", flexShrink: 0 }}>
+      <svg width={ringSize} height={ringSize} viewBox={`0 0 ${ringSize} ${ringSize}`}>
         {Array.from({ length: DOT_COUNT }).map((_, idx) => {
           const angle = -Math.PI / 2 + (idx / DOT_COUNT) * Math.PI * 2;
-          const x = CENTER + Math.cos(angle) * DOT_RING_RADIUS;
-          const y = CENTER + Math.sin(angle) * DOT_RING_RADIUS;
+          const x = center + Math.cos(angle) * dotRingRadius;
+          const y = center + Math.sin(angle) * dotRingRadius;
           return (
             <circle
               key={idx}
               cx={x}
               cy={y}
-              r={DOT_RADIUS}
+              r={dotRadius}
               fill={idx < filledDots ? color : "rgba(255,255,255,0.12)"}
             />
           );
@@ -59,8 +63,8 @@ export function DottedCircleStat({ percentage, color, text, delayMs = 0 }) {
           position: "absolute",
           left: "50%",
           top: "50%",
-          width: 150,
-          height: 150,
+          width: innerSize,
+          height: innerSize,
           transform: "translate(-50%, -50%)",
           borderRadius: "50%",
           background: "#0a0a0a",
@@ -77,7 +81,7 @@ export function DottedCircleStat({ percentage, color, text, delayMs = 0 }) {
         <p
           style={{
             margin: 0,
-            fontSize: 32,
+            fontSize: pctFontSize,
             fontWeight: 300,
             color: "#ffffff",
             lineHeight: 1,
@@ -89,10 +93,10 @@ export function DottedCircleStat({ percentage, color, text, delayMs = 0 }) {
         <p
           style={{
             margin: "10px 0 0",
-            fontSize: 12,
+            fontSize: textFontSize,
             color: "rgba(255,255,255,0.6)",
             textAlign: "center",
-            maxWidth: 120,
+            maxWidth: textMaxWidth,
             lineHeight: 1.4,
           }}
         >

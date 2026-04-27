@@ -1,7 +1,8 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { FaintBackground, ACCENT } from "./OnboardingCommon.jsx";
+import { ACCENT } from "./OnboardingCommon.jsx";
 import { generateAdmissionPacket } from "../lib/generateAdmissionPacket.js";
+import { PROTOCOL_PAGE_BACKGROUND } from "../lib/protocolPageBackground.js";
 
 function fmtTime(ts) {
   if (!ts) return "Not available";
@@ -27,7 +28,7 @@ export function HospitalView() {
       <div
         style={{
           minHeight: "100vh",
-          background: "transparent",
+          ...PROTOCOL_PAGE_BACKGROUND,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -35,7 +36,6 @@ export function HospitalView() {
           position: "relative",
         }}
       >
-        <FaintBackground />
         <div
           style={{
             position: "relative",
@@ -66,7 +66,7 @@ export function HospitalView() {
               fontWeight: 700,
               letterSpacing: "0.08em",
               textTransform: "uppercase",
-              fontSize: 11,
+              fontSize: 14,
             }}
           >
             Back
@@ -80,21 +80,20 @@ export function HospitalView() {
     <div
       style={{
         minHeight: "100vh",
-        background: "transparent",
+        ...PROTOCOL_PAGE_BACKGROUND,
         padding: "72px 24px 48px",
         position: "relative",
         display: "flex",
         justifyContent: "center",
       }}
     >
-      <FaintBackground />
       <main style={{ width: "100%", maxWidth: 960, position: "relative", zIndex: 1 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
           <div>
             <p
               style={{
                 margin: 0,
-                fontSize: 11,
+                fontSize: 14,
                 fontWeight: 800,
                 letterSpacing: "0.2em",
                 textTransform: "uppercase",
@@ -113,7 +112,7 @@ export function HospitalView() {
               borderRadius: 999,
               border: "1px solid rgba(148,163,184,0.45)",
               color: "rgba(226,232,240,0.92)",
-              fontSize: 10,
+              fontSize: 14,
               fontWeight: 800,
               letterSpacing: "0.12em",
               textTransform: "uppercase",
@@ -146,14 +145,14 @@ export function HospitalView() {
           }}
         >
           <section style={{ borderRadius: 14, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(15,23,42,0.75)", padding: 16 }}>
-            <p style={{ margin: 0, fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: "rgba(148,163,184,0.75)", fontWeight: 800 }}>Vitals</p>
+            <p style={{ margin: 0, fontSize: 14, letterSpacing: "0.16em", textTransform: "uppercase", color: "rgba(148,163,184,0.75)", fontWeight: 800 }}>Vitals</p>
             <p style={{ margin: "12px 0 0", fontSize: 14, color: "#f8fafc" }}>Blood Type: <strong>{packet.bloodType || "Not recorded"}</strong></p>
             <p style={{ margin: "8px 0 0", fontSize: 14, color: "#f8fafc" }}>Age Range: <strong>{packet.ageRange || "Not recorded"}</strong></p>
             <p style={{ margin: "8px 0 0", fontSize: 14, color: "#f8fafc" }}>Gender: <strong>{packet.gender || "Not recorded"}</strong></p>
           </section>
 
           <section style={{ borderRadius: 14, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(15,23,42,0.75)", padding: 16 }}>
-            <p style={{ margin: 0, fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: "rgba(148,163,184,0.75)", fontWeight: 800 }}>Alerts</p>
+            <p style={{ margin: 0, fontSize: 14, letterSpacing: "0.16em", textTransform: "uppercase", color: "rgba(148,163,184,0.75)", fontWeight: 800 }}>Alerts</p>
             <p style={{ margin: "12px 0 0", fontSize: 14, color: hasAlerts ? "#f87171" : "#f8fafc" }}>
               Allergies: <strong>{packet.allergies || "Not recorded"}</strong>
             </p>
@@ -166,12 +165,12 @@ export function HospitalView() {
           </section>
 
           <section style={{ borderRadius: 14, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(15,23,42,0.75)", padding: 16 }}>
-            <p style={{ margin: 0, fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: "rgba(148,163,184,0.75)", fontWeight: 800 }}>Coverage</p>
+            <p style={{ margin: 0, fontSize: 14, letterSpacing: "0.16em", textTransform: "uppercase", color: "rgba(148,163,184,0.75)", fontWeight: 800 }}>Coverage</p>
             <p style={{ margin: "12px 0 0", fontSize: 14, color: "#bbf7d0" }}>Status: <strong>✓ ACTIVE</strong></p>
             <p style={{ margin: "8px 0 0", fontSize: 14, color: "#f8fafc" }}>Pre-authorized: <strong>₹25,000</strong></p>
             <p style={{ margin: "8px 0 0", fontSize: 14, color: "#f8fafc" }}>Emergency Ref: <strong>{referenceCode}</strong></p>
             <p style={{ margin: "8px 0 0", fontSize: 14, color: "#f8fafc" }}>Valid until: <strong>{fmtTime(packet.validUntil)}</strong></p>
-            <p style={{ margin: "10px 0 0", fontSize: 12, color: "rgba(148,163,184,0.9)" }}>Note: Final claim evaluation after treatment</p>
+            <p style={{ margin: "10px 0 0", fontSize: 14, color: "rgba(148,163,184,0.9)" }}>Note: Final claim evaluation after treatment</p>
             <button
               type="button"
               onClick={() => {
@@ -193,7 +192,7 @@ export function HospitalView() {
                 border: "1px solid rgba(181,236,52,0.45)",
                 background: "#b5ec34",
                 color: "#020617",
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: 800,
                 letterSpacing: "0.14em",
                 textTransform: "uppercase",
@@ -205,8 +204,8 @@ export function HospitalView() {
           </section>
 
           <section style={{ borderRadius: 14, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(15,23,42,0.75)", padding: 16 }}>
-            <p style={{ margin: 0, fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: "rgba(148,163,184,0.75)", fontWeight: 800 }}>Important notices</p>
-            <p style={{ margin: "12px 0 0", fontSize: 13, color: "#e2e8f0", lineHeight: 1.6 }}>
+            <p style={{ margin: 0, fontSize: 14, letterSpacing: "0.16em", textTransform: "uppercase", color: "rgba(148,163,184,0.75)", fontWeight: 800 }}>Important notices</p>
+            <p style={{ margin: "12px 0 0", fontSize: 14, color: "#e2e8f0", lineHeight: 1.6 }}>
               • This patient's identity is anonymized by protocol
               <br />
               • Bill directly to Cipher Protocol using reference {referenceCode}
@@ -216,7 +215,7 @@ export function HospitalView() {
           </section>
         </div>
 
-        <p style={{ margin: "22px 0 0", fontSize: 12, color: "rgba(148,163,184,0.88)" }}>
+        <p style={{ margin: "22px 0 0", fontSize: 14, color: "rgba(148,163,184,0.88)" }}>
           This verification is cryptographically signed by Cipher Protocol. Contact: protocol@cipher.health for billing queries.
         </p>
       </main>

@@ -1,6 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { ACCENT, FaintBackground } from "./OnboardingCommon.jsx";
+import { ACCENT } from "./OnboardingCommon.jsx";
 import { RpEarnedNotice } from "./RpEarnedNotice.jsx";
+import {
+  PROTOCOL_DASHBOARD_CARD,
+  PROTOCOL_PAGE_BACKGROUND,
+} from "../lib/protocolPageBackground.js";
 
 export function FastTrackApproval({
   description,
@@ -69,7 +73,7 @@ export function FastTrackApproval({
     <div
       style={{
         minHeight: "100vh",
-        background: "transparent",
+        ...PROTOCOL_PAGE_BACKGROUND,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -100,19 +104,16 @@ export function FastTrackApproval({
         }
       `}</style>
 
-      <FaintBackground />
-
       <div
         style={{
           width: "100%",
           maxWidth: 860,
           position: "relative",
           zIndex: 1,
+          ...PROTOCOL_DASHBOARD_CARD,
           borderRadius: 18,
-          border: "1px solid rgba(255,255,255,0.08)",
-          background: "rgba(255,255,255,0.02)",
           padding: "28px 28px",
-          boxShadow: "0 20px 70px rgba(0,0,0,0.35)",
+          boxShadow: "0 20px 70px rgba(0,0,0,0.35), inset 0 1px 0 rgba(181,236,52,0.05)",
         }}
       >
         {!showMain ? (
@@ -209,7 +210,7 @@ export function FastTrackApproval({
                 <p
                   style={{
                     margin: 0,
-                    fontSize: 11,
+                    fontSize: 14,
                     fontWeight: 700,
                     letterSpacing: "0.22em",
                     textTransform: "uppercase",
@@ -244,7 +245,7 @@ export function FastTrackApproval({
                 <p
                   style={{
                     margin: "6px 0 0",
-                    fontSize: 13,
+                    fontSize: 14,
                     lineHeight: 1.6,
                     color: "rgba(148,163,184,0.95)",
                   }}
@@ -303,7 +304,7 @@ export function FastTrackApproval({
                       />
                       <span
                         style={{
-                          fontSize: 11,
+                          fontSize: 14,
                           fontWeight: 900,
                           letterSpacing: "0.1em",
                           textTransform: "uppercase",
@@ -340,7 +341,7 @@ export function FastTrackApproval({
                 <p
                   style={{
                     margin: 0,
-                    fontSize: 11,
+                    fontSize: 14,
                     fontWeight: 900,
                     letterSpacing: "0.2em",
                     textTransform: "uppercase",
@@ -355,7 +356,7 @@ export function FastTrackApproval({
                     <p
                       style={{
                         margin: 0,
-                        fontSize: 11,
+                        fontSize: 14,
                         fontWeight: 800,
                         letterSpacing: "0.1em",
                         textTransform: "uppercase",
@@ -367,7 +368,7 @@ export function FastTrackApproval({
                     <p
                       style={{
                         margin: "6px 0 0",
-                        fontSize: 13,
+                        fontSize: 14,
                         color: "rgba(241,245,249,0.92)",
                         lineHeight: 1.6,
                       }}
@@ -379,13 +380,13 @@ export function FastTrackApproval({
                   <div style={{ display: "grid", gap: 10 }}>
                     <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
                       <span style={{ color: ACCENT, fontWeight: 950 }}>✓</span>
-                      <span style={{ fontSize: 13, color: "rgba(241,245,249,0.92)" }}>
+                      <span style={{ fontSize: 14, color: "rgba(241,245,249,0.92)" }}>
                         Support: Confirmed
                       </span>
                     </div>
                     <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
                       <span style={{ color: ACCENT, fontWeight: 950 }}>✓</span>
-                      <span style={{ fontSize: 13, color: "rgba(241,245,249,0.92)" }}>
+                      <span style={{ fontSize: 14, color: "rgba(241,245,249,0.92)" }}>
                         Coverage: Full
                       </span>
                     </div>
@@ -405,7 +406,7 @@ export function FastTrackApproval({
                 <p
                   style={{
                     margin: 0,
-                    fontSize: 11,
+                    fontSize: 14,
                     fontWeight: 900,
                     letterSpacing: "0.2em",
                     textTransform: "uppercase",
@@ -418,19 +419,19 @@ export function FastTrackApproval({
                 <div style={{ marginTop: 12, display: "grid", gap: 10 }}>
                   <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
                     <span style={{ color: ACCENT, fontWeight: 950 }}>✓</span>
-                    <span style={{ fontSize: 13, color: "rgba(241,245,249,0.92)", lineHeight: 1.4 }}>
+                    <span style={{ fontSize: 14, color: "rgba(241,245,249,0.92)", lineHeight: 1.4 }}>
                       Treatment is common
                     </span>
                   </div>
                   <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
                     <span style={{ color: ACCENT, fontWeight: 950 }}>✓</span>
-                    <span style={{ fontSize: 13, color: "rgba(241,245,249,0.92)", lineHeight: 1.4 }}>
+                    <span style={{ fontSize: 14, color: "rgba(241,245,249,0.92)", lineHeight: 1.4 }}>
                       Cost is within expected range
                     </span>
                   </div>
                   <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
                     <span style={{ color: ACCENT, fontWeight: 950 }}>✓</span>
-                    <span style={{ fontSize: 13, color: "rgba(241,245,249,0.92)", lineHeight: 1.4 }}>
+                    <span style={{ fontSize: 14, color: "rgba(241,245,249,0.92)", lineHeight: 1.4 }}>
                       Evidence is sufficient
                     </span>
                   </div>
@@ -451,7 +452,7 @@ export function FastTrackApproval({
               <p
                 style={{
                   margin: 0,
-                  fontSize: 11,
+                  fontSize: 14,
                   fontWeight: 900,
                   letterSpacing: "0.2em",
                   textTransform: "uppercase",
@@ -488,7 +489,7 @@ export function FastTrackApproval({
                   />
                   <span
                     style={{
-                      fontSize: 13,
+                      fontSize: 14,
                       fontWeight: 900,
                       color: "rgba(241,245,249,0.92)",
                       letterSpacing: "-0.01em",
@@ -525,7 +526,7 @@ export function FastTrackApproval({
                         border: "1px solid rgba(181,236,52,0.22)",
                         background: "rgba(181,236,52,0.06)",
                         color: "rgba(181,236,52,0.95)",
-                        fontSize: 12,
+                        fontSize: 14,
                         fontWeight: 950,
                         letterSpacing: "0.12em",
                         textTransform: "uppercase",
@@ -599,7 +600,7 @@ export function FastTrackApproval({
                         border: "1px solid rgba(255,255,255,0.10)",
                         background: "rgba(255,255,255,0.02)",
                         color: "rgba(241,245,249,0.92)",
-                        fontSize: 12,
+                        fontSize: 14,
                         fontWeight: 950,
                         letterSpacing: "0.12em",
                         textTransform: "uppercase",
@@ -625,7 +626,7 @@ export function FastTrackApproval({
                   border: "1px solid rgba(181,236,52,0.55)",
                   background: ACCENT,
                   color: "#050505",
-                  fontSize: 12,
+                  fontSize: 14,
                   fontWeight: 950,
                   letterSpacing: "0.14em",
                   textTransform: "uppercase",

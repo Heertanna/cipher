@@ -224,7 +224,7 @@ export function TermsConditions({ onBack, onContinue }) {
           <div>
             <p
               style={{
-                fontSize: 11,
+                fontSize: 14,
                 fontWeight: 600,
                 letterSpacing: "0.25em",
                 textTransform: "uppercase",
@@ -254,7 +254,7 @@ export function TermsConditions({ onBack, onContinue }) {
               background: "none",
               border: "none",
               color: "rgba(181,236,52,0.5)",
-              fontSize: 12,
+              fontSize: 14,
               fontWeight: 600,
               letterSpacing: "0.15em",
               textTransform: "uppercase",
@@ -286,7 +286,7 @@ export function TermsConditions({ onBack, onContinue }) {
               borderRadius: 8,
               border: "1px solid rgba(255,255,255,0.1)",
               color: "rgba(255,255,255,0.7)",
-              fontSize: 13,
+              fontSize: 14,
               lineHeight: 1.7,
             }}
           >
@@ -322,7 +322,7 @@ export function TermsConditions({ onBack, onContinue }) {
               border: "1px solid rgba(255,255,255,0.2)",
               background: "transparent",
               color: "rgba(226,232,240,0.8)",
-              fontSize: 11,
+              fontSize: 14,
               padding: "8px 16px",
               borderRadius: 999,
               fontWeight: 700,
@@ -366,13 +366,13 @@ export function TermsConditions({ onBack, onContinue }) {
                 }}
               >
                 <div style={{ flex: 1 }}>
-                  <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#f8fafc" }}>
+                  <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "#f8fafc" }}>
                     {item.title}
                   </p>
                   <p
                     style={{
                       margin: "4px 0 0",
-                      fontSize: 12,
+                      fontSize: 14,
                       color: "rgba(148,163,184,0.9)",
                       lineHeight: 1.55,
                     }}
@@ -421,7 +421,7 @@ export function TermsConditions({ onBack, onContinue }) {
             <p
               style={{
                 margin: 0,
-                fontSize: 11,
+                fontSize: 14,
                 fontWeight: 800,
                 letterSpacing: "0.2em",
                 textTransform: "uppercase",
@@ -430,7 +430,7 @@ export function TermsConditions({ onBack, onContinue }) {
             >
               Digital Signature
             </p>
-            <p style={{ margin: "8px 0 0", fontSize: 12, color: "rgba(148,163,184,0.86)", lineHeight: 1.55 }}>
+            <p style={{ margin: "8px 0 0", fontSize: 14, color: "rgba(148,163,184,0.86)", lineHeight: 1.55 }}>
               Sign below using your mouse or finger to digitally authorize this protocol agreement.
             </p>
             <div
@@ -476,7 +476,7 @@ export function TermsConditions({ onBack, onContinue }) {
                     inset: 0,
                     display: "grid",
                     placeItems: "center",
-                    fontSize: 13,
+                    fontSize: 14,
                     color: "rgba(148,163,184,0.55)",
                     pointerEvents: "none",
                     letterSpacing: "0.04em",
@@ -494,7 +494,7 @@ export function TermsConditions({ onBack, onContinue }) {
                   border: "1px solid rgba(255,255,255,0.2)",
                   background: "transparent",
                   color: "rgba(226,232,240,0.8)",
-                  fontSize: 11,
+                  fontSize: 14,
                   padding: "7px 14px",
                   borderRadius: 999,
                   fontWeight: 700,
@@ -506,19 +506,19 @@ export function TermsConditions({ onBack, onContinue }) {
               >
                 Clear
               </button>
-              <span style={{ fontSize: 12, color: hasSignature ? ACCENT : "rgba(148,163,184,0.8)" }}>
+              <span style={{ fontSize: 14, color: hasSignature ? ACCENT : "rgba(148,163,184,0.8)" }}>
                 {hasSignature ? "Signature recorded" : "Please sign above"}
               </span>
             </div>
             {hasSignature && signedAt ? (
               <>
-                <p style={{ margin: "8px 0 0", fontSize: 11, color: "rgba(148,163,184,0.7)" }}>
+                <p style={{ margin: "8px 0 0", fontSize: 14, color: "rgba(148,163,184,0.7)" }}>
                   Signed: {new Date(signedAt).toLocaleString()}
                 </p>
                 <p
                   style={{
                     margin: "6px 0 0",
-                    fontSize: 10,
+                    fontSize: 14,
                     color: "rgba(148,163,184,0.55)",
                     fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
                   }}
@@ -530,7 +530,7 @@ export function TermsConditions({ onBack, onContinue }) {
           </div>
           <p
             style={{
-              fontSize: 12,
+              fontSize: 14,
               color: "rgba(255,255,255,0.75)",
               margin: 0,
             }}
@@ -542,7 +542,7 @@ export function TermsConditions({ onBack, onContinue }) {
               style={{
                 margin: 0,
                 width: "100%",
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: 700,
                 color: ACCENT,
                 letterSpacing: "0.04em",

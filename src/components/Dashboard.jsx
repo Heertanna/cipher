@@ -53,7 +53,7 @@ export function Dashboard({ onHome, onNext }) {
       >
         <p
           style={{
-            fontSize: 11,
+            fontSize: 14,
             fontWeight: 600,
             letterSpacing: "0.25em",
             textTransform: "uppercase",
@@ -95,7 +95,7 @@ export function Dashboard({ onHome, onNext }) {
           >
             <p
               style={{
-                fontSize: 10,
+                fontSize: 14,
                 fontWeight: 700,
                 letterSpacing: "0.2em",
                 textTransform: "uppercase",
@@ -120,7 +120,7 @@ export function Dashboard({ onHome, onNext }) {
           >
             <p
               style={{
-                fontSize: 10,
+                fontSize: 14,
                 fontWeight: 700,
                 letterSpacing: "0.2em",
                 textTransform: "uppercase",
@@ -133,7 +133,7 @@ export function Dashboard({ onHome, onNext }) {
             <p
               style={{
                 margin: 0,
-                fontSize: 13,
+                fontSize: 14,
                 fontFamily: "monospace",
                 letterSpacing: "0.06em",
                 color: ACCENT,
@@ -181,7 +181,7 @@ export function Dashboard({ onHome, onNext }) {
             >
               <p
                 style={{
-                  fontSize: 10,
+                  fontSize: 14,
                   fontWeight: 700,
                   letterSpacing: "0.2em",
                   textTransform: "uppercase",

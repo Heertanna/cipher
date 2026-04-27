@@ -61,7 +61,7 @@ export function SystemActivityCard() {
       <p
         style={{
           margin: "0 0 12px",
-          fontSize: 11,
+          fontSize: 14,
           fontWeight: 600,
           letterSpacing: "0.25em",
           textTransform: "uppercase",
@@ -107,18 +107,18 @@ export function SystemActivityCard() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: 11,
+                fontSize: 14,
                 color: "rgba(190,242,100,0.95)",
               }}
             >
               {event.icon}
             </div>
-            <p style={{ margin: 0, fontSize: 13, color: "rgba(226,232,240,0.9)" }}>
+            <p style={{ margin: 0, fontSize: 14, color: "rgba(226,232,240,0.9)" }}>
               {event.text}
             </p>
             <span
               style={{
-                fontSize: 11,
+                fontSize: 14,
                 color: "rgba(148,163,184,0.9)",
                 letterSpacing: "0.08em",
               }}

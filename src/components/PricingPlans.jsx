@@ -97,7 +97,7 @@ export function PricingPlans({
             />
             <span
               style={{
-                fontSize: 11,
+                fontSize: 14,
                 letterSpacing: "0.18em",
                 textTransform: "uppercase",
                 color: "rgba(226,232,240,0.75)",
@@ -151,7 +151,7 @@ export function PricingPlans({
               background: "transparent",
               border: "none",
               color: "rgba(148,163,184,0.9)",
-              fontSize: 12,
+              fontSize: 14,
               fontWeight: 600,
               letterSpacing: "0.15em",
               textTransform: "uppercase",
@@ -184,7 +184,7 @@ export function PricingPlans({
                 border: "none",
                 background: "rgba(15,23,42,0.95)",
                 color: "rgba(226,232,240,0.95)",
-                fontSize: 11,
+                fontSize: 14,
                 letterSpacing: "0.1em",
                 textTransform: "uppercase",
                 cursor: "default",
@@ -199,7 +199,7 @@ export function PricingPlans({
                 border: "none",
                 background: "transparent",
                 color: "rgba(148,163,184,0.9)",
-                fontSize: 11,
+                fontSize: 14,
                 letterSpacing: "0.1em",
                 textTransform: "uppercase",
                 cursor: "default",
@@ -221,7 +221,7 @@ export function PricingPlans({
 
         <p
           style={{
-            fontSize: 12,
+            fontSize: 14,
             color: "rgba(148,163,184,0.5)",
             textAlign: "center",
             marginTop: 24,
@@ -278,7 +278,7 @@ export function PricingPlans({
             <div className="pricing-card-content">
             <p
               style={{
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: 700,
                 letterSpacing: "0.18em",
                 textTransform: "uppercase",
@@ -301,7 +301,7 @@ export function PricingPlans({
             </p>
             <p
               style={{
-                fontSize: 11,
+                fontSize: 14,
                 textTransform: "uppercase",
                 letterSpacing: "0.16em",
                 color: "rgba(148,163,184,0.85)",
@@ -312,7 +312,7 @@ export function PricingPlans({
             </p>
             <p
               style={{
-                fontSize: 13,
+                fontSize: 14,
                 color: "rgba(209,213,219,0.7)",
                 marginBottom: 20,
               }}
@@ -324,7 +324,7 @@ export function PricingPlans({
                 listStyle: "none",
                 padding: 0,
                 margin: 0,
-                fontSize: 13,
+                fontSize: 14,
                 color: "rgba(255,255,255,0.7)",
                 lineHeight: 1.7,
               }}
@@ -343,7 +343,7 @@ export function PricingPlans({
                 border: "1px solid rgba(148,163,184,0.7)",
                 background: "rgba(15,23,42,0.9)",
                 color: "rgba(226,232,240,0.96)",
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: 600,
                 letterSpacing: "0.12em",
                 textTransform: "uppercase",
@@ -391,7 +391,7 @@ export function PricingPlans({
             <div className="pricing-card-content">
             <p
               style={{
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: 700,
                 letterSpacing: "0.18em",
                 textTransform: "uppercase",
@@ -414,7 +414,7 @@ export function PricingPlans({
             </p>
             <p
               style={{
-                fontSize: 11,
+                fontSize: 14,
                 textTransform: "uppercase",
                 letterSpacing: "0.16em",
                 color: "rgba(250,250,250,0.9)",
@@ -437,7 +437,7 @@ export function PricingPlans({
                 listStyle: "none",
                 padding: 0,
                 margin: 0,
-                fontSize: 13,
+                fontSize: 14,
                 color: "rgba(255,255,255,0.8)",
                 lineHeight: 1.7,
               }}
@@ -457,7 +457,7 @@ export function PricingPlans({
                 background:
                   "linear-gradient(90deg, rgba(250,250,210,1), rgba(181,236,52,1))",
                 color: "#020617",
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: 700,
                 letterSpacing: "0.15em",
                 textTransform: "uppercase",
@@ -505,7 +505,7 @@ export function PricingPlans({
             <div className="pricing-card-content">
             <p
               style={{
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: 700,
                 letterSpacing: "0.18em",
                 textTransform: "uppercase",
@@ -528,7 +528,7 @@ export function PricingPlans({
             </p>
             <p
               style={{
-                fontSize: 11,
+                fontSize: 14,
                 textTransform: "uppercase",
                 letterSpacing: "0.16em",
                 color: "rgba(191,219,254,0.95)",
@@ -551,7 +551,7 @@ export function PricingPlans({
                 listStyle: "none",
                 padding: 0,
                 margin: 0,
-                fontSize: 13,
+                fontSize: 14,
                 color: "rgba(255,255,255,0.8)",
                 lineHeight: 1.7,
               }}
@@ -570,7 +570,7 @@ export function PricingPlans({
                 border: "1px solid rgba(147,197,253,0.9)",
                 background: "rgba(15,23,42,0.96)",
                 color: "rgba(219,234,254,0.96)",
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: 600,
                 letterSpacing: "0.12em",
                 textTransform: "uppercase",
@@ -614,7 +614,7 @@ export function PricingPlans({
             {tierSubmitting ? "Saving…" : "Continue to Payment"}
           </button>
           {tierError ? (
-            <p style={{ margin: 0, fontSize: 13, color: "#fda4af", lineHeight: 1.5, maxWidth: 420, textAlign: "right" }}>
+            <p style={{ margin: 0, fontSize: 14, color: "#fda4af", lineHeight: 1.5, maxWidth: 420, textAlign: "right" }}>
               {tierError}
             </p>
           ) : null}

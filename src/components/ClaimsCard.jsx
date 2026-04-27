@@ -44,7 +44,7 @@ export function ClaimsCard({ onStartClaim }) {
       >
         <p
           style={{
-            fontSize: 11,
+            fontSize: 14,
             fontWeight: 600,
             letterSpacing: "0.25em",
             textTransform: "uppercase",
@@ -64,7 +64,7 @@ export function ClaimsCard({ onStartClaim }) {
             border: "1px solid rgba(148,163,184,0.65)",
             background: "transparent",
             color: "rgba(226,232,240,0.96)",
-            fontSize: 11,
+            fontSize: 14,
             fontWeight: 600,
             letterSpacing: "0.14em",
             textTransform: "uppercase",
@@ -92,7 +92,7 @@ export function ClaimsCard({ onStartClaim }) {
           <p
             style={{
               margin: 0,
-              fontSize: 13,
+              fontSize: 14,
               color: "rgba(148,163,184,0.96)",
             }}
           >
@@ -168,7 +168,7 @@ function ClaimRow({ claim }) {
           <p
             style={{
               margin: 0,
-              fontSize: 11,
+              fontSize: 14,
               letterSpacing: "0.16em",
               textTransform: "uppercase",
               color: "rgba(148,163,184,0.9)",
@@ -179,7 +179,7 @@ function ClaimRow({ claim }) {
           <p
             style={{
               margin: 2,
-              fontSize: 12,
+              fontSize: 14,
               color: "rgba(226,232,240,0.9)",
             }}
           >
@@ -189,7 +189,7 @@ function ClaimRow({ claim }) {
             <p
               style={{
                 margin: "4px 0 0",
-                fontSize: 12,
+                fontSize: 14,
                 color: "rgba(148,163,184,0.9)",
               }}
             >
@@ -200,7 +200,7 @@ function ClaimRow({ claim }) {
             <p
               style={{
                 margin: "4px 0 0",
-                fontSize: 12,
+                fontSize: 14,
                 color: "rgba(148,163,184,0.9)",
               }}
             >
@@ -229,7 +229,7 @@ function ClaimRow({ claim }) {
           />
           <span
             style={{
-              fontSize: 11,
+              fontSize: 14,
               letterSpacing: "0.16em",
               textTransform: "uppercase",
               color: statusColor,

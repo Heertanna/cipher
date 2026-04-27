@@ -22,7 +22,7 @@ function ContributionBreakdown({ rows }) {
       />
       <p
         style={{
-          fontSize: 10,
+          fontSize: 14,
           letterSpacing: "0.15em",
           textTransform: "uppercase",
           color: "rgba(148,163,184,0.5)",
@@ -44,7 +44,7 @@ function ContributionBreakdown({ rows }) {
         >
           <span
             style={{
-              fontSize: 11,
+              fontSize: 14,
               color: "rgba(148,163,184,0.7)",
               lineHeight: 1.3,
               flex: "1 1 auto",
@@ -61,7 +61,7 @@ function ContributionBreakdown({ rows }) {
               flexShrink: 0,
             }}
           >
-            <span style={{ fontSize: 11, fontWeight: 700, color: "#f9fafb" }}>{row.amount}</span>
+            <span style={{ fontSize: 14, fontWeight: 700, color: "#f9fafb" }}>{row.amount}</span>
             <div
               style={{
                 width: 80,
@@ -82,7 +82,7 @@ function ContributionBreakdown({ rows }) {
             </div>
             <span
               style={{
-                fontSize: 11,
+                fontSize: 14,
                 color: "rgba(148,163,184,0.85)",
                 minWidth: 40,
                 textAlign: "right",
@@ -126,7 +126,7 @@ function PricingCardContent({ card, onSelectPlan, selectDisabled }) {
       </p>
       <p
         style={{
-          fontSize: 11,
+          fontSize: 14,
           textTransform: "uppercase",
           letterSpacing: "0.16em",
           color: card.tierColor,
@@ -139,7 +139,7 @@ function PricingCardContent({ card, onSelectPlan, selectDisabled }) {
       <p style={{ fontSize: 14, color: card.descriptionColor, marginBottom: 20 }}>
         {card.description}
       </p>
-      <ul style={{ listStyle: "none", padding: 0, margin: 0, fontSize: 13, color: card.listColor, lineHeight: 1.7 }}>
+      <ul style={{ listStyle: "none", padding: 0, margin: 0, fontSize: 14, color: card.listColor, lineHeight: 1.7 }}>
         {card.bullets.map((b) => (
           <li key={b}>{b}</li>
         ))}
@@ -175,7 +175,7 @@ export function PricingCards({ onSelectPlan, selectDisabled = false }) {
         topLabel: (
           <p
             style={{
-              fontSize: 12,
+              fontSize: 14,
               fontWeight: 700,
               letterSpacing: "0.18em",
               textTransform: "uppercase",
@@ -212,7 +212,7 @@ export function PricingCards({ onSelectPlan, selectDisabled = false }) {
           border: "1px solid rgba(148,163,184,0.7)",
           background: "rgba(15,23,42,0.9)",
           color: "rgba(226,232,240,0.96)",
-          fontSize: 12,
+          fontSize: 14,
           fontWeight: 600,
           letterSpacing: "0.12em",
           textTransform: "uppercase",
@@ -250,7 +250,7 @@ export function PricingCards({ onSelectPlan, selectDisabled = false }) {
         topLabel: (
           <p
             style={{
-              fontSize: 12,
+              fontSize: 14,
               fontWeight: 700,
               letterSpacing: "0.18em",
               textTransform: "uppercase",
@@ -287,7 +287,7 @@ export function PricingCards({ onSelectPlan, selectDisabled = false }) {
           border: "none",
           background: "linear-gradient(90deg, rgba(250,250,210,1), rgba(181,236,52,1))",
           color: "#020617",
-          fontSize: 12,
+          fontSize: 14,
           fontWeight: 700,
           letterSpacing: "0.15em",
           textTransform: "uppercase",
@@ -325,7 +325,7 @@ export function PricingCards({ onSelectPlan, selectDisabled = false }) {
         topLabel: (
           <p
             style={{
-              fontSize: 12,
+              fontSize: 14,
               fontWeight: 700,
               letterSpacing: "0.18em",
               textTransform: "uppercase",
@@ -362,7 +362,7 @@ export function PricingCards({ onSelectPlan, selectDisabled = false }) {
           border: "1px solid rgba(147,197,253,0.9)",
           background: "rgba(15,23,42,0.96)",
           color: "rgba(219,234,254,0.96)",
-          fontSize: 12,
+          fontSize: 14,
           fontWeight: 600,
           letterSpacing: "0.12em",
           textTransform: "uppercase",

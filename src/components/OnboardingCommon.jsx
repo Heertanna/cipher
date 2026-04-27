@@ -21,7 +21,7 @@ export function Label({ children }) {
   return (
     <div
       style={{
-        fontSize: 10,
+        fontSize: 14,
         fontWeight: 700,
         letterSpacing: "0.2em",
         textTransform: "uppercase",

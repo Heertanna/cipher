@@ -104,7 +104,7 @@ export function SystemOverviewHero() {
       <div style={{ marginBottom: 20 }}>
         <p
           style={{
-            fontSize: 11,
+            fontSize: 14,
             fontWeight: 600,
             letterSpacing: "0.25em",
             textTransform: "uppercase",
@@ -132,7 +132,7 @@ export function SystemOverviewHero() {
         <p
           style={{
             margin: 0,
-            fontSize: 11,
+            fontSize: 14,
             fontWeight: 700,
             letterSpacing: "0.2em",
             textTransform: "uppercase",
@@ -154,7 +154,7 @@ export function SystemOverviewHero() {
           {noSession ? "—" : rpData != null ? displayPoints : "—"}
         </p>
         {noSession ? (
-          <p style={{ margin: "12px 0 0", fontSize: 12, color: "rgba(148,163,184,0.75)" }}>
+          <p style={{ margin: "12px 0 0", fontSize: 14, color: "rgba(148,163,184,0.75)" }}>
             Join the network to track reputation.
           </p>
         ) : rpData != null ? (
@@ -166,7 +166,7 @@ export function SystemOverviewHero() {
                 padding: "6px 14px",
                 borderRadius: 999,
                 background: levelStyle.background,
-                fontSize: 11,
+                fontSize: 14,
                 fontWeight: 700,
                 letterSpacing: "0.12em",
                 textTransform: "uppercase",
@@ -177,7 +177,7 @@ export function SystemOverviewHero() {
             </span>
           </div>
         ) : (
-          <p style={{ margin: "12px 0 0", fontSize: 12, color: "rgba(148,163,184,0.65)" }}>
+          <p style={{ margin: "12px 0 0", fontSize: 14, color: "rgba(148,163,184,0.65)" }}>
             Reputation unavailable
           </p>
         )}

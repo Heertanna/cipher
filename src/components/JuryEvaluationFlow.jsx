@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion as Motion } from "framer-motion";
-import { ACCENT, FaintBackground } from "./OnboardingCommon.jsx";
+import { ACCENT } from "./OnboardingCommon.jsx";
+import { PROTOCOL_PAGE_BACKGROUND } from "../lib/protocolPageBackground.js";
 
 const TOTAL_STEPS = 5;
 
@@ -90,7 +91,7 @@ function ContextBlock({ title, children }) {
       <p
         style={{
           margin: "0 0 10px",
-          fontSize: 10,
+          fontSize: 14,
           fontWeight: 700,
           letterSpacing: "0.2em",
           textTransform: "uppercase",
@@ -241,15 +242,13 @@ export function JuryEvaluationFlow({ packet, onComplete, onLeave }) {
         position: "fixed",
         inset: 0,
         zIndex: 50,
-        background: "transparent",
+        ...PROTOCOL_PAGE_BACKGROUND,
         overflowY: "auto",
         overflowX: "hidden",
         WebkitOverflowScrolling: "touch",
         overscrollBehaviorY: "contain",
       }}
     >
-      <FaintBackground />
-
       <header
         style={{
           position: "sticky",
@@ -271,7 +270,7 @@ export function JuryEvaluationFlow({ packet, onComplete, onLeave }) {
           style={{
             padding: "8px 14px",
             borderRadius: 999,
-            fontSize: 10,
+            fontSize: 14,
             fontWeight: 700,
             letterSpacing: "0.12em",
             textTransform: "uppercase",
@@ -287,7 +286,7 @@ export function JuryEvaluationFlow({ packet, onComplete, onLeave }) {
           <p
             style={{
               margin: 0,
-              fontSize: 11,
+              fontSize: 14,
               fontWeight: 700,
               letterSpacing: "0.22em",
               textTransform: "uppercase",
@@ -345,7 +344,7 @@ export function JuryEvaluationFlow({ packet, onComplete, onLeave }) {
                 <p
                   style={{
                     margin: 0,
-                    fontSize: 11,
+                    fontSize: 14,
                     fontWeight: 700,
                     letterSpacing: "0.2em",
                     textTransform: "uppercase",
@@ -422,7 +421,7 @@ export function JuryEvaluationFlow({ packet, onComplete, onLeave }) {
                   <p
                     style={{
                       margin: 0,
-                      fontSize: 12,
+                      fontSize: 14,
                       lineHeight: 1.55,
                       fontWeight: 400,
                       fontStyle: "italic",
@@ -435,7 +434,7 @@ export function JuryEvaluationFlow({ packet, onComplete, onLeave }) {
                     <p
                       style={{
                         margin: 0,
-                        fontSize: 11,
+                        fontSize: 14,
                         lineHeight: 1.5,
                         fontWeight: 500,
                         letterSpacing: "0.06em",
@@ -490,7 +489,7 @@ export function JuryEvaluationFlow({ packet, onComplete, onLeave }) {
                     style={{
                       padding: "14px 28px",
                       borderRadius: 999,
-                      fontSize: 11,
+                      fontSize: 14,
                       fontWeight: 800,
                       letterSpacing: "0.16em",
                       textTransform: "uppercase",
@@ -536,7 +535,7 @@ export function JuryEvaluationFlow({ packet, onComplete, onLeave }) {
                     style={{
                       padding: "10px 16px",
                       borderRadius: 999,
-                      fontSize: 11,
+                      fontSize: 14,
                       fontWeight: 600,
                       letterSpacing: "0.06em",
                       cursor: "pointer",
@@ -573,7 +572,7 @@ export function JuryEvaluationFlow({ packet, onComplete, onLeave }) {
                   <label
                     style={{
                       display: "block",
-                      fontSize: 11,
+                      fontSize: 14,
                       fontWeight: 700,
                       letterSpacing: "0.18em",
                       textTransform: "uppercase",
@@ -608,7 +607,7 @@ export function JuryEvaluationFlow({ packet, onComplete, onLeave }) {
                   <p
                     style={{
                       margin: "10px 0 0",
-                      fontSize: 12,
+                      fontSize: 14,
                       lineHeight: 1.55,
                       color: "rgba(148,163,184,0.88)",
                     }}
@@ -658,7 +657,7 @@ export function JuryEvaluationFlow({ packet, onComplete, onLeave }) {
                   <label
                     style={{
                       display: "block",
-                      fontSize: 11,
+                      fontSize: 14,
                       fontWeight: 700,
                       letterSpacing: "0.18em",
                       textTransform: "uppercase",
@@ -693,7 +692,7 @@ export function JuryEvaluationFlow({ packet, onComplete, onLeave }) {
                   <p
                     style={{
                       margin: "10px 0 0",
-                      fontSize: 12,
+                      fontSize: 14,
                       lineHeight: 1.55,
                       color: "rgba(148,163,184,0.88)",
                     }}
@@ -746,7 +745,7 @@ export function JuryEvaluationFlow({ packet, onComplete, onLeave }) {
                   <label
                     style={{
                       display: "block",
-                      fontSize: 11,
+                      fontSize: 14,
                       fontWeight: 700,
                       letterSpacing: "0.18em",
                       textTransform: "uppercase",
@@ -781,7 +780,7 @@ export function JuryEvaluationFlow({ packet, onComplete, onLeave }) {
                   <p
                     style={{
                       margin: "10px 0 0",
-                      fontSize: 12,
+                      fontSize: 14,
                       lineHeight: 1.55,
                       color: "rgba(148,163,184,0.88)",
                     }}
@@ -804,7 +803,7 @@ export function JuryEvaluationFlow({ packet, onComplete, onLeave }) {
                 <p
                   style={{
                     margin: 0,
-                    fontSize: 11,
+                    fontSize: 14,
                     fontWeight: 700,
                     letterSpacing: "0.22em",
                     textTransform: "uppercase",
@@ -887,7 +886,7 @@ export function JuryEvaluationFlow({ packet, onComplete, onLeave }) {
               style={{
                 margin: 0,
                 marginBottom: 2,
-                fontSize: 11,
+                fontSize: 14,
                 lineHeight: 1.45,
                 textAlign: "right",
                 color: "rgba(148,163,184,0.52)",
@@ -913,7 +912,7 @@ export function JuryEvaluationFlow({ packet, onComplete, onLeave }) {
               style={{
                 padding: "14px 20px",
                 borderRadius: 999,
-                fontSize: 11,
+                fontSize: 14,
                 fontWeight: 700,
                 letterSpacing: "0.14em",
                 textTransform: "uppercase",
@@ -934,7 +933,7 @@ export function JuryEvaluationFlow({ packet, onComplete, onLeave }) {
               style={{
                 padding: "13px 26px",
                 borderRadius: 999,
-                fontSize: 11,
+                fontSize: 14,
                 fontWeight: 800,
                 letterSpacing: "0.14em",
                 textTransform: "uppercase",
@@ -1061,7 +1060,7 @@ function AnonymizedReportsSidePanel({ onClose, caseFileRef }) {
               id="anonymized-report-title"
               style={{
                 margin: 0,
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: 800,
                 letterSpacing: "0.14em",
                 textTransform: "uppercase",
@@ -1073,7 +1072,7 @@ function AnonymizedReportsSidePanel({ onClose, caseFileRef }) {
             <p
               style={{
                 margin: "6px 0 0",
-                fontSize: 11,
+                fontSize: 14,
                 lineHeight: 1.45,
                 color: "rgba(148,163,184,0.85)",
               }}
@@ -1084,7 +1083,7 @@ function AnonymizedReportsSidePanel({ onClose, caseFileRef }) {
               <p
                 style={{
                   margin: "8px 0 0",
-                  fontSize: 10,
+                  fontSize: 14,
                   fontWeight: 600,
                   letterSpacing: "0.06em",
                   color: "rgba(148,163,184,0.65)",
@@ -1144,7 +1143,7 @@ function AnonymizedReportsSidePanel({ onClose, caseFileRef }) {
             flexShrink: 0,
             margin: 0,
             padding: "10px 16px 14px",
-            fontSize: 10,
+            fontSize: 14,
             lineHeight: 1.5,
             fontStyle: "italic",
             borderTop: "1px solid rgba(255,255,255,0.06)",
@@ -1171,7 +1170,7 @@ function SummaryRow({ label, value }) {
     >
       <span
         style={{
-          fontSize: 10,
+          fontSize: 14,
           fontWeight: 700,
           letterSpacing: "0.18em",
           textTransform: "uppercase",

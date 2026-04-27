@@ -79,7 +79,7 @@ export function CaseCard({
           <p
             style={{
               margin: 0,
-              fontSize: 12,
+              fontSize: 14,
               letterSpacing: detail === "focus" ? "0.18em" : "0.14em",
               textTransform: "uppercase",
               color: titleColor,
@@ -104,7 +104,7 @@ export function CaseCard({
           <span style={{ width: 7, height: 7, borderRadius: 999, background: statusColor }} />
           <span
             style={{
-              fontSize: 11,
+              fontSize: 14,
               letterSpacing: "0.16em",
               textTransform: "uppercase",
               color: titleColor,
@@ -131,7 +131,7 @@ export function CaseCard({
           {c.stage}
         </p>
 
-        <p style={{ margin: 0, fontSize: 12, color: subColor, lineHeight: 1.5 }}>
+        <p style={{ margin: 0, fontSize: 14, color: subColor, lineHeight: 1.5 }}>
           {c.title}
         </p>
 
@@ -155,7 +155,7 @@ export function CaseCard({
           />
         </div>
 
-        <p style={{ margin: "8px 0 0", fontSize: 11, color: subColor }}>
+        <p style={{ margin: "8px 0 0", fontSize: 14, color: subColor }}>
           {c.jurorCount} jurors evaluating
         </p>
 
@@ -163,7 +163,7 @@ export function CaseCard({
           <p
             style={{
               margin: detail === "focus" ? "10px 0 0" : "10px 0 0",
-              fontSize: 12,
+              fontSize: 14,
               lineHeight: 1.6,
               color: isLight ? "rgba(15,23,42,0.75)" : "rgba(203,213,225,0.92)",
               maxHeight: detail === "focus" ? 120 : 56,

@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { AnimatePresence, motion as Motion } from "framer-motion";
-import { FaintBackground } from "./OnboardingCommon.jsx";
 import { API_URL } from "../config/api.js";
 import { getSession } from "../lib/session.js";
 import { RpEarnedNotice } from "./RpEarnedNotice.jsx";
+import { PROTOCOL_PAGE_BACKGROUND } from "../lib/protocolPageBackground.js";
 
 const ACCENT = "#b5ec34";
 const AMBER = "#fbbf24";
@@ -132,7 +132,7 @@ export function VerdictScreen() {
       style={{
         position: "relative",
         minHeight: "100dvh",
-        background: "transparent",
+        ...PROTOCOL_PAGE_BACKGROUND,
         boxSizing: "border-box",
         display: "flex",
         justifyContent: "center",
@@ -173,8 +173,6 @@ export function VerdictScreen() {
         }
       `}</style>
 
-      <FaintBackground />
-
       <Motion.main
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -201,7 +199,7 @@ export function VerdictScreen() {
                   <p
                     style={{
                       margin: "0 0 14px",
-                      fontSize: 12,
+                      fontSize: 14,
                       fontWeight: 600,
                       letterSpacing: "0.06em",
                       color: "rgba(148,163,184,0.88)",
@@ -214,7 +212,7 @@ export function VerdictScreen() {
                 <p
                   style={{
                     margin: "0 0 12px",
-                    fontSize: 11,
+                    fontSize: 14,
                     fontWeight: 700,
                     letterSpacing: "0.22em",
                     textTransform: "uppercase",
@@ -279,7 +277,7 @@ export function VerdictScreen() {
                   <p
                     style={{
                       margin: 0,
-                      fontSize: 13,
+                      fontSize: 14,
                       lineHeight: 1.6,
                       color: "rgba(148,163,184,0.78)",
                     }}
@@ -326,7 +324,7 @@ export function VerdictScreen() {
                     >
                       <span
                         style={{
-                          fontSize: 11,
+                          fontSize: 14,
                           fontWeight: 700,
                           letterSpacing: "0.14em",
                           textTransform: "uppercase",
@@ -399,7 +397,7 @@ export function VerdictScreen() {
                 <p
                   style={{
                     margin: 0,
-                    fontSize: 12,
+                    fontSize: 14,
                     fontWeight: 800,
                     letterSpacing: "0.14em",
                     textTransform: "uppercase",
@@ -411,7 +409,7 @@ export function VerdictScreen() {
                 <p
                   style={{
                     margin: "10px 0 0",
-                    fontSize: 13,
+                    fontSize: 14,
                     color: "rgba(148,163,184,0.95)",
                     lineHeight: 1.55,
                   }}
@@ -455,7 +453,7 @@ export function VerdictScreen() {
                     border: "1px solid rgba(251,191,36,0.55)",
                     background: "rgba(251,191,36,0.12)",
                     color: AMBER,
-                    fontSize: 11,
+                    fontSize: 14,
                     fontWeight: 800,
                     letterSpacing: "0.14em",
                     textTransform: "uppercase",
@@ -490,7 +488,7 @@ export function VerdictScreen() {
                   border: "1px solid rgba(148,163,184,0.35)",
                   background: "rgba(255,255,255,0.03)",
                   color: "rgba(226,232,240,0.92)",
-                  fontSize: 11,
+                  fontSize: 14,
                   fontWeight: 800,
                   letterSpacing: "0.16em",
                   textTransform: "uppercase",
@@ -523,7 +521,7 @@ export function VerdictScreen() {
                       <p
                         style={{
                           margin: 0,
-                          fontSize: 11,
+                          fontSize: 14,
                           fontWeight: 800,
                           letterSpacing: "0.2em",
                           textTransform: "uppercase",
@@ -535,7 +533,7 @@ export function VerdictScreen() {
                       <p
                         style={{
                           margin: "10px 0 22px",
-                          fontSize: 12,
+                          fontSize: 14,
                           color: "rgba(148,163,184,0.75)",
                           lineHeight: 1.55,
                         }}
@@ -547,7 +545,7 @@ export function VerdictScreen() {
                           <p
                             style={{
                               margin: 0,
-                              fontSize: 13,
+                              fontSize: 14,
                               color: "rgba(148,163,184,0.7)",
                               gridColumn: "1 / -1",
                             }}
@@ -586,7 +584,7 @@ export function VerdictScreen() {
                                 >
                                   <span
                                     style={{
-                                      fontSize: 12,
+                                      fontSize: 14,
                                       fontWeight: 700,
                                       letterSpacing: "0.08em",
                                       color: "rgba(226,232,240,0.9)",
@@ -596,7 +594,7 @@ export function VerdictScreen() {
                                   </span>
                                   <span
                                     style={{
-                                      fontSize: 10,
+                                      fontSize: 14,
                                       fontWeight: 800,
                                       letterSpacing: "0.12em",
                                       textTransform: "uppercase",
@@ -619,7 +617,7 @@ export function VerdictScreen() {
                                 <p
                                   style={{
                                     margin: 0,
-                                    fontSize: 11,
+                                    fontSize: 14,
                                     color: "rgba(148,163,184,0.9)",
                                   }}
                                 >
@@ -630,7 +628,7 @@ export function VerdictScreen() {
                                 <p
                                   style={{
                                     margin: 0,
-                                    fontSize: 12,
+                                    fontSize: 14,
                                     lineHeight: 1.5,
                                     color: "rgba(203,213,225,0.88)",
                                     display: "-webkit-box",
@@ -663,7 +661,7 @@ export function VerdictScreen() {
                 border: `1px solid rgba(181,236,52,0.45)`,
                 background: ACCENT,
                 color: "#020617",
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: 800,
                 letterSpacing: "0.14em",
                 textTransform: "uppercase",

@@ -44,7 +44,7 @@ function JurorAssignedClipboardCard({ c, index }) {
     marginTop: 16,
     width: "100%",
     padding: "10px 22px",
-    fontSize: "11px",
+    fontSize: "14px",
     fontWeight: 700,
     letterSpacing: "0.1em",
     textTransform: "uppercase",
@@ -136,7 +136,7 @@ function JurorAssignedClipboardCard({ c, index }) {
           </span>
           <span
             style={{
-              fontSize: 9,
+              fontSize: 14,
               letterSpacing: "0.12em",
               color: "rgba(181,236,52,0.3)",
               textTransform: "uppercase",
@@ -201,7 +201,7 @@ function JurorAssignedClipboardCard({ c, index }) {
               style={{
                 border: `2px solid ${isPending ? "rgba(255,255,255,0.2)" : "rgba(181,236,52,0.35)"}`,
                 padding: "4px 12px",
-                fontSize: 10,
+                fontSize: 14,
                 letterSpacing: "0.12em",
                 color: statusColor,
                 transform: stampRotate,
@@ -223,7 +223,7 @@ function JurorAssignedClipboardCard({ c, index }) {
           >
             <div
               style={{
-                fontSize: 10,
+                fontSize: 14,
                 letterSpacing: "0.12em",
                 color: "rgba(255,255,255,0.2)",
                 marginBottom: 5,
@@ -246,7 +246,7 @@ function JurorAssignedClipboardCard({ c, index }) {
           >
             <div
               style={{
-                fontSize: 10,
+                fontSize: 14,
                 letterSpacing: "0.12em",
                 color: "rgba(255,255,255,0.2)",
                 marginBottom: 5,
@@ -255,7 +255,7 @@ function JurorAssignedClipboardCard({ c, index }) {
             >
               Case summary
             </div>
-            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", lineHeight: 1.6 }}>
+            <div style={{ fontSize: 14, color: "rgba(255,255,255,0.4)", lineHeight: 1.6 }}>
               {c.description}
             </div>
           </div>
@@ -271,7 +271,7 @@ function JurorAssignedClipboardCard({ c, index }) {
             <div>
               <div
                 style={{
-                  fontSize: 10,
+                  fontSize: 14,
                   letterSpacing: "0.12em",
                   color: "rgba(255,255,255,0.2)",
                   textTransform: "uppercase",
@@ -287,7 +287,7 @@ function JurorAssignedClipboardCard({ c, index }) {
             <div>
               <div
                 style={{
-                  fontSize: 10,
+                  fontSize: 14,
                   letterSpacing: "0.12em",
                   color: "rgba(255,255,255,0.2)",
                   textTransform: "uppercase",
@@ -338,7 +338,7 @@ function JurorAssignedClipboardCard({ c, index }) {
             <div
               style={{
                 marginTop: 4,
-                fontSize: 10,
+                fontSize: 14,
                 fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
                 color: "rgba(255,255,255,0.15)",
                 letterSpacing: "0.08em",
@@ -398,7 +398,7 @@ export function JurorAssignedCasesClipboardSection() {
         <p
           style={{
             margin: 0,
-            fontSize: 11,
+            fontSize: 14,
             letterSpacing: "0.15em",
             textTransform: "uppercase",
             color: "rgba(181,236,52,0.5)",
@@ -409,7 +409,7 @@ export function JurorAssignedCasesClipboardSection() {
         <span
           style={{
             color: "rgba(255,255,255,0.45)",
-            fontSize: 10,
+            fontSize: 14,
             fontWeight: 700,
             letterSpacing: "0.14em",
           }}

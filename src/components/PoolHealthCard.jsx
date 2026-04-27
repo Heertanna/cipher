@@ -49,7 +49,7 @@ export function PoolHealthCard() {
         <div>
           <p
             style={{
-              fontSize: 11,
+              fontSize: 14,
               fontWeight: 600,
               letterSpacing: "0.25em",
               textTransform: "uppercase",
@@ -72,7 +72,7 @@ export function PoolHealthCard() {
             </span>
             <span
               style={{
-                fontSize: 13,
+                fontSize: 14,
                 color: "rgba(148,163,184,0.9)",
               }}
             >
@@ -80,7 +80,7 @@ export function PoolHealthCard() {
             </span>
             <span
               style={{
-                fontSize: 12,
+                fontSize: 14,
                 color:
                   MOCK_POOL.trendDirection === "up"
                     ? "rgba(190,242,100,0.95)"
@@ -116,7 +116,7 @@ export function PoolHealthCard() {
           />
           <span
             style={{
-              fontSize: 11,
+              fontSize: 14,
               fontWeight: 600,
               letterSpacing: "0.16em",
               textTransform: "uppercase",
@@ -184,7 +184,7 @@ export function PoolHealthCard() {
 
       <p
         style={{
-          fontSize: 12,
+          fontSize: 14,
           color: "rgba(148,163,184,0.9)",
         }}
       >
@@ -217,7 +217,7 @@ function PoolStat({ label, value }) {
     >
       <p
         style={{
-          fontSize: 11,
+          fontSize: 14,
           letterSpacing: "0.16em",
           textTransform: "uppercase",
           color: "rgba(148,163,184,0.95)",

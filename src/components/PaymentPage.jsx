@@ -149,7 +149,7 @@ export function PaymentPage({ planId, onBack, onDone }) {
           <div>
             <p
               style={{
-                fontSize: 11,
+                fontSize: 14,
                 fontWeight: 600,
                 letterSpacing: "0.25em",
                 textTransform: "uppercase",
@@ -179,7 +179,7 @@ export function PaymentPage({ planId, onBack, onDone }) {
               background: "none",
               border: "none",
               color: "rgba(181,236,52,0.5)",
-              fontSize: 12,
+              fontSize: 14,
               fontWeight: 600,
               letterSpacing: "0.15em",
               textTransform: "uppercase",
@@ -206,13 +206,13 @@ export function PaymentPage({ planId, onBack, onDone }) {
             background: "rgba(255,255,255,0.02)",
           }}
         >
-          <p style={{ margin: 0, fontSize: 12, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", fontWeight: 800 }}>
+          <p style={{ margin: 0, fontSize: 14, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", fontWeight: 800 }}>
             Selected tier
           </p>
           <p style={{ margin: "10px 0 0", fontSize: 22, fontWeight: 900, color: "#f1f5f9", textTransform: "uppercase", letterSpacing: "-0.01em" }}>
             {plan.label} — {formattedAmount}
           </p>
-          <p style={{ margin: "6px 0 0", fontSize: 13, color: "rgba(255,255,255,0.65)", lineHeight: 1.6 }}>
+          <p style={{ margin: "6px 0 0", fontSize: 14, color: "rgba(255,255,255,0.65)", lineHeight: 1.6 }}>
             {plan.subtitle}
           </p>
         </div>
@@ -244,7 +244,7 @@ export function PaymentPage({ planId, onBack, onDone }) {
                 </svg>
               </div>
               <div>
-                <p style={{ margin: 0, fontSize: 12, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(181,236,52,0.75)", fontWeight: 900 }}>
+                <p style={{ margin: 0, fontSize: 14, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(181,236,52,0.75)", fontWeight: 900 }}>
                   Payment confirmed
                 </p>
                 <p style={{ margin: "8px 0 0", fontSize: 14, color: "rgba(255,255,255,0.75)", lineHeight: 1.6 }}>
@@ -286,7 +286,7 @@ export function PaymentPage({ planId, onBack, onDone }) {
                   background: "rgba(250,204,21,0.08)",
                 }}
               >
-                <p style={{ margin: 0, fontSize: 13, color: "rgba(255,255,255,0.75)", lineHeight: 1.6 }}>
+                <p style={{ margin: 0, fontSize: 14, color: "rgba(255,255,255,0.75)", lineHeight: 1.6 }}>
                   {message}
                 </p>
               </div>
@@ -307,10 +307,10 @@ export function PaymentPage({ planId, onBack, onDone }) {
                   textAlign: "left",
                 }}
               >
-                <p style={{ margin: 0, fontSize: 12, fontWeight: 900, letterSpacing: "0.18em", textTransform: "uppercase" }}>
+                <p style={{ margin: 0, fontSize: 14, fontWeight: 900, letterSpacing: "0.18em", textTransform: "uppercase" }}>
                   Manual monthly
                 </p>
-                <p style={{ margin: "8px 0 0", fontSize: 13, color: "rgba(255,255,255,0.65)", lineHeight: 1.6 }}>
+                <p style={{ margin: "8px 0 0", fontSize: 14, color: "rgba(255,255,255,0.65)", lineHeight: 1.6 }}>
                   Pay yourself every month. Missing payments for 2+ months removes you automatically.
                 </p>
               </button>
@@ -328,10 +328,10 @@ export function PaymentPage({ planId, onBack, onDone }) {
                   textAlign: "left",
                 }}
               >
-                <p style={{ margin: 0, fontSize: 12, fontWeight: 900, letterSpacing: "0.18em", textTransform: "uppercase" }}>
+                <p style={{ margin: 0, fontSize: 14, fontWeight: 900, letterSpacing: "0.18em", textTransform: "uppercase" }}>
                   Autopay
                 </p>
-                <p style={{ margin: "8px 0 0", fontSize: 13, color: "rgba(255,255,255,0.65)", lineHeight: 1.6 }}>
+                <p style={{ margin: "8px 0 0", fontSize: 14, color: "rgba(255,255,255,0.65)", lineHeight: 1.6 }}>
                   Enter card details once. We simulate monthly autopay and remove you after 2+ missed months.
                 </p>
               </button>

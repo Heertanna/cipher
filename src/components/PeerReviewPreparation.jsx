@@ -2,6 +2,10 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion as Motion } from "framer-motion";
 import { ACCENT } from "./OnboardingCommon.jsx";
 import { RpEarnedNotice } from "./RpEarnedNotice.jsx";
+import {
+  PROTOCOL_DASHBOARD_CARD,
+  PROTOCOL_PAGE_BACKGROUND,
+} from "../lib/protocolPageBackground.js";
 
 const STORAGE_KEY = "cipher_claims_demo";
 
@@ -529,7 +533,7 @@ export function PeerReviewPreparation({
         position: "fixed",
         inset: 0,
         zIndex: 2400,
-        background: "transparent",
+        ...PROTOCOL_PAGE_BACKGROUND,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -594,7 +598,7 @@ export function PeerReviewPreparation({
               <p
                 style={{
                   margin: 0,
-                  fontSize: 11,
+                  fontSize: 14,
                   fontWeight: 800,
                   letterSpacing: "0.28em",
                   textTransform: "uppercase",
@@ -633,7 +637,7 @@ export function PeerReviewPreparation({
               <p
                 style={{
                   margin: "0 0 32px",
-                  fontSize: 12,
+                  fontSize: 14,
                   fontWeight: 700,
                   letterSpacing: "0.12em",
                   textTransform: "uppercase",
@@ -651,11 +655,9 @@ export function PeerReviewPreparation({
                   exit={{ opacity: 0, y: -12, scale: 0.98 }}
                   transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                   style={{
+                    ...PROTOCOL_DASHBOARD_CARD,
                     borderRadius: 24,
                     padding: "36px 28px 40px",
-                    border: "1px solid rgba(181,236,52,0.22)",
-                    background:
-                      "radial-gradient(120% 80% at 50% 0%, rgba(181,236,52,0.09), rgba(15,23,42,0.55))",
                     boxShadow:
                       "0 0 0 1px rgba(181,236,52,0.06) inset, 0 24px 80px rgba(0,0,0,0.45), 0 0 60px rgba(181,236,52,0.08)",
                   }}
@@ -780,7 +782,7 @@ export function PeerReviewPreparation({
                       <p
                         style={{
                           margin: "14px 0 0",
-                          fontSize: 13,
+                          fontSize: 14,
                           color: "rgba(148,163,184,0.8)",
                           fontWeight: 600,
                         }}
@@ -821,9 +823,8 @@ export function PeerReviewPreparation({
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
               style={{
+                ...PROTOCOL_DASHBOARD_CARD,
                 borderRadius: 22,
-                border: "1px solid rgba(255,255,255,0.10)",
-                background: "linear-gradient(155deg, rgba(15,23,42,0.96), rgba(8,10,22,0.94))",
                 boxShadow: "0 28px 100px rgba(0,0,0,0.55)",
                 overflow: "hidden",
               }}
@@ -842,7 +843,7 @@ export function PeerReviewPreparation({
                   <p
                     style={{
                       margin: 0,
-                      fontSize: 11,
+                      fontSize: 14,
                       fontWeight: 800,
                       letterSpacing: "0.24em",
                       textTransform: "uppercase",
@@ -886,7 +887,7 @@ export function PeerReviewPreparation({
                       <p
                         style={{
                           margin: "8px 0 0",
-                          fontSize: 13,
+                          fontSize: 14,
                           color: "rgba(148,163,184,0.9)",
                           lineHeight: 1.5,
                         }}
@@ -918,7 +919,7 @@ export function PeerReviewPreparation({
                       />
                       <span
                         style={{
-                          fontSize: 12,
+                          fontSize: 14,
                           fontWeight: 900,
                           letterSpacing: "0.12em",
                           textTransform: "uppercase",
@@ -940,7 +941,7 @@ export function PeerReviewPreparation({
                         border: "1px solid rgba(181,236,52,0.55)",
                         background: "rgba(181,236,52,0.95)",
                         color: "#050505",
-                        fontSize: 12,
+                        fontSize: 14,
                         fontWeight: 950,
                         letterSpacing: "0.14em",
                         textTransform: "uppercase",
@@ -965,7 +966,7 @@ export function PeerReviewPreparation({
                     <p
                       style={{
                         margin: 0,
-                        fontSize: 11,
+                        fontSize: 14,
                         fontWeight: 900,
                         letterSpacing: "0.20em",
                         textTransform: "uppercase",
@@ -980,7 +981,7 @@ export function PeerReviewPreparation({
                         borderRadius: 999,
                         border: "1px solid rgba(255,255,255,0.10)",
                         background: "rgba(255,255,255,0.02)",
-                        fontSize: 12,
+                        fontSize: 14,
                         fontWeight: 900,
                         color: "rgba(148,163,184,0.9)",
                       }}
@@ -1001,7 +1002,7 @@ export function PeerReviewPreparation({
                   >
                     <div
                       style={{
-                        fontSize: 12,
+                        fontSize: 14,
                         color: "rgba(148,163,184,0.9)",
                         fontWeight: 800,
                         letterSpacing: "0.06em",
@@ -1014,7 +1015,7 @@ export function PeerReviewPreparation({
                     <p
                       style={{
                         margin: 0,
-                        fontSize: 13,
+                        fontSize: 14,
                         lineHeight: 1.65,
                         color: "rgba(241,245,249,0.95)",
                       }}
@@ -1028,7 +1029,7 @@ export function PeerReviewPreparation({
                       <p
                         style={{
                           margin: 0,
-                          fontSize: 12,
+                          fontSize: 14,
                           color: "rgba(148,163,184,0.9)",
                           fontWeight: 800,
                           letterSpacing: "0.06em",
@@ -1040,7 +1041,7 @@ export function PeerReviewPreparation({
                       <p
                         style={{
                           margin: "6px 0 0",
-                          fontSize: 13,
+                          fontSize: 14,
                           color: "rgba(241,245,249,0.92)",
                           lineHeight: 1.6,
                         }}
@@ -1052,7 +1053,7 @@ export function PeerReviewPreparation({
                       <p
                         style={{
                           margin: 0,
-                          fontSize: 12,
+                          fontSize: 14,
                           color: "rgba(148,163,184,0.9)",
                           fontWeight: 800,
                           letterSpacing: "0.06em",
@@ -1064,7 +1065,7 @@ export function PeerReviewPreparation({
                       <p
                         style={{
                           margin: "6px 0 0",
-                          fontSize: 13,
+                          fontSize: 14,
                           color: "rgba(241,245,249,0.92)",
                           lineHeight: 1.6,
                         }}

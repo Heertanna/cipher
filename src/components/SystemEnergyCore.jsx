@@ -230,7 +230,7 @@ export function SystemEnergyCore() {
           </span>
           <span
             style={{
-              fontSize: 13,
+              fontSize: 14,
               fontWeight: 700,
               letterSpacing: "0.18em",
               textTransform: "uppercase",
@@ -274,7 +274,7 @@ export function SystemEnergyCore() {
               alignItems: "end",
             }}
           >
-            <div style={{ fontSize: 12, color: "rgba(148,163,184,0.96)" }}>
+            <div style={{ fontSize: 14, color: "rgba(148,163,184,0.96)" }}>
               <div style={infoCardStyle}>
                 <p style={{ margin: 0 }}>{MOCK.interpretation}</p>
                 <p style={{ margin: "4px 0 0", color: "rgba(226,232,240,0.96)" }}>
@@ -283,7 +283,7 @@ export function SystemEnergyCore() {
                 <p
                   style={{
                     margin: "6px 0 0",
-                    fontSize: 11,
+                    fontSize: 14,
                     color: "rgba(148,163,184,0.96)",
                     letterSpacing: "0.12em",
                     textTransform: "uppercase",
@@ -302,7 +302,7 @@ export function SystemEnergyCore() {
                   background: "rgba(15,23,42,0.75)",
                   backdropFilter: "blur(10px)",
                   color: "rgba(226,232,240,0.96)",
-                  fontSize: 12,
+                  fontSize: 14,
                   fontWeight: 650,
                   letterSpacing: "0.10em",
                   textTransform: "uppercase",
@@ -337,10 +337,10 @@ export function SystemEnergyCore() {
               maxWidth: 420,
             }}
           >
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase" }}>
+            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase" }}>
               Focus Mode
             </p>
-            <p style={{ margin: "6px 0 0", fontSize: 12, lineHeight: 1.5, color: "rgba(148,163,184,0.95)" }}>
+            <p style={{ margin: "6px 0 0", fontSize: 14, lineHeight: 1.5, color: "rgba(148,163,184,0.95)" }}>
               Expanding into a detailed system view (coming soon).
             </p>
           </Motion.div>
@@ -360,7 +360,7 @@ function StatPill({ label, value }) {
         background: "rgba(15,23,42,0.85)",
         backdropFilter: "blur(12px)",
         color: "#e5e7eb",
-        fontSize: 11,
+        fontSize: 14,
         letterSpacing: "0.12em",
         textTransform: "uppercase",
         display: "inline-flex",
@@ -371,7 +371,7 @@ function StatPill({ label, value }) {
       <span style={{ opacity: 0.7 }}>{label}</span>
       <span
         style={{
-          fontSize: 13,
+          fontSize: 14,
           fontWeight: 700,
           letterSpacing: "0.08em",
         }}

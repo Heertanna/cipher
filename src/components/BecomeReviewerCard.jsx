@@ -45,7 +45,7 @@ export function BecomeReviewerCard({ variant } = {}) {
         <p
           style={{
             margin: 0,
-            fontSize: 11,
+            fontSize: 14,
             letterSpacing: "0.15em",
             textTransform: "uppercase",
             color: "rgba(181,236,52,0.5)",
@@ -68,7 +68,7 @@ export function BecomeReviewerCard({ variant } = {}) {
         <p
           style={{
             margin: "10px 0 0",
-            fontSize: 13,
+            fontSize: 14,
             lineHeight: 1.55,
             color: "rgba(255,255,255,0.4)",
           }}
@@ -92,7 +92,7 @@ export function BecomeReviewerCard({ variant } = {}) {
       <p
         style={{
           margin: 0,
-          fontSize: 11,
+          fontSize: 14,
           letterSpacing: "0.15em",
           textTransform: "uppercase",
           color: "rgba(181,236,52,0.5)",
@@ -115,7 +115,7 @@ export function BecomeReviewerCard({ variant } = {}) {
       <p
         style={{
           margin: "10px 0 0",
-          fontSize: 13,
+          fontSize: 14,
           lineHeight: 1.55,
           color: "rgba(255,255,255,0.4)",
         }}
@@ -136,7 +136,7 @@ export function BecomeReviewerCard({ variant } = {}) {
           border: "none",
           background: "#b5ec34",
           color: "#000",
-          fontSize: "11px",
+          fontSize: "14px",
           fontWeight: 700,
           letterSpacing: "0.1em",
           textTransform: "uppercase",

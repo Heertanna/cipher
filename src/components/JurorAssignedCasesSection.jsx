@@ -35,7 +35,7 @@ export function JurorAssignedCasesSection({ hideJurorModeShortcut = false } = {}
         <div>
           <p
             style={{
-              fontSize: 11,
+              fontSize: 14,
               fontWeight: 600,
               letterSpacing: "0.25em",
               textTransform: "uppercase",
@@ -48,7 +48,7 @@ export function JurorAssignedCasesSection({ hideJurorModeShortcut = false } = {}
           <p
             style={{
               margin: "8px 0 0",
-              fontSize: 13,
+              fontSize: 14,
               lineHeight: 1.5,
               color: "rgba(148,163,184,0.88)",
               maxWidth: 520,
@@ -70,7 +70,7 @@ export function JurorAssignedCasesSection({ hideJurorModeShortcut = false } = {}
               border: "1px solid rgba(148,163,184,0.45)",
               background: "rgba(255,255,255,0.03)",
               color: "rgba(226,232,240,0.92)",
-              fontSize: 10,
+              fontSize: 14,
               fontWeight: 700,
               letterSpacing: "0.14em",
               textTransform: "uppercase",
@@ -112,7 +112,7 @@ export function JurorAssignedCasesSection({ hideJurorModeShortcut = false } = {}
               <div style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
                 <span
                   style={{
-                    fontSize: 11,
+                    fontSize: 14,
                     fontWeight: 800,
                     letterSpacing: "0.12em",
                     color: "rgba(226,232,240,0.95)",
@@ -122,7 +122,7 @@ export function JurorAssignedCasesSection({ hideJurorModeShortcut = false } = {}
                 </span>
                 <span
                   style={{
-                    fontSize: 10,
+                    fontSize: 14,
                     fontWeight: 700,
                     letterSpacing: "0.1em",
                     textTransform: "uppercase",
@@ -141,7 +141,7 @@ export function JurorAssignedCasesSection({ hideJurorModeShortcut = false } = {}
               <p
                 style={{
                   margin: "6px 0 0",
-                  fontSize: 10,
+                  fontSize: 14,
                   fontWeight: 700,
                   letterSpacing: "0.14em",
                   textTransform: "uppercase",
@@ -153,7 +153,7 @@ export function JurorAssignedCasesSection({ hideJurorModeShortcut = false } = {}
               <p
                 style={{
                   margin: "10px 0 0",
-                  fontSize: 12,
+                  fontSize: 14,
                   lineHeight: 1.5,
                   color: "rgba(203,213,225,0.92)",
                   display: "-webkit-box",
@@ -170,7 +170,7 @@ export function JurorAssignedCasesSection({ hideJurorModeShortcut = false } = {}
                     display: "flex",
                     justifyContent: "space-between",
                     marginBottom: 6,
-                    fontSize: 11,
+                    fontSize: 14,
                     color: "rgba(148,163,184,0.9)",
                   }}
                 >
@@ -211,7 +211,7 @@ export function JurorAssignedCasesSection({ hideJurorModeShortcut = false } = {}
                   border: "1px solid rgba(181,236,52,0.45)",
                   background: "rgba(181,236,52,0.12)",
                   color: ACCENT,
-                  fontSize: 10,
+                  fontSize: 14,
                   fontWeight: 800,
                   letterSpacing: "0.12em",
                   textTransform: "uppercase",

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion as Motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useLiveJuryProgress } from "../data/useLiveData.js";
 
 const STORAGE_KEY = "cipher_claims_demo";
 
@@ -189,7 +189,7 @@ function LiveCaseDocumentCard({ c, index, onClick }) {
           </span>
           <span
             style={{
-              fontSize: 9,
+              fontSize: 14,
               letterSpacing: "0.12em",
               color: "rgba(181,236,52,0.3)",
               textTransform: "uppercase",
@@ -248,7 +248,7 @@ function LiveCaseDocumentCard({ c, index, onClick }) {
           >
             <span
               style={{
-                fontSize: 10,
+                fontSize: 14,
                 letterSpacing: "0.12em",
                 color: "rgba(255,255,255,0.2)",
                 textTransform: "uppercase",
@@ -260,7 +260,7 @@ function LiveCaseDocumentCard({ c, index, onClick }) {
               style={{
                 border: "2px solid rgba(181,236,52,0.35)",
                 padding: "4px 12px",
-                fontSize: 11,
+                fontSize: 14,
                 letterSpacing: "0.12em",
                 color: stampColor,
                 transform: stampRotate,
@@ -282,7 +282,7 @@ function LiveCaseDocumentCard({ c, index, onClick }) {
           >
             <div
               style={{
-                fontSize: 10,
+                fontSize: 14,
                 letterSpacing: "0.12em",
                 color: "rgba(255,255,255,0.2)",
                 marginBottom: 5,
@@ -303,7 +303,7 @@ function LiveCaseDocumentCard({ c, index, onClick }) {
           >
             <div
               style={{
-                fontSize: 10,
+                fontSize: 14,
                 letterSpacing: "0.12em",
                 color: "rgba(255,255,255,0.2)",
                 marginBottom: 5,
@@ -312,7 +312,7 @@ function LiveCaseDocumentCard({ c, index, onClick }) {
             >
               Clinical summary
             </div>
-            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", lineHeight: 1.6 }}>
+            <div style={{ fontSize: 14, color: "rgba(255,255,255,0.4)", lineHeight: 1.6 }}>
               {c.description}
             </div>
           </div>
@@ -328,7 +328,7 @@ function LiveCaseDocumentCard({ c, index, onClick }) {
             <div>
               <div
                 style={{
-                  fontSize: 10,
+                  fontSize: 14,
                   letterSpacing: "0.12em",
                   color: "rgba(255,255,255,0.2)",
                   textTransform: "uppercase",
@@ -342,7 +342,7 @@ function LiveCaseDocumentCard({ c, index, onClick }) {
             <div>
               <div
                 style={{
-                  fontSize: 10,
+                  fontSize: 14,
                   letterSpacing: "0.12em",
                   color: "rgba(255,255,255,0.2)",
                   textTransform: "uppercase",
@@ -395,7 +395,7 @@ function LiveCaseDocumentCard({ c, index, onClick }) {
             <div
               style={{
                 marginTop: 4,
-                fontSize: 10,
+                fontSize: 14,
                 fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
                 color: "rgba(255,255,255,0.15)",
                 letterSpacing: "0.08em",
@@ -411,8 +411,14 @@ function LiveCaseDocumentCard({ c, index, onClick }) {
   );
 }
 
-function LiveCaseFocusOverlay({ c, onClose, onBackHome }) {
-  const progress = Math.max(0, Math.min(100, Number(c?.progress) || 38));
+function LiveCaseFocusOverlay({ c, onClose }) {
+  const liveAssignment = useLiveJuryProgress(c?.id);
+  const livePanel = Number(liveAssignment?.juryPanel || c?.jurorCount || 8);
+  const liveVoted = Math.min(livePanel, Number(liveAssignment?.juryVoted || c?.juryVoted || 0));
+  const progress =
+    livePanel > 0
+      ? Math.max(0, Math.min(100, Math.round((liveVoted / livePanel) * 100)))
+      : Math.max(0, Math.min(100, Number(c?.progress) || 38));
   const timelineSteps = [
     { label: "Claim submitted", date: "18 Apr 2026", state: "completed" },
     { label: "Documents verified", date: "18 Apr 2026", state: "completed" },
@@ -430,187 +436,86 @@ function LiveCaseFocusOverlay({ c, onClose, onBackHome }) {
         position: "fixed",
         inset: 0,
         zIndex: 1100,
-        background: "transparent",
-        minHeight: "100vh",
-        overflowY: "auto",
+        background: "rgba(0,0,0,0.7)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 20,
       }}
+      onClick={onClose}
     >
-      <div
+      <Motion.div
+        initial={{ opacity: 0, y: 12, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 12, scale: 0.98 }}
+        transition={{ duration: 0.22, ease: "easeOut" }}
+        onClick={(e) => e.stopPropagation()}
         style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 20,
-          boxSizing: "border-box",
+          ...GLASS_CARD,
           width: "100%",
-          maxWidth: "100%",
-          minWidth: 0,
-          padding: "20px clamp(12px, 2vw, 24px)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 12,
-          backdropFilter: "blur(8px)",
-          WebkitBackdropFilter: "blur(8px)",
-          background: "rgba(6, 8, 16, 0.9)",
-          overflow: "hidden",
+          maxWidth: 860,
+          maxHeight: "85vh",
+          overflowY: "auto",
+          padding: 24,
+          position: "relative",
         }}
       >
-        <div
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 10,
-            flexShrink: 0,
-            minWidth: 0,
-          }}
-        >
-          <img
-            src="/cipher-logo.png"
-            alt="Cipher"
-            style={{ width: 24, height: 24, display: "block", objectFit: "contain" }}
-          />
-          <span
-            style={{
-              color: "#b5ec34",
-              fontSize: 13,
-              letterSpacing: "0.16em",
-              fontWeight: 800,
-            }}
-          >
-            CIPHER
-          </span>
-        </div>
-
-        <div
-          style={{
-            flex: 1,
-            minWidth: 0,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            flexWrap: "wrap",
-            gap: "8px 14px",
-            color: "rgba(255,255,255,0.62)",
-            fontSize: 10,
-            letterSpacing: "0.16em",
-            textTransform: "uppercase",
-          }}
-        >
-          {["Protocol", "How It Works", "Governance", "Documentation"].map((item) => (
-            <button
-              key={item}
-              type="button"
-              style={{
-                border: "none",
-                background: "transparent",
-                color: "inherit",
-                padding: "4px 2px",
-                font: "inherit",
-                letterSpacing: "inherit",
-                textTransform: "inherit",
-                cursor: "pointer",
-                transition: "color 160ms ease",
-                whiteSpace: "nowrap",
-                flexShrink: 0,
-                maxWidth: "100%",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = "rgba(255,255,255,0.9)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = "rgba(255,255,255,0.62)";
-              }}
-            >
-              {item}
-            </button>
-          ))}
-        </div>
-
         <button
           type="button"
-          onClick={onBackHome}
-          style={{
-            border: "1px solid rgba(255,255,255,0.15)",
-            background: "transparent",
-            color: "rgba(255,255,255,0.5)",
-            fontSize: "11px",
-            letterSpacing: "0.1em",
-            textTransform: "uppercase",
-            padding: "10px 22px",
-            borderRadius: "20px",
-            cursor: "pointer",
-            fontWeight: 700,
-            flexShrink: 0,
-            whiteSpace: "nowrap",
-          }}
-        >
-          BACK TO HOME
-        </button>
-      </div>
-
-      <button
-        type="button"
-        onClick={onClose}
-        style={{
-          fontSize: 12,
-          color: "rgba(181,236,52,0.5)",
-          cursor: "pointer",
-          padding: "20px 48px",
-          border: "none",
-          background: "transparent",
-        }}
-      >
-        ← BACK TO HUB
-      </button>
-
-      <div style={{ position: "relative", maxWidth: 700, margin: "40px auto", padding: "0 12px" }}>
-        <div
+          onClick={onClose}
           style={{
             position: "absolute",
-            top: -20,
-            left: "50%",
-            transform: "translateX(-50%)",
-            zIndex: 2,
+            top: 14,
+            right: 14,
+            width: 32,
+            height: 32,
+            borderRadius: "50%",
+            border: "1px solid rgba(255,255,255,0.2)",
+            background: "rgba(0,0,0,0.35)",
+            color: "rgba(255,255,255,0.92)",
+            fontSize: 18,
+            lineHeight: 1,
+            cursor: "pointer",
           }}
+          aria-label="Close case details"
         >
+          ×
+        </button>
+        <div style={{ position: "relative", paddingTop: 18 }}>
           <div
             style={{
+              position: "absolute",
+              top: 0,
+              left: "50%",
+              transform: "translateX(-50%)",
               width: 90,
-              height: 30,
-              background: "rgba(181,236,52,0.12)",
+              height: 28,
+              background: "rgba(181,236,52,0.14)",
               border: "2px solid rgba(181,236,52,0.25)",
               borderRadius: "8px 8px 0 0",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              clipPath: "polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%)",
+              zIndex: 3,
             }}
           >
             <div
               style={{
-                width: 14,
-                height: 14,
+                width: 12,
+                height: 12,
                 borderRadius: "50%",
                 border: "2px solid rgba(181,236,52,0.4)",
-                background: "rgba(6,8,16,0.92)",
+                background: "rgba(6,8,16,0.95)",
               }}
             />
           </div>
-        </div>
 
-        <div
-          style={{
-            ...GLASS_CARD,
-            padding: 5,
-          }}
-        >
           <div
             style={{
-              border: "1.5px solid rgba(181,236,52,0.1)",
-              borderRadius: 6,
+              border: "1.5px solid rgba(181,236,52,0.12)",
+              borderRadius: 8,
               background: "rgba(10,16,28,0.95)",
-              minHeight: 550,
-              position: "relative",
+              minHeight: 540,
               overflow: "hidden",
               backgroundImage:
                 "repeating-linear-gradient(transparent, transparent 34px, rgba(181,236,52,0.035) 34px, rgba(181,236,52,0.035) 35px)",
@@ -618,223 +523,172 @@ function LiveCaseFocusOverlay({ c, onClose, onBackHome }) {
           >
             <div
               style={{
-                background: "rgba(181,236,52,0.05)",
-                padding: "18px 28px",
+                background: "rgba(181,236,52,0.06)",
+                padding: "14px 20px",
                 borderBottom: "1px solid rgba(181,236,52,0.1)",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
               }}
             >
-              <div
+              <span
                 style={{
-                  fontSize: 16,
                   fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+                  fontSize: 14,
                   fontWeight: 700,
-                  color: "rgba(181,236,52,0.7)",
+                  color: "rgba(181,236,52,0.75)",
+                  letterSpacing: "0.04em",
                 }}
               >
                 CASE {c.id}
-              </div>
-              <div
+              </span>
+              <span
                 style={{
-                  fontSize: 9,
-                  letterSpacing: "0.15em",
-                  color: "rgba(181,236,52,0.3)",
+                  fontSize: 14,
+                  letterSpacing: "0.14em",
+                  color: "rgba(181,236,52,0.35)",
                   textTransform: "uppercase",
                 }}
               >
                 CONFIDENTIAL
-              </div>
+              </span>
             </div>
 
-            <div
-              style={{
-                position: "absolute",
-                top: 140,
-                right: 28,
-                border: "2px solid rgba(181,236,52,0.35)",
-                padding: "5px 16px",
-                fontSize: 11,
-                letterSpacing: "0.12em",
-                color: "#b5ec34",
-                fontWeight: 700,
-                transform: "rotate(-4deg)",
-                textTransform: "uppercase",
-                zIndex: 2,
-                background: "rgba(6,8,16,0.6)",
-              }}
-            >
-              {String(c.status || "UNDER REVIEW").toUpperCase()}
-            </div>
-
-            <div style={{ borderLeft: "2px solid rgba(181,236,52,0.08)", marginLeft: 18 }}>
-              <div style={{ display: "flex", justifyContent: "center", padding: "20px 0" }}>
-                <div
+            <div style={{ padding: "18px 20px 20px" }}>
+              <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
+                <span
                   style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: "50%",
-                    border: "2px solid rgba(181,236,52,0.3)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
+                    border: "2px solid rgba(181,236,52,0.35)",
+                    padding: "4px 12px",
+                    fontSize: 14,
+                    letterSpacing: "0.12em",
+                    color: "#b5ec34",
+                    transform: "rotate(-2deg)",
+                    textTransform: "uppercase",
+                    fontWeight: 700,
                   }}
                 >
-                  <span style={{ fontSize: 24, fontWeight: 700, color: "#b5ec34" }}>+</span>
-                </div>
+                  {String(c.status || "UNDER REVIEW").toUpperCase()}
+                </span>
               </div>
 
-              <div style={{ padding: "0 28px", paddingLeft: 28 }}>
-                <FieldBlock label="PATIENT COMPLAINT">
-                  <div style={{ fontSize: 20, fontWeight: 700, color: "#fff" }}>{c.title}</div>
-                </FieldBlock>
+              <FieldBlock label="PATIENT COMPLAINT">
+                <div style={{ fontSize: 22, fontWeight: 700, color: "#fff" }}>{c.title}</div>
+              </FieldBlock>
+              <FieldBlock label="DATE FILED">
+                <div style={{ fontSize: 14, color: "rgba(255,255,255,0.65)" }}>18 Apr 2026</div>
+              </FieldBlock>
+              <FieldBlock label="CLINICAL SUMMARY">
+                <div style={{ fontSize: 14, color: "rgba(255,255,255,0.55)", lineHeight: 1.7 }}>
+                  {c.description}
+                </div>
+              </FieldBlock>
 
-                <FieldBlock label="DATE FILED">
-                  <div style={{ fontSize: 14, color: "rgba(255,255,255,0.5)" }}>18 Apr 2026</div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+                <FieldBlock label="STAGE">
+                  <div style={{ fontSize: 15, color: "#b5ec34" }}>{c.stage}</div>
                 </FieldBlock>
-
-                <FieldBlock label="CLINICAL SUMMARY">
-                  <div style={{ fontSize: 14, color: "rgba(255,255,255,0.45)", lineHeight: 1.7 }}>
-                    {c.description}
+                <FieldBlock label="JURY PANEL">
+                  <div style={{ fontSize: 15, color: "rgba(255,255,255,0.65)" }}>
+                    {liveVoted} of {livePanel}
                   </div>
                 </FieldBlock>
-
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
-                  <FieldBlock label="STAGE">
-                    <div style={{ fontSize: 15, color: "#b5ec34" }}>{c.stage}</div>
-                  </FieldBlock>
-                  <FieldBlock label="JURY PANEL">
-                    <div style={{ fontSize: 15, color: "rgba(255,255,255,0.5)" }}>
-                      {c.jurorCount} of {c.jurorCount}
-                    </div>
-                  </FieldBlock>
-                </div>
               </div>
 
-              <div style={{ padding: "0 28px 24px", paddingLeft: 28 }}>
-                <div style={{ height: 3, background: "rgba(255,255,255,0.04)", borderRadius: 1.5 }}>
+              <div style={{ marginTop: 10, marginBottom: 20 }}>
+                <div style={{ height: 4, background: "rgba(255,255,255,0.08)", borderRadius: 2 }}>
                   <div
                     style={{
-                      height: 3,
+                      height: 4,
                       background: "#b5ec34",
                       width: `${progress}%`,
-                      borderRadius: 1.5,
+                      borderRadius: 2,
                     }}
                   />
                 </div>
                 <div
                   style={{
-                    marginTop: 6,
-                    fontSize: 9,
-                    fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-                    color: "rgba(255,255,255,0.15)",
+                    marginTop: 8,
+                    fontSize: 14,
+                    color: "rgba(255,255,255,0.45)",
                     letterSpacing: "0.08em",
                     textTransform: "uppercase",
                   }}
                 >
-                  {Math.round(progress)}% COMPLETE
+                  {Math.round(progress)}% complete
                 </div>
               </div>
-            </div>
 
-            <div
-              style={{
-                position: "absolute",
-                bottom: 10,
-                right: 16,
-                fontSize: 8,
-                color: "rgba(255,255,255,0.08)",
-                letterSpacing: "0.1em",
-                textTransform: "uppercase",
-              }}
-            >
-              PAGE 1 OF 1
+              <div
+                style={{
+                  fontSize: 14,
+                  letterSpacing: "0.15em",
+                  color: "rgba(181,236,52,0.5)",
+                  textTransform: "uppercase",
+                  marginBottom: 14,
+                }}
+              >
+                CASE TIMELINE
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                {timelineSteps.map((step, idx) => {
+                  const isCompleted = step.state === "completed";
+                  const isCurrent = step.state === "current";
+                  const dotBg = isCurrent || isCompleted ? "#b5ec34" : "rgba(255,255,255,0.15)";
+                  return (
+                    <div key={`${step.label}-${idx}`} style={{ display: "flex", gap: 14 }}>
+                      <div
+                        style={{
+                          width: 12,
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          flexShrink: 0,
+                        }}
+                      >
+                        <span
+                          style={{
+                            width: 8,
+                            height: 8,
+                            borderRadius: "50%",
+                            background: dotBg,
+                            boxShadow: isCurrent ? "0 0 12px rgba(181,236,52,0.75)" : "none",
+                          }}
+                        />
+                        {idx < timelineSteps.length - 1 ? (
+                          <span
+                            style={{
+                              width: 2,
+                              flex: 1,
+                              marginTop: 4,
+                              minHeight: 18,
+                              background: "rgba(181,236,52,0.12)",
+                            }}
+                          />
+                        ) : null}
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", flex: 1, gap: 10 }}>
+                        <span style={{ color: "rgba(255,255,255,0.88)", fontSize: 14 }}>{step.label}</span>
+                        <span
+                          style={{
+                            color: "rgba(255,255,255,0.5)",
+                            fontSize: 14,
+                            fontFamily:
+                              "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {step.date}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
-      </div>
-
-      <div
-        style={{
-          ...GLASS_CARD,
-          maxWidth: 700,
-          margin: "24px auto",
-          padding: 24,
-        }}
-      >
-        <div
-          style={{
-            fontSize: 11,
-            letterSpacing: "0.15em",
-            color: "rgba(181,236,52,0.5)",
-            textTransform: "uppercase",
-            marginBottom: 16,
-          }}
-        >
-          CASE TIMELINE
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {timelineSteps.map((step, idx) => {
-            const isCompleted = step.state === "completed";
-            const isCurrent = step.state === "current";
-            const dotBg = isCurrent
-              ? "#b5ec34"
-              : isCompleted
-                ? "#b5ec34"
-                : "rgba(255,255,255,0.1)";
-            return (
-              <div key={`${step.label}-${idx}`} style={{ display: "flex", gap: 16 }}>
-                <div
-                  style={{
-                    width: 12,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    flexShrink: 0,
-                  }}
-                >
-                  <span
-                    style={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: "50%",
-                      background: dotBg,
-                      boxShadow: isCurrent ? "0 0 12px rgba(181,236,52,0.8)" : "none",
-                      animation: isCurrent ? "timelinePulse 1.4s ease-in-out infinite" : "none",
-                    }}
-                  />
-                  {idx < timelineSteps.length - 1 ? (
-                    <span
-                      style={{
-                        width: 2,
-                        flex: 1,
-                        marginTop: 4,
-                        minHeight: 22,
-                        background: "rgba(181,236,52,0.1)",
-                      }}
-                    />
-                  ) : null}
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", flex: 1, gap: 10 }}>
-                  <span style={{ color: "rgba(255,255,255,0.85)", fontSize: 13 }}>{step.label}</span>
-                  <span
-                    style={{
-                      color: "rgba(255,255,255,0.45)",
-                      fontSize: 11,
-                      fontFamily:
-                        "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {step.date}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+      </Motion.div>
     </Motion.div>
   );
 }
@@ -844,7 +698,7 @@ function FieldBlock({ label, children }) {
     <div style={{ marginBottom: 22 }}>
       <div
         style={{
-          fontSize: 10,
+          fontSize: 14,
           letterSpacing: "0.12em",
           textTransform: "uppercase",
           color: "rgba(255,255,255,0.2)",
@@ -859,7 +713,6 @@ function FieldBlock({ label, children }) {
 }
 
 export function LiveCasesStack() {
-  const navigate = useNavigate();
   const isMobile = useIsMobile(900);
 
   const dynamicCases = useMemo(() => loadDynamicJuryCases(), []);
@@ -906,7 +759,7 @@ export function LiveCasesStack() {
           <p
             style={{
               margin: 0,
-              fontSize: 11,
+              fontSize: 14,
               letterSpacing: "0.15em",
               textTransform: "uppercase",
               color: "rgba(181,236,52,0.5)",
@@ -914,7 +767,7 @@ export function LiveCasesStack() {
           >
             Live Cases
           </p>
-          <span style={{ color: "rgba(255,255,255,0.2)", fontSize: 10, letterSpacing: "0.12em" }}>
+          <span style={{ color: "rgba(255,255,255,0.2)", fontSize: 14, letterSpacing: "0.12em" }}>
             SPECTATE
           </span>
         </div>
@@ -935,10 +788,6 @@ export function LiveCasesStack() {
             <LiveCaseFocusOverlay
               c={selected}
               onClose={() => setSelectedId(null)}
-              onBackHome={() => {
-                navigate("/");
-                window.scrollTo(0, 0);
-              }}
             />
           )}
         </AnimatePresence>
@@ -968,7 +817,7 @@ export function LiveCasesStack() {
         <p
           style={{
             margin: 0,
-            fontSize: 11,
+            fontSize: 14,
             letterSpacing: "0.15em",
             textTransform: "uppercase",
             color: "rgba(181,236,52,0.5)",
@@ -976,7 +825,7 @@ export function LiveCasesStack() {
         >
           Live Cases
         </p>
-        <span style={{ color: "rgba(255,255,255,0.2)", fontSize: 10, letterSpacing: "0.12em" }}>
+        <span style={{ color: "rgba(255,255,255,0.2)", fontSize: 14, letterSpacing: "0.12em" }}>
           SPECTATE
         </span>
       </div>
@@ -1016,10 +865,6 @@ export function LiveCasesStack() {
           <LiveCaseFocusOverlay
             c={selected}
             onClose={() => setSelectedId(null)}
-            onBackHome={() => {
-              navigate("/");
-              window.scrollTo(0, 0);
-            }}
           />
         )}
       </AnimatePresence>
