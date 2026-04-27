@@ -19,6 +19,7 @@ import { VerdictScreen } from "./components/VerdictScreen.jsx";
 import { ReEvaluationFlow } from "./components/ReEvaluationFlow.jsx";
 import { JurorApplication } from "./components/JurorApplication.jsx";
 import { GovernancePanel } from "./components/GovernancePanel.jsx";
+import { CaseProgress } from "./components/CaseProgress.jsx";
 import { HeroSection } from "./components/HeroSection.jsx";
 import { IntroAnimation } from "./components/IntroAnimation";
 import { initializeMockJuryCases } from "./data/jurorMockData.js";
@@ -237,16 +238,15 @@ function Hero({ onJoin }) {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <img src="/cipher-logo.png" alt="Cipher" style={{ width: 24, height: 24 }} />
-          <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#b5ec34" }}>
+          <img src={import.meta.env.BASE_URL + "cipher-logo.png"} alt="Cipher" style={{ width: 24, height: 24 }} />
+          <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#b5ec34" }}>
             Cipher
           </span>
         </div>
-        <div style={{ display: "flex", gap: 32, fontSize: 11, letterSpacing: "0.15em", textTransform: "uppercase" }}>
+        <div style={{ display: "flex", gap: 32, fontSize: 14, letterSpacing: "0.15em", textTransform: "uppercase" }}>
           <span style={{ color: "rgba(181,236,52,0.7)", cursor: "pointer" }}>Protocol</span>
           <span style={{ color: "rgba(181,236,52,0.7)", cursor: "pointer" }}>How it Works</span>
           <span style={{ color: "rgba(181,236,52,0.7)", cursor: "pointer" }}>Governance</span>
-          <span style={{ color: "rgba(181,236,52,0.7)", cursor: "pointer" }}>Documentation</span>
           <span onClick={onJoin} style={{ color: "#050505", background: "#b5ec34", padding: "6px 16px", borderRadius: 4, fontWeight: 600, cursor: "pointer" }}>
             Log in
           </span>
@@ -416,10 +416,10 @@ function Hero({ onJoin }) {
                 borderRight: i < 2 ? "1px solid rgba(181,236,52,0.15)" : "none",
               }}
             >
-              <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: "#b5ec34", marginBottom: 10 }}>
+              <p style={{ fontSize: 14, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: "#b5ec34", marginBottom: 10 }}>
                 {card.title}
               </p>
-              <p style={{ fontSize: 12, lineHeight: 1.6, color: "rgba(181,236,52,0.45)", textTransform: "uppercase", letterSpacing: "0.03em" }}>
+              <p style={{ fontSize: 14, lineHeight: 1.6, color: "rgba(181,236,52,0.45)", textTransform: "uppercase", letterSpacing: "0.03em" }}>
                 {card.desc}
               </p>
             </div>
@@ -460,6 +460,10 @@ function ClaimIntakeRoute() {
       }}
       onDone={() => {
         navigate("/protocol-dashboard");
+        window.scrollTo(0, 0);
+      }}
+      onViewCaseProgress={(claim) => {
+        navigate("/case-progress", { state: { claim } });
         window.scrollTo(0, 0);
       }}
     />
@@ -677,6 +681,7 @@ function App() {
         <Route path="/juror-application" element={<JurorApplication />} />
         <Route path="/case-review/:caseId" element={<CaseReview />} />
         <Route path="/governance" element={<GovernancePanel />} />
+        <Route path="/case-progress" element={<CaseProgress />} />
         <Route path="/protocol-dashboard" element={<ProtocolDashboardRoute />} />
         <Route path="/claim-intake" element={<ClaimIntakeRoute />} />
         <Route path="/emergency-access" element={<EmergencyAccessRoute />} />
