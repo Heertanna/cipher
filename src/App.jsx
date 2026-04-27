@@ -23,6 +23,7 @@ import { CaseProgress } from "./components/CaseProgress.jsx";
 import { HeroSection } from "./components/HeroSection.jsx";
 import { IntroAnimation } from "./components/IntroAnimation";
 import { initializeMockJuryCases } from "./data/jurorMockData.js";
+import cipherLogo from "../public/cipher-logo.png";
 
 /* ───────────────────────────────────────────
    Quadrant pixel-grid canvas
@@ -238,7 +239,7 @@ function Hero({ onJoin }) {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <img src={import.meta.env.BASE_URL + "cipher-logo.png"} alt="Cipher" style={{ width: 24, height: 24 }} />
+        <img src={cipherLogo} alt="Cipher" style={{ width: 24, height: 24 }} />
           <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#b5ec34" }}>
             Cipher
           </span>
