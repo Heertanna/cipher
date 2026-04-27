@@ -652,9 +652,11 @@ function PageFlow({ initialPage = "home", blockLandingContent = false }) {
 
 function App() {
   const [showIntro, setShowIntro] = useState(
-    () => window.location.pathname === '/'
+    () => {
+      const path = window.location.pathname;
+      return path === '/' || path === '/cipher/' || path === '/cipher';
+    }
   );
-
   useEffect(() => {
     initializeMockJuryCases().catch((error) => {
       console.error("Failed to initialize mock jury cases:", error?.message);
