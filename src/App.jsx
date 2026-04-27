@@ -238,6 +238,44 @@ function Hero({ onJoin }) {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 100 100"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-label="Cipher"
+            role="img"
+            style={{ display: "block", flexShrink: 0 }}
+          >
+            {/* Top */}
+            <rect x="40" y="5" width="8" height="8" fill="#b4c814" />
+            <rect x="52" y="5" width="8" height="8" fill="#b4c814" />
+            {/* Top right */}
+            <rect x="68" y="15" width="8" height="8" fill="#b4c814" />
+            <rect x="80" y="22" width="8" height="8" fill="#b4c814" />
+            {/* Right */}
+            <rect x="87" y="38" width="8" height="8" fill="#b4c814" />
+            <rect x="87" y="52" width="8" height="8" fill="#b4c814" />
+            {/* Bottom right */}
+            <rect x="78" y="68" width="8" height="8" fill="#b4c814" />
+            <rect x="68" y="78" width="8" height="8" fill="#b4c814" />
+            {/* Bottom */}
+            <rect x="52" y="87" width="8" height="8" fill="#b4c814" />
+            <rect x="40" y="87" width="8" height="8" fill="#b4c814" />
+            {/* Bottom left */}
+            <rect x="22" y="78" width="8" height="8" fill="#b4c814" />
+            <rect x="12" y="68" width="8" height="8" fill="#b4c814" />
+            {/* Left */}
+            <rect x="5" y="52" width="8" height="8" fill="#b4c814" />
+            <rect x="5" y="38" width="8" height="8" fill="#b4c814" />
+            {/* Top left */}
+            <rect x="12" y="22" width="8" height="8" fill="#b4c814" />
+            <rect x="22" y="12" width="8" height="8" fill="#b4c814" />
+            {/* Cross details on each cluster - small squares */}
+            <rect x="36" y="9" width="4" height="4" fill="#b4c814" opacity="0.6" />
+            <rect x="60" y="9" width="4" height="4" fill="#b4c814" opacity="0.6" />
+          </svg>
           <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#b5ec34" }}>
             Cipher
           </span>
