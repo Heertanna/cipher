@@ -23,7 +23,7 @@ import { CaseProgress } from "./components/CaseProgress.jsx";
 import { HeroSection } from "./components/HeroSection.jsx";
 import { IntroAnimation } from "./components/IntroAnimation";
 import { initializeMockJuryCases } from "./data/jurorMockData.js";
-import cipherLogo from "../public/cipher-logo.png";
+import cipherLogo from "./assets/cipher-logo.png";
 
 /* ───────────────────────────────────────────
    Quadrant pixel-grid canvas
