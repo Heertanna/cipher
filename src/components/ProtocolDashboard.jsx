@@ -380,11 +380,13 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
             minWidth: 0,
           }}
         >
-          <img
-            src="/cipher-logo.png"
-            alt="Cipher"
-            style={{ width: 24, height: 24, display: "block", objectFit: "contain" }}
-          />
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-label="Cipher" role="img">
+            <rect width="6" height="6" x="2" y="2" fill="#b4c814" />
+            <rect width="6" height="6" x="10" y="2" fill="#b4c814" opacity="0.6" />
+            <rect width="6" height="6" x="2" y="10" fill="#b4c814" opacity="0.6" />
+            <rect width="6" height="6" x="10" y="10" fill="#b4c814" />
+            <rect width="6" height="6" x="16" y="16" fill="#b4c814" opacity="0.4" />
+          </svg>
           <span
             style={{
               color: ACCENT,
