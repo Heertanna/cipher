@@ -367,43 +367,63 @@ export function HeroSection({ onJoin }) {
         }}
       >
         <div style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 100 100"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-label="Cipher"
-            role="img"
-            style={{ display: "block", flexShrink: 0 }}
-          >
-            {/* Top */}
-            <rect x="40" y="5" width="8" height="8" fill="#b4c814" />
-            <rect x="52" y="5" width="8" height="8" fill="#b4c814" />
+          <svg width="24" height="24" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            {/* Each "node" is a plus/cross shape made of 5 squares */}
+            {/* Top center */}
+            <rect x="44" y="2" width="6" height="6" fill="#b4c814"/>
+            <rect x="38" y="8" width="6" height="6" fill="#b4c814"/>
+            <rect x="44" y="8" width="6" height="6" fill="#b4c814"/>
+            <rect x="50" y="8" width="6" height="6" fill="#b4c814"/>
+            <rect x="44" y="14" width="6" height="6" fill="#b4c814"/>
+
             {/* Top right */}
-            <rect x="68" y="15" width="8" height="8" fill="#b4c814" />
-            <rect x="80" y="22" width="8" height="8" fill="#b4c814" />
+            <rect x="68" y="16" width="6" height="6" fill="#b4c814"/>
+            <rect x="62" y="22" width="6" height="6" fill="#b4c814"/>
+            <rect x="68" y="22" width="6" height="6" fill="#b4c814"/>
+            <rect x="74" y="22" width="6" height="6" fill="#b4c814"/>
+            <rect x="68" y="28" width="6" height="6" fill="#b4c814"/>
+
             {/* Right */}
-            <rect x="87" y="38" width="8" height="8" fill="#b4c814" />
-            <rect x="87" y="52" width="8" height="8" fill="#b4c814" />
+            <rect x="84" y="44" width="6" height="6" fill="#b4c814"/>
+            <rect x="78" y="50" width="6" height="6" fill="#b4c814"/>
+            <rect x="84" y="50" width="6" height="6" fill="#b4c814"/>
+            <rect x="90" y="50" width="6" height="6" fill="#b4c814"/>
+            <rect x="84" y="56" width="6" height="6" fill="#b4c814"/>
+
             {/* Bottom right */}
-            <rect x="78" y="68" width="8" height="8" fill="#b4c814" />
-            <rect x="68" y="78" width="8" height="8" fill="#b4c814" />
-            {/* Bottom */}
-            <rect x="52" y="87" width="8" height="8" fill="#b4c814" />
-            <rect x="40" y="87" width="8" height="8" fill="#b4c814" />
+            <rect x="68" y="68" width="6" height="6" fill="#b4c814"/>
+            <rect x="62" y="74" width="6" height="6" fill="#b4c814"/>
+            <rect x="68" y="74" width="6" height="6" fill="#b4c814"/>
+            <rect x="74" y="74" width="6" height="6" fill="#b4c814"/>
+            <rect x="68" y="80" width="6" height="6" fill="#b4c814"/>
+
+            {/* Bottom center */}
+            <rect x="44" y="80" width="6" height="6" fill="#b4c814"/>
+            <rect x="38" y="86" width="6" height="6" fill="#b4c814"/>
+            <rect x="44" y="86" width="6" height="6" fill="#b4c814"/>
+            <rect x="50" y="86" width="6" height="6" fill="#b4c814"/>
+            <rect x="44" y="92" width="6" height="6" fill="#b4c814"/>
+
             {/* Bottom left */}
-            <rect x="22" y="78" width="8" height="8" fill="#b4c814" />
-            <rect x="12" y="68" width="8" height="8" fill="#b4c814" />
+            <rect x="22" y="68" width="6" height="6" fill="#b4c814"/>
+            <rect x="16" y="74" width="6" height="6" fill="#b4c814"/>
+            <rect x="22" y="74" width="6" height="6" fill="#b4c814"/>
+            <rect x="28" y="74" width="6" height="6" fill="#b4c814"/>
+            <rect x="22" y="80" width="6" height="6" fill="#b4c814"/>
+
             {/* Left */}
-            <rect x="5" y="52" width="8" height="8" fill="#b4c814" />
-            <rect x="5" y="38" width="8" height="8" fill="#b4c814" />
+            <rect x="6" y="44" width="6" height="6" fill="#b4c814"/>
+            <rect x="0" y="50" width="6" height="6" fill="#b4c814"/>
+            <rect x="6" y="50" width="6" height="6" fill="#b4c814"/>
+            <rect x="12" y="50" width="6" height="6" fill="#b4c814"/>
+            <rect x="6" y="56" width="6" height="6" fill="#b4c814"/>
+
             {/* Top left */}
-            <rect x="12" y="22" width="8" height="8" fill="#b4c814" />
-            <rect x="22" y="12" width="8" height="8" fill="#b4c814" />
-            {/* Cross details on each cluster - small squares */}
-            <rect x="36" y="9" width="4" height="4" fill="#b4c814" opacity="0.6" />
-            <rect x="60" y="9" width="4" height="4" fill="#b4c814" opacity="0.6" />
+            <rect x="22" y="16" width="6" height="6" fill="#b4c814"/>
+            <rect x="16" y="22" width="6" height="6" fill="#b4c814"/>
+            <rect x="22" y="22" width="6" height="6" fill="#b4c814"/>
+            <rect x="28" y="22" width="6" height="6" fill="#b4c814"/>
+            <rect x="22" y="28" width="6" height="6" fill="#b4c814"/>
           </svg>
           <span
             style={{
