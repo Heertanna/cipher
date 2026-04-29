@@ -86,15 +86,7 @@ export function PricingPlans({
               marginBottom: 14,
             }}
           >
-            <span
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: "999px",
-                background: ACCENT,
-                boxShadow: "0 0 12px rgba(181,236,52,0.75)",
-              }}
-            />
+            <span style={{ fontFamily: "monospace", fontSize: 11, color: "#b4c814" }}>✦</span>
             <span
               style={{
                 fontSize: 14,
@@ -286,7 +278,8 @@ export function PricingPlans({
                 marginBottom: 10,
               }}
             >
-              Basic — ₹499
+              <span style={{ fontFamily: "monospace", fontSize: 11, color: "rgba(255,255,255,0.4)", marginRight: 6 }}>◈</span>
+              BASIC — ₹499
             </p>
             <p
               style={{
@@ -329,11 +322,11 @@ export function PricingPlans({
                 lineHeight: 1.7,
               }}
             >
-              <li>Full access to claims &amp; jury evaluation</li>
-              <li>Equal medical decision-making</li>
-              <li>Higher variability during pool stress</li>
-              <li>Standard system interaction</li>
-              <li>Full care access with minimal contribution</li>
+              <li><span style={{ fontFamily: "monospace", fontSize: 10, color: "#b4c814" }}>◇</span> Full access to claims &amp; jury evaluation</li>
+              <li><span style={{ fontFamily: "monospace", fontSize: 10, color: "#b4c814" }}>◇</span> Equal medical decision-making</li>
+              <li><span style={{ fontFamily: "monospace", fontSize: 10, color: "#b4c814" }}>◇</span> Higher variability during pool stress</li>
+              <li><span style={{ fontFamily: "monospace", fontSize: 10, color: "#b4c814" }}>◇</span> Standard system interaction</li>
+              <li><span style={{ fontFamily: "monospace", fontSize: 10, color: "#b4c814" }}>◇</span> Full care access with minimal contribution</li>
             </ul>
             <button
               style={{
@@ -399,7 +392,8 @@ export function PricingPlans({
                 marginBottom: 10,
               }}
             >
-              🟡 Standard — ₹999 ⭐
+              <span style={{ fontFamily: "monospace", fontSize: 11, color: "#b4c814", marginRight: 6 }}>⊙</span>
+              STANDARD — ₹999 <span style={{ fontFamily: "monospace", fontSize: 11, color: "#b4c814" }}>✦</span>
             </p>
             <p
               style={{
@@ -442,11 +436,11 @@ export function PricingPlans({
                 lineHeight: 1.7,
               }}
             >
-              <li>Full access to claims &amp; evaluation</li>
-              <li>More stable monthly contribution</li>
-              <li>Reduced friction in interactions</li>
-              <li>Balanced system participation</li>
-              <li>Optimized for stability and efficiency</li>
+              <li><span style={{ fontFamily: "monospace", fontSize: 10, color: "#b4c814" }}>◇</span> Full access to claims &amp; evaluation</li>
+              <li><span style={{ fontFamily: "monospace", fontSize: 10, color: "#b4c814" }}>◇</span> More stable monthly contribution</li>
+              <li><span style={{ fontFamily: "monospace", fontSize: 10, color: "#b4c814" }}>◇</span> Reduced friction in interactions</li>
+              <li><span style={{ fontFamily: "monospace", fontSize: 10, color: "#b4c814" }}>◇</span> Balanced system participation</li>
+              <li><span style={{ fontFamily: "monospace", fontSize: 10, color: "#b4c814" }}>◇</span> Optimized for stability and efficiency</li>
             </ul>
             <button
               style={{
@@ -513,7 +507,8 @@ export function PricingPlans({
                 marginBottom: 10,
               }}
             >
-              🔵 Premium — ₹1799
+              <span style={{ fontFamily: "monospace", fontSize: 11, color: "#b4c814", marginRight: 6 }}>◎</span>
+              PREMIUM — ₹1,799
             </p>
             <p
               style={{
@@ -556,11 +551,11 @@ export function PricingPlans({
                 lineHeight: 1.7,
               }}
             >
-              <li>Full and equal care access</li>
-              <li>Lowest variability during pool stress</li>
-              <li>Smoothest system experience</li>
-              <li>Supports system resilience</li>
-              <li>Strengthens the system for all members</li>
+              <li><span style={{ fontFamily: "monospace", fontSize: 10, color: "#b4c814" }}>◇</span> Full and equal care access</li>
+              <li><span style={{ fontFamily: "monospace", fontSize: 10, color: "#b4c814" }}>◇</span> Lowest variability during pool stress</li>
+              <li><span style={{ fontFamily: "monospace", fontSize: 10, color: "#b4c814" }}>◇</span> Smoothest system experience</li>
+              <li><span style={{ fontFamily: "monospace", fontSize: 10, color: "#b4c814" }}>◇</span> Supports system resilience</li>
+              <li><span style={{ fontFamily: "monospace", fontSize: 10, color: "#b4c814" }}>◇</span> Strengthens the system for all members</li>
             </ul>
             <button
               style={{
