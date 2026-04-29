@@ -151,6 +151,10 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
     () => safeParse(window.localStorage.getItem("cipher_subscription")),
     []
   );
+  const mark = useMemo(
+    () => safeParse(window.localStorage.getItem("cipher_mark")),
+    []
+  );
 
   const tierLabel = PLAN_LABEL[subscription?.planId] || PLAN_LABEL.standard;
   const isJuror = useMemo(
@@ -600,18 +604,51 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
               gap: 24,
             }}
           >
-        <h1
-          style={{
-            margin: "8px 0 24px",
-            fontSize: 50,
-            fontWeight: 800,
-            lineHeight: 1.05,
-            letterSpacing: "-0.03em",
-            color: "#fff",
-          }}
-        >
-          Hello, {identityAlias || "Member"}
-        </h1>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, margin: "8px 0 24px" }}>
+          <h1
+            style={{
+              margin: 0,
+              fontSize: 50,
+              fontWeight: 800,
+              lineHeight: 1.05,
+              letterSpacing: "-0.03em",
+              color: "#fff",
+            }}
+          >
+            Hello, {identityAlias || "Member"}
+          </h1>
+          {mark?.dataUrl ? (
+            <img
+              src={mark.dataUrl}
+              alt="Your Cipher Mark"
+              style={{
+                width: 56,
+                height: 56,
+                borderRadius: 10,
+                border: "1px solid rgba(180,200,20,0.2)",
+                background: "#060810",
+              }}
+            />
+          ) : (
+            <div
+              title="Create your mark"
+              style={{
+                width: 56,
+                height: 56,
+                borderRadius: 10,
+                border: "1px dashed rgba(255,255,255,0.1)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 20,
+                color: "rgba(255,255,255,0.15)",
+                userSelect: "none",
+              }}
+            >
+              ✦
+            </div>
+          )}
+        </div>
 
         <div
           className="protocol-top-grid"

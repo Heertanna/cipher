@@ -15,6 +15,9 @@
   "dependencies": {
     "@dicebear/collection": "^9.4.0",
     "@dicebear/core": "^9.4.0",
+    "@mediapipe/camera_utils": "^0.3.1675466862",
+    "@mediapipe/control_utils": "^0.6.1675466023",
+    "@mediapipe/hands": "^0.4.1675469240",
     "@react-three/fiber": "^9.5.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",

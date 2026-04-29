@@ -11,7 +11,7 @@ export function IntroAnimation({ onComplete }) {
     if (!fadeOut) return;
     const id = window.setTimeout(() => {
       onCompleteRef.current();
-    }, 800);
+    }, 480);
     return () => window.clearTimeout(id);
   }, [fadeOut]);
 
@@ -71,6 +71,18 @@ export function IntroAnimation({ onComplete }) {
       return {scale, offX, offY};
     }
 
+    const SPEED = 0.6;
+    const PH1_LEN = Math.round(115 * SPEED);
+    const PH2_LEN = Math.round(55 * SPEED);
+    const PH3_LEN = Math.round(90 * SPEED);
+    const PH4_LEN = Math.round(90 * SPEED);
+    const PH5_LEN = Math.round(50 * SPEED);
+    const PH1_END = PH1_LEN;
+    const PH2_END = PH1_END + PH2_LEN;
+    const PH3_END = PH2_END + PH3_LEN;
+    const PH4_END = PH3_END + PH4_LEN;
+    const PH5_END = PH4_END + PH5_LEN;
+
     function build() {
       const ct=getCTransform();
       const ht=getHBTransform();
@@ -90,7 +102,7 @@ export function IntroAnimation({ onComplete }) {
           x: W/2+(Math.random()-0.5)*W*0.9,
           y: H/2+(Math.random()-0.5)*H*0.9,
           alpha:0,
-          delay:Math.round((i/(N-1))*55),
+          delay:Math.round((i/(N-1))*33),
           scattered:false, dvx:0, dvy:0, dsx:0, dsy:0,
         };
       });
@@ -102,8 +114,8 @@ export function IntroAnimation({ onComplete }) {
       ctx.clearRect(0,0,W,H);
       af++;
 
-      // PHASE 1: assemble into C (0-115)
-      if (af<=115) {
+      // PHASE 1: assemble into C
+      if (af <= PH1_END) {
         pixels.forEach(p=>{
           if (af<p.delay) return;
           p.x+=(p.tx-p.x)*0.11; p.y+=(p.ty-p.y)*0.11;
@@ -118,9 +130,9 @@ export function IntroAnimation({ onComplete }) {
         });
       }
 
-      // PHASE 2: C shimmer (115-170)
-      else if (af<=170) {
-        const ht2=(af-115)/55;
+      // PHASE 2: C shimmer
+      else if (af <= PH2_END) {
+        const ht2 = (af - PH1_END) / PH2_LEN;
         const sh=(ht2*1.5*pixels.length)%pixels.length;
         pixels.forEach((p,i)=>{
           const d=Math.min(Math.abs(i-sh),pixels.length-Math.abs(i-sh));
@@ -135,9 +147,9 @@ export function IntroAnimation({ onComplete }) {
         });
       }
 
-      // PHASE 3: morph C → heartbeat (170-260)
-      else if (af<=260) {
-        const t=easeInOut((af-170)/90);
+      // PHASE 3: morph C → heartbeat
+      else if (af <= PH3_END) {
+        const t = easeInOut((af - PH2_END) / PH3_LEN);
         pixels.forEach(p=>{
           const x=p.tx+(p.ex-p.tx)*t;
           const y=p.ty+(p.ey-p.ty)*t;
@@ -150,9 +162,9 @@ export function IntroAnimation({ onComplete }) {
         });
       }
 
-      // PHASE 4: HB shimmer wave (260-350)
-      else if (af<=350) {
-        const ht2=(af-260)/90;
+      // PHASE 4: HB shimmer wave
+      else if (af <= PH4_END) {
+        const ht2 = (af - PH3_END) / PH4_LEN;
         const sh=ht2*pixels.length*1.3;
         pixels.forEach((p,i)=>{
           const d=Math.abs(i-sh);
@@ -165,8 +177,8 @@ export function IntroAnimation({ onComplete }) {
           ctx.fillStyle=`rgba(${wr},${wg},${wb},${alpha})`;
           ctx.fillRect(Math.round(p.ex),Math.round(p.ey),Math.round(p.sz),Math.round(p.sz));
         });
-        if (af<295) {
-          const rp=(af-260)/35;
+        if (af < PH3_END + Math.round(35 * SPEED)) {
+          const rp = (af - PH3_END) / Math.round(35 * SPEED);
           const sp=pixels[25];
           if(sp){
             [90,55].forEach((maxR,ri)=>{
@@ -179,9 +191,9 @@ export function IntroAnimation({ onComplete }) {
         }
       }
 
-      // PHASE 5: scatter (350-400)
-      else if (af<=400) {
-        const prog=(af-350)/50;
+      // PHASE 5: scatter
+      else if (af <= PH5_END) {
+        const prog = (af - PH4_END) / PH5_LEN;
         pixels.forEach(p=>{
           if (!p.scattered){
             p.scattered=true;
@@ -224,7 +236,7 @@ export function IntroAnimation({ onComplete }) {
         zIndex: 1000,
         background: "#0d0d0d",
         opacity: fadeOut ? 0 : 1,
-        transition: fadeOut ? "opacity 0.8s ease" : "none",
+        transition: fadeOut ? "opacity 0.5s ease" : "none",
       }}
     >
       <canvas ref={canvasRef} style={{ position: "absolute", inset: 0 }} />

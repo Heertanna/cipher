@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion as Motion, useReducedMotion } from "framer-motion";
 import { ACCENT } from "./OnboardingCommon.jsx";
+import { PROTOCOL_DASHBOARD_CARD } from "../lib/protocolPageBackground.js";
 
 const GAP = 24;
 const CARD_COUNT = 3;
@@ -164,6 +165,11 @@ function PricingCardContent({ card, onSelectPlan, selectDisabled }) {
 }
 
 export function PricingCards({ onSelectPlan, selectDisabled = false }) {
+  const pricingCardShell = {
+    ...PROTOCOL_DASHBOARD_CARD,
+    borderRadius: 16,
+  };
+
   const reducedMotion = useReducedMotion();
   const isMobile = useIsMobile(820);
 
@@ -485,20 +491,16 @@ export function PricingCards({ onSelectPlan, selectDisabled = false }) {
               key={card.id}
               className={card.className}
               style={{
-                borderRadius: 20,
-                border: card.border,
-                background: card.background,
+                ...pricingCardShell,
                 padding: card.id === "standard" ? "34px 30px 36px" : "28px 26px 30px",
                 position: "relative",
                 overflow: "hidden",
-                boxShadow: "0 16px 45px rgba(15,23,42,0.9)",
               }}
               whileHover={{
-                y: -5,
+                y: -4,
                 scale: 1.01,
-                boxShadow: isFeatured
-                  ? "0 24px 70px rgba(190,242,100,0.35)"
-                  : "0 24px 70px rgba(15,23,42,0.95)",
+                borderColor: "rgba(180,200,20,0.35)",
+                boxShadow: "0 12px 40px rgba(180,200,20,0.15)",
               }}
             >
               <div
@@ -562,12 +564,9 @@ export function PricingCards({ onSelectPlan, selectDisabled = false }) {
           position: "absolute",
           top: 0,
           left: 0,
-          borderRadius: isFeatured ? 22 : 20,
-          border: card.border,
-          background: card.background,
+          ...pricingCardShell,
           padding: isFeatured ? "34px 30px 36px" : "28px 26px 30px",
           overflow: "hidden",
-          boxShadow: "0 16px 45px rgba(15,23,42,0.9)",
           isolation: "isolate",
         };
 
@@ -581,11 +580,10 @@ export function PricingCards({ onSelectPlan, selectDisabled = false }) {
             variants={variants}
             custom={{ index, baseX, cardWidth }}
             whileHover={{
-              y: -5,
+              y: -4,
               scale: 1.01,
-              boxShadow: isFeatured
-                ? "0 28px 90px rgba(190,242,100,0.42)"
-                : "0 26px 90px rgba(15,23,42,0.98)",
+              borderColor: "rgba(180,200,20,0.35)",
+              boxShadow: "0 12px 40px rgba(180,200,20,0.15)",
             }}
           >
             <div
