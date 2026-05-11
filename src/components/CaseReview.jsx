@@ -137,8 +137,12 @@ export function CaseReview() {
         onLeave={() => setEvaluationOpen(false)}
         onComplete={async (result) => {
           const vote = result?.position === "support" ? "approved" : "denied";
-          const confidenceMap = { yes: 0.9, maybe: 0.6, no: 0.3 };
-          const confidence = confidenceMap[result?.evidence?.choice] ?? 0.6;
+          const verdictConfidenceMap = { high: 0.9, medium: 0.6, low: 0.3 };
+          const evidenceConfidenceMap = { yes: 0.9, maybe: 0.6, no: 0.3 };
+          const confidence =
+            verdictConfidenceMap[result?.confidence] ??
+            evidenceConfidenceMap[result?.evidence?.choice] ??
+            0.6;
           const reasoning = `Evidence: ${result?.evidence?.reasoning || ""} | Treatment: ${
             result?.treatment?.reasoning || ""
           } | Cost: ${result?.cost?.reasoning || ""}`;

@@ -3,7 +3,7 @@ import { AnimatePresence, motion as Motion } from "framer-motion";
 import { ACCENT } from "./OnboardingCommon.jsx";
 import { PROTOCOL_PAGE_BACKGROUND } from "../lib/protocolPageBackground.js";
 
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 6;
 
 const EVIDENCE_OPTIONS = [
   { key: "yes", label: "Yes" },
@@ -116,6 +116,7 @@ export function JuryEvaluationFlow({ packet, onComplete, onLeave }) {
   const [costChoice, setCostChoice] = useState(null);
   const [costReason, setCostReason] = useState("");
   const [finalChoice, setFinalChoice] = useState(null);
+  const [confidenceLevel, setConfidenceLevel] = useState(null); // 'high' | 'medium' | 'low'
   const [reportsModalOpen, setReportsModalOpen] = useState(false);
   const [savingEvidenceStep, setSavingEvidenceStep] = useState(false);
 
@@ -151,6 +152,7 @@ export function JuryEvaluationFlow({ packet, onComplete, onLeave }) {
       return Boolean(treatmentChoice && treatmentReason.trim().length > 0);
     if (step === 4) return Boolean(costChoice && costReason.trim().length > 0);
     if (step === 5) return Boolean(finalChoice);
+    if (step === 6) return Boolean(confidenceLevel);
     return false;
   }, [
     step,
@@ -161,6 +163,7 @@ export function JuryEvaluationFlow({ packet, onComplete, onLeave }) {
     costChoice,
     costReason,
     finalChoice,
+    confidenceLevel,
   ]);
 
   const goNext = useCallback(() => {
@@ -178,13 +181,14 @@ export function JuryEvaluationFlow({ packet, onComplete, onLeave }) {
   }, [step]);
 
   const submitFinal = useCallback(() => {
-    if (!finalChoice) return;
+    if (!finalChoice || !confidenceLevel) return;
     onComplete?.({
       caseId: packet.caseId,
       evidence: { choice: evidenceChoice, reasoning: evidenceReason.trim() },
       treatment: { choice: treatmentChoice, reasoning: treatmentReason.trim() },
       cost: { choice: costChoice, reasoning: costReason.trim() },
       position: finalChoice,
+      confidence: confidenceLevel,
     });
   }, [
     onComplete,
@@ -196,12 +200,14 @@ export function JuryEvaluationFlow({ packet, onComplete, onLeave }) {
     costChoice,
     costReason,
     finalChoice,
+    confidenceLevel,
   ]);
 
   const primaryFooterLabel = useMemo(() => {
     if (step === 2 && savingEvidenceStep) return "Saving your evaluation...";
     if (step === 2) return "Continue to Diagnosis";
-    if (step === TOTAL_STEPS) return "Record your position";
+    if (step === 5) return "Continue to confidence";
+    if (step === TOTAL_STEPS) return "Submit my verdict";
     return "Next";
   }, [step, savingEvidenceStep]);
 
@@ -228,8 +234,7 @@ export function JuryEvaluationFlow({ packet, onComplete, onLeave }) {
     goNext,
   ]);
 
-  const cannotProgressFooter =
-    step === TOTAL_STEPS ? !finalChoice : !canAdvance;
+  const cannotProgressFooter = !canAdvance;
 
   const evidenceCtaReady =
     step === 2 && canAdvance && !savingEvidenceStep;
@@ -398,8 +403,13 @@ export function JuryEvaluationFlow({ packet, onComplete, onLeave }) {
                       color: "rgba(148,163,184,0.82)",
                     }}
                   >
-                    {["Evidence", "Treatment", "Cost", "Decision"].map(
-                      (label, i) => (
+                    {[
+                      "Evidence",
+                      "Treatment",
+                      "Cost",
+                      "Decision",
+                      "Confidence",
+                    ].map((label, i) => (
                         <React.Fragment key={label}>
                           {i > 0 ? (
                             <span
@@ -415,8 +425,7 @@ export function JuryEvaluationFlow({ packet, onComplete, onLeave }) {
                           ) : null}
                           <span>{label}</span>
                         </React.Fragment>
-                      )
-                    )}
+                    ))}
                   </div>
                   <p
                     style={{
@@ -858,6 +867,221 @@ export function JuryEvaluationFlow({ packet, onComplete, onLeave }) {
                   selected={finalChoice}
                   onSelect={setFinalChoice}
                 />
+              </Motion.div>
+            )}
+
+            {step === 6 && (
+              <Motion.div
+                key="s6"
+                initial={{ opacity: 0, scale: 0.97 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.98 }}
+                transition={transition}
+                style={{ display: "flex", flexDirection: "column", gap: 22 }}
+              >
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: 14,
+                    fontWeight: 700,
+                    letterSpacing: "0.22em",
+                    textTransform: "uppercase",
+                    color: "rgba(181,236,52,0.55)",
+                  }}
+                >
+                  Final step
+                </p>
+
+                <h2
+                  style={{
+                    margin: 0,
+                    fontSize: "clamp(1.2rem, 3vw, 1.45rem)",
+                    fontWeight: 750,
+                    color: "#e2e8f0",
+                    lineHeight: 1.4,
+                  }}
+                >
+                  How confident are you in your verdict?
+                </h2>
+
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: 14,
+                    lineHeight: 1.6,
+                    color: "rgba(148,163,184,0.88)",
+                  }}
+                >
+                  Your confidence level is recorded anonymously and helps the
+                  protocol understand how clear-cut this case was. It does not
+                  change your vote.
+                </p>
+
+                <div
+                  style={{
+                    padding: "14px 18px",
+                    borderRadius: 14,
+                    background: "rgba(181,236,52,0.06)",
+                    border: "1px solid rgba(181,236,52,0.18)",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                  }}
+                >
+                  <div
+                    style={{
+                      fontFamily: "monospace",
+                      fontSize: 11,
+                      letterSpacing: "0.15em",
+                      color: "rgba(181,236,52,0.6)",
+                    }}
+                  >
+                    YOUR VERDICT
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 14,
+                      fontWeight: 700,
+                      color: "#f9fafb",
+                      flex: 1,
+                    }}
+                  >
+                    {finalChoice === "support"
+                      ? "✓ Support this case"
+                      : finalChoice === "doNotSupport"
+                        ? "✕ Do not support"
+                        : finalChoice === "furtherReview"
+                          ? "↑ Needs further review"
+                          : labelFrom(FINAL_OPTIONS, finalChoice)}
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  {[
+                    {
+                      value: "high",
+                      label: "Highly confident",
+                      description:
+                        "The evidence clearly supports my verdict. I have no significant doubts.",
+                      icon: "◈",
+                      color: "rgba(181,236,52,0.9)",
+                      bg: "rgba(181,236,52,0.08)",
+                      border: "rgba(181,236,52,0.35)",
+                    },
+                    {
+                      value: "medium",
+                      label: "Reasonably confident",
+                      description:
+                        "The evidence mostly supports my verdict but there are some uncertainties.",
+                      icon: "◎",
+                      color: "rgba(181,236,52,0.6)",
+                      bg: "rgba(181,236,52,0.04)",
+                      border: "rgba(181,236,52,0.18)",
+                    },
+                    {
+                      value: "low",
+                      label: "Not very confident",
+                      description:
+                        "This was a difficult case. My verdict is a best judgment given limited clarity.",
+                      icon: "◇",
+                      color: "rgba(148,163,184,0.7)",
+                      bg: "rgba(255,255,255,0.02)",
+                      border: "rgba(255,255,255,0.1)",
+                    },
+                  ].map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setConfidenceLevel(option.value)}
+                      style={{
+                        width: "100%",
+                        padding: "16px 18px",
+                        borderRadius: 14,
+                        border: `1px solid ${
+                          confidenceLevel === option.value
+                            ? option.border
+                            : "rgba(255,255,255,0.08)"
+                        }`,
+                        background:
+                          confidenceLevel === option.value
+                            ? option.bg
+                            : "rgba(255,255,255,0.02)",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "flex-start",
+                        gap: 14,
+                        textAlign: "left",
+                        transition: "all 0.2s ease",
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontFamily: "monospace",
+                          fontSize: 18,
+                          color:
+                            confidenceLevel === option.value
+                              ? option.color
+                              : "rgba(255,255,255,0.2)",
+                          marginTop: 2,
+                          flexShrink: 0,
+                        }}
+                      >
+                        {option.icon}
+                      </span>
+                      <div style={{ flex: 1 }}>
+                        <div
+                          style={{
+                            fontSize: 15,
+                            fontWeight: 700,
+                            color:
+                              confidenceLevel === option.value
+                                ? "#f9fafb"
+                                : "rgba(226,232,240,0.7)",
+                            marginBottom: 4,
+                          }}
+                        >
+                          {option.label}
+                        </div>
+                        <div
+                          style={{
+                            fontSize: 13,
+                            lineHeight: 1.5,
+                            color: "rgba(148,163,184,0.7)",
+                          }}
+                        >
+                          {option.description}
+                        </div>
+                      </div>
+                      {confidenceLevel === option.value ? (
+                        <span
+                          style={{
+                            fontFamily: "monospace",
+                            fontSize: 12,
+                            color: option.color,
+                            flexShrink: 0,
+                            marginTop: 2,
+                          }}
+                        >
+                          ✓
+                        </span>
+                      ) : null}
+                    </button>
+                  ))}
+                </div>
+
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: 13,
+                    lineHeight: 1.55,
+                    color: "rgba(148,163,184,0.55)",
+                    fontFamily: "monospace",
+                    letterSpacing: "0.04em",
+                  }}
+                >
+                  ◇ Confidence data is anonymized and used only to improve
+                  protocol accuracy
+                </p>
               </Motion.div>
             )}
           </AnimatePresence>
