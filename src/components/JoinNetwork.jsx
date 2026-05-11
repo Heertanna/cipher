@@ -43,6 +43,9 @@ function StyledInput({ placeholder, value, onChange, type = "text", autoComplete
 }
 
 export function JoinNetwork({ onBack, onContinue }) {
+  const [viewportWidth, setViewportWidth] = useState(() =>
+    typeof window !== "undefined" ? window.innerWidth : 1440,
+  );
   const [alias, setAlias] = useState("");
   const [password, setPassword] = useState("");
   const [created, setCreated] = useState(false);
@@ -73,7 +76,8 @@ export function JoinNetwork({ onBack, onContinue }) {
   const globalRotationRef = useRef(0);
   const prevHandAngleRef = useRef(null);
   const handRotationVelRef = useRef(0);
-  const canvasDensityRef = useRef(0);
+  const gestureSeedOffsetRef = useRef(Math.random() * 1000);
+  const lastGestureRef = useRef("palm");
   const pathRef = useRef([]);
   const seedRef = useRef(0);
   const complexityRef = useRef(0);
@@ -99,6 +103,14 @@ export function JoinNetwork({ onBack, onContinue }) {
     background:
       "linear-gradient(135deg, rgba(181,236,52,0.05) 0%, rgba(8,11,18,0.9) 42%, rgba(8,11,18,0.98) 100%)",
   };
+  const isMobile = viewportWidth < 768;
+  const isTablet = viewportWidth < 1024;
+
+  useEffect(() => {
+    const onResize = () => setViewportWidth(window.innerWidth);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   const persistAlias = useCallback((nextAlias, markCreated) => {
     try {
@@ -221,7 +233,7 @@ export function JoinNetwork({ onBack, onContinue }) {
 
     function loop() {
       animId = requestAnimationFrame(loop);
-      t += 0.006;
+      t += 0.002;
       ctx.fillStyle = "rgba(0,0,0,0.08)";
       ctx.fillRect(0, 0, W, H);
       ctx.save();
@@ -267,7 +279,7 @@ export function JoinNetwork({ onBack, onContinue }) {
     const W = canvas.width;
     const H = canvas.height;
 
-    ctx.fillStyle = "#000";
+    ctx.fillStyle = "#000000";
     ctx.fillRect(0, 0, W, H);
 
     // Smooth noise using sine hash
@@ -287,26 +299,105 @@ export function JoinNetwork({ onBack, onContinue }) {
            + v*w*(a-c-e+g) + u*v*w*(-a+b+c-d+e-f-g+hh);
     }
 
-    // All parameters smoothly interpolated
-    // Nothing snaps - everything glides
-    let params = {
-      noiseScale: 1.0,
-      radius: 100,
-      amplitude: 180,
-      symmetry: 4,
-      speed: 0.008,
-      strokeBrightness: 180,
-      strokeWeight: 1.0,
-      secondaryScale: 0.5,
-      timeScale: 1.0,
-    };
-
-    let targetParams = { ...params };
     let seedOffset = Math.random() * 1000;
     let t = 0;
     let smoothX = 0.5;
     let smoothY = 0.5;
     let animId;
+
+    function drawMandala(ctx, sx, sy, t, seedOffset, config) {
+      const { symmetry, noiseScale, radius, amplitude, color } = config;
+      const symCount = Math.round(symmetry);
+      const frameAlpha = 0.08;
+      const noisyWeight = 0.6;
+
+      ctx.save();
+      ctx.translate(W / 2, H / 2);
+      ctx.rotate(globalRotationRef.current);
+
+      for (let sym = 0; sym < symCount; sym++) {
+        ctx.save();
+        ctx.rotate((Math.PI * 2 / symCount) * sym);
+
+        ctx.strokeStyle = `rgba(${color},${frameAlpha})`;
+        ctx.lineWidth = noisyWeight;
+        ctx.beginPath();
+        for (let a = 0; a < Math.PI * 2; a += 0.006) {
+          const n = smoothNoise(
+            Math.cos(a) * noiseScale + seedOffset,
+            Math.sin(a) * noiseScale + seedOffset,
+            t * 0.5,
+          );
+          const offset = n * amplitude * 2 - amplitude;
+          const r = radius + offset;
+          if (a < 0.007) ctx.moveTo(r * Math.cos(a), r * Math.sin(a));
+          else ctx.lineTo(r * Math.cos(a), r * Math.sin(a));
+        }
+        ctx.closePath();
+        ctx.stroke();
+
+        ctx.strokeStyle = `rgba(${color},${frameAlpha * 0.6})`;
+        ctx.lineWidth = noisyWeight * 0.5;
+        ctx.beginPath();
+        for (let a = 0; a < Math.PI * 2; a += 0.008) {
+          const n = smoothNoise(
+            Math.cos(a) * noiseScale * 0.6 + seedOffset + 50,
+            Math.sin(a) * noiseScale * 0.6 + seedOffset + 50,
+            t * 0.35 + 1.5,
+          );
+          const offset = n * amplitude * 0.9 - amplitude * 0.45;
+          const r = radius * 0.7 + offset;
+          if (a < 0.009) ctx.moveTo(r * Math.cos(a), r * Math.sin(a));
+          else ctx.lineTo(r * Math.cos(a), r * Math.sin(a));
+        }
+        ctx.closePath();
+        ctx.stroke();
+
+        ctx.strokeStyle = `rgba(${color},${frameAlpha * 0.3})`;
+        ctx.lineWidth = noisyWeight * 0.3;
+        ctx.beginPath();
+        for (let a = 0; a < Math.PI * 2; a += 0.01) {
+          const n = smoothNoise(
+            Math.cos(a) * noiseScale * 1.8 + seedOffset + 200,
+            Math.sin(a) * noiseScale * 1.8 + seedOffset + 200,
+            t * 0.6 + 3.0,
+          );
+          const offset = n * amplitude * 0.5 - amplitude * 0.25;
+          const r = radius * 0.45 + offset;
+          if (a < 0.011) ctx.moveTo(r * Math.cos(a), r * Math.sin(a));
+          else ctx.lineTo(r * Math.cos(a), r * Math.sin(a));
+        }
+        ctx.closePath();
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      ctx.save();
+      ctx.scale(1, -1);
+      for (let sym = 0; sym < symCount; sym++) {
+        ctx.save();
+        ctx.rotate((Math.PI * 2 / symCount) * sym + Math.PI / symCount);
+        ctx.strokeStyle = `rgba(${color},${frameAlpha * 0.25})`;
+        ctx.lineWidth = noisyWeight * 0.35;
+        ctx.beginPath();
+        for (let a = 0; a < Math.PI * 2; a += 0.01) {
+          const n = smoothNoise(
+            Math.cos(a) * noiseScale * 1.1 + seedOffset + 300,
+            Math.sin(a) * noiseScale * 1.1 + seedOffset + 300,
+            t * 0.28 + 5,
+          );
+          const offset = n * amplitude * 0.8 - amplitude * 0.4;
+          const r = radius * 0.6 + offset;
+          if (a < 0.011) ctx.moveTo(r * Math.cos(a), r * Math.sin(a));
+          else ctx.lineTo(r * Math.cos(a), r * Math.sin(a));
+        }
+        ctx.closePath();
+        ctx.stroke();
+        ctx.restore();
+      }
+      ctx.restore();
+      ctx.restore();
+    }
 
     function loop() {
       animId = requestAnimationFrame(loop);
@@ -329,13 +420,6 @@ export function JoinNetwork({ onBack, onContinue }) {
 
       const activity = handActivityRef.current;
 
-      if (activity > 0.01) {
-        canvasDensityRef.current = Math.min(1, canvasDensityRef.current + activity * 0.008);
-      } else {
-        canvasDensityRef.current = Math.max(0, canvasDensityRef.current - 0.001);
-      }
-      const density = canvasDensityRef.current;
-
       if (handPresent) {
         prevHandXRef.current = hx;
         prevHandYRef.current = hy;
@@ -348,147 +432,71 @@ export function JoinNetwork({ onBack, onContinue }) {
         smoothY += (hy - smoothY) * 0.025 * (activity + 0.01);
       }
 
-      // Map hand position to target parameters
-      // Everything changes smoothly based on where hand is
-      targetParams.noiseScale = smoothX * 2.2 + 0.3;
-      targetParams.radius = smoothY * 130 + 30;
-      targetParams.amplitude = Math.sqrt(Math.pow(smoothX-0.5,2)+Math.pow(smoothY-0.5,2)) * 2 * 220 + 60;
-      targetParams.strokeBrightness = smoothX * 180 + 75;
-      targetParams.strokeWeight = smoothY * 1.5 + 0.4;
-
-      // Gesture changes symmetry and secondary scale - smoothly
-      if (gesture === "palm")  { targetParams.symmetry = 4; targetParams.secondaryScale = 0.5; }
-      if (gesture === "pinch") { targetParams.symmetry = 8; targetParams.secondaryScale = 0.8; }
-      if (gesture === "fist")  { targetParams.symmetry = 3; targetParams.secondaryScale = 0.3; }
-      if (gesture === "peace") { targetParams.symmetry = 6; targetParams.secondaryScale = 0.6; }
-      if (gesture === "point") { targetParams.symmetry = 2; targetParams.secondaryScale = 1.2; }
-      if (gesture === "three") { targetParams.symmetry = 12; targetParams.secondaryScale = 0.4; }
-      if (gesture === "rotate") {
-        targetParams.symmetry = 8;
-        targetParams.secondaryScale = 0.7;
-        targetParams.amplitude = 160 + Math.sin(globalRotationRef.current * 2) * 40;
+      if (gesture !== lastGestureRef.current) {
+        gestureSeedOffsetRef.current += 137.5;
+        lastGestureRef.current = gesture;
       }
+      const currentSeedOffset = seedOffset + gestureSeedOffsetRef.current;
 
-      // Smoothly interpolate ALL parameters every frame
-      // This is what makes it feel like the video - butter smooth
-      const lerpSpeed = 0.018 * activity;
-      const symLerpSpeed = 0.008 * activity;
-      for (const key in params) {
-        if (key === "symmetry") {
-          params[key] += (targetParams[key] - params[key]) * symLerpSpeed;
-        } else {
-          params[key] += (targetParams[key] - params[key]) * lerpSpeed;
+      if (activity > 0.05) {
+        if (gesture === "palm") {
+          drawMandala(ctx, smoothX, smoothY, t, currentSeedOffset, {
+            symmetry: 4,
+            noiseScale: 1.2,
+            radius: 90,
+            amplitude: 160,
+            color: "180,200,20",
+          });
+        } else if (gesture === "pinch") {
+          drawMandala(ctx, smoothX, smoothY, t, currentSeedOffset, {
+            symmetry: 8,
+            noiseScale: 2.0,
+            radius: 50,
+            amplitude: 120,
+            color: "200,230,40",
+          });
+        } else if (gesture === "fist") {
+          drawMandala(ctx, smoothX, smoothY, t, currentSeedOffset, {
+            symmetry: 3,
+            noiseScale: 0.6,
+            radius: 130,
+            amplitude: 200,
+            color: "160,180,10",
+          });
+        } else if (gesture === "peace") {
+          drawMandala(ctx, smoothX, smoothY, t, currentSeedOffset, {
+            symmetry: 6,
+            noiseScale: 1.6,
+            radius: 80,
+            amplitude: 140,
+            color: "210,240,60",
+          });
+        } else if (gesture === "point") {
+          drawMandala(ctx, smoothX, smoothY, t, currentSeedOffset, {
+            symmetry: 2,
+            noiseScale: 2.5,
+            radius: 110,
+            amplitude: 220,
+            color: "180,200,20",
+          });
+        } else if (gesture === "three") {
+          drawMandala(ctx, smoothX, smoothY, t, currentSeedOffset, {
+            symmetry: 12,
+            noiseScale: 0.8,
+            radius: 60,
+            amplitude: 100,
+            color: "230,255,80",
+          });
+        } else if (gesture === "rotate") {
+          drawMandala(ctx, smoothX, smoothY, t, currentSeedOffset, {
+            symmetry: 8,
+            noiseScale: 1.4,
+            radius: 85,
+            amplitude: 150 + Math.sin(globalRotationRef.current * 2) * 40,
+            color: "180,200,20",
+          });
         }
       }
-
-      if (density > 0.6 && activity > 0.01) {
-        const fadeAmount = density > 0.85 ? 0.06 * activity : 0.02 * activity;
-        ctx.fillStyle = `rgba(0,0,0,${fadeAmount})`;
-        ctx.fillRect(0, 0, W, H);
-      }
-
-      ctx.save();
-      ctx.translate(W / 2, H / 2);
-      ctx.rotate(globalRotationRef.current);
-
-      // Noise-driven stroke properties - same as original sketch
-      const noisyBright = Math.max(0.4, smoothNoise(t * 0.8, 0)) * params.strokeBrightness;
-      const noisyWeight = params.strokeWeight * smoothNoise(t * 0.6, 10) * 2;
-
-      // Draw symmetry copies - fractional symmetry creates smooth transitions
-      const symCount = Math.round(params.symmetry);
-      for (let sym = 0; sym < symCount; sym++) {
-        ctx.save();
-        ctx.rotate((Math.PI * 2 / symCount) * sym);
-
-        // Primary blob
-        const greenAlpha = Math.max(0.15, noisyBright / 255);
-        ctx.strokeStyle = `rgba(180,200,20,${greenAlpha.toFixed(2)})`;
-        ctx.lineWidth = Math.max(0.3, noisyWeight);
-        ctx.beginPath();
-        for (let a = 0; a < Math.PI * 2; a += 0.006) {
-          const n = smoothNoise(
-            Math.cos(a) * params.noiseScale + seedOffset,
-            Math.sin(a) * params.noiseScale + seedOffset,
-            t * 0.5
-          );
-          const offset = n * params.amplitude * 2 - params.amplitude;
-          const r = params.radius + offset;
-          const x = r * Math.cos(a);
-          const y = r * Math.sin(a);
-          if (a < 0.007) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        }
-        ctx.closePath();
-        ctx.stroke();
-
-        // Secondary blob - offset in time and scale
-        // This creates the layered stacked look from reference
-        ctx.strokeStyle = `rgba(160,185,15,${(Math.max(0.08, noisyBright / 255 * 0.5)).toFixed(2)})`;
-        ctx.lineWidth = Math.max(0.2, noisyWeight * 0.5);
-        ctx.beginPath();
-        for (let a = 0; a < Math.PI * 2; a += 0.008) {
-          const n = smoothNoise(
-            Math.cos(a) * params.noiseScale * params.secondaryScale + seedOffset + 50,
-            Math.sin(a) * params.noiseScale * params.secondaryScale + seedOffset + 50,
-            t * 0.35 + 1.5
-          );
-          const offset = n * params.amplitude * 1.4 - params.amplitude * 0.7;
-          const r = params.radius * 0.75 + offset;
-          if (a < 0.009) ctx.moveTo(r*Math.cos(a), r*Math.sin(a));
-          else ctx.lineTo(r*Math.cos(a), r*Math.sin(a));
-        }
-        ctx.closePath();
-        ctx.stroke();
-
-        // Tertiary blob - even smaller, faster noise
-        ctx.strokeStyle = `rgba(140,170,10,${(Math.max(0.05, noisyBright / 255 * 0.25)).toFixed(2)})`;
-        ctx.lineWidth = Math.max(0.1, noisyWeight * 0.3);
-        ctx.beginPath();
-        for (let a = 0; a < Math.PI * 2; a += 0.01) {
-          const n = smoothNoise(
-            Math.cos(a) * params.noiseScale * 1.8 + seedOffset + 200,
-            Math.sin(a) * params.noiseScale * 1.8 + seedOffset + 200,
-            t * 0.6 + 3.0
-          );
-          const offset = n * params.amplitude * 0.8 - params.amplitude * 0.4;
-          const r = params.radius * 0.5 + offset;
-          if (a < 0.011) ctx.moveTo(r*Math.cos(a), r*Math.sin(a));
-          else ctx.lineTo(r*Math.cos(a), r*Math.sin(a));
-        }
-        ctx.closePath();
-        ctx.stroke();
-
-        ctx.restore();
-      }
-
-      // Mirror - vertical flip creates full symmetric mandala
-      ctx.save();
-      ctx.scale(1, -1);
-      for (let sym = 0; sym < symCount; sym++) {
-        ctx.save();
-        ctx.rotate((Math.PI*2/symCount)*sym + Math.PI/symCount);
-        ctx.strokeStyle = `rgba(200,220,30,${(Math.max(0.06, noisyBright / 255 * 0.3)).toFixed(2)})`;
-        ctx.lineWidth = Math.max(0.1, noisyWeight * 0.35);
-        ctx.beginPath();
-        for (let a = 0; a < Math.PI*2; a += 0.01) {
-          const n = smoothNoise(
-            Math.cos(a)*params.noiseScale*1.1+seedOffset+300,
-            Math.sin(a)*params.noiseScale*1.1+seedOffset+300,
-            t*0.28+5
-          );
-          const offset = n * params.amplitude * 1.2 - params.amplitude * 0.6;
-          const r = params.radius * 0.65 + offset;
-          if (a < 0.011) ctx.moveTo(r*Math.cos(a), r*Math.sin(a));
-          else ctx.lineTo(r*Math.cos(a), r*Math.sin(a));
-        }
-        ctx.closePath();
-        ctx.stroke();
-        ctx.restore();
-      }
-      ctx.restore();
-
-      ctx.restore();
 
       mctx.clearRect(0, 0, mini.width, mini.height);
       mctx.drawImage(canvas, 0, 0, W, H, 0, 0, mini.width, mini.height);
@@ -648,10 +656,11 @@ export function JoinNetwork({ onBack, onContinue }) {
     energyRef.current = 0;
     complexityRef.current = 0;
     seedRef.current = 0;
-    canvasDensityRef.current = 0;
+    gestureSeedOffsetRef.current = Math.random() * 1000;
+    lastGestureRef.current = "palm";
     const canvas = artCanvasRef.current;
     const ctx = canvas.getContext("2d");
-    ctx.fillStyle = "#060810";
+    ctx.fillStyle = "#000000";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     const mini = miniCanvasRef.current;
     const mctx = mini.getContext("2d");
@@ -673,7 +682,7 @@ export function JoinNetwork({ onBack, onContinue }) {
           backgroundSize: "100% 100%, 60px 60px, 60px 60px",
           color: "#fff",
           fontFamily: "inherit",
-          padding: "32px 24px",
+          padding: isMobile ? "20px 12px" : "32px 24px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -686,6 +695,7 @@ export function JoinNetwork({ onBack, onContinue }) {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
+                flexWrap: isMobile ? "wrap" : "nowrap",
                 gap: 20,
                 marginBottom: 20,
               }}
@@ -722,7 +732,7 @@ export function JoinNetwork({ onBack, onContinue }) {
                 >
                   PROTOCOL ONBOARDING
                 </div>
-                <h1 style={{ fontSize: 40, fontWeight: 800, lineHeight: 1.1, marginBottom: 8 }}>
+                <h1 style={{ fontSize: "clamp(1.8rem, 6vw, 2.5rem)", fontWeight: 800, lineHeight: 1.1, marginBottom: 8 }}>
                   CREATE YOUR <span style={{ color: "#b4c814" }}>MARK.</span>
                 </h1>
                 <p style={{ fontSize: 14, color: "rgba(255,255,255,0.4)", lineHeight: 1.6 }}>
@@ -737,12 +747,12 @@ export function JoinNetwork({ onBack, onContinue }) {
                   setCreated(true);
                 }}
                 style={{
-                  padding: "10px 18px",
+                  padding: "10px 14px",
                   flexShrink: 0,
                   background: "transparent",
                   border: "1px solid rgba(255,255,255,0.08)",
                   borderRadius: 10,
-                  alignSelf: "flex-start",
+                  alignSelf: isMobile ? "stretch" : "flex-start",
                   color: "rgba(255,255,255,0.3)",
                   fontFamily: "monospace",
                   fontSize: 11,
@@ -766,7 +776,13 @@ export function JoinNetwork({ onBack, onContinue }) {
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 220px", gap: 20 }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: isTablet ? "1fr" : "1fr 220px",
+                gap: 20,
+              }}
+            >
             <div
               style={{
                 ...markCardShell,
@@ -775,7 +791,7 @@ export function JoinNetwork({ onBack, onContinue }) {
                 overflow: "hidden",
                 position: "relative",
                 cursor: "none",
-                height: 520,
+                height: isMobile ? 380 : 520,
               }}
             >
               <canvas ref={artCanvasRef} style={{ display: "block", width: "100%", height: "100%" }} />
@@ -873,7 +889,7 @@ export function JoinNetwork({ onBack, onContinue }) {
                 </div>
               )}
 
-              {cameraActive && (
+              {cameraActive && !isMobile && (
                 <div
                   style={{
                     position: "absolute",
@@ -1044,11 +1060,13 @@ export function JoinNetwork({ onBack, onContinue }) {
                   left: 12,
                   right: 12,
                   display: "flex",
+                  flexWrap: isMobile ? "wrap" : "nowrap",
+                  gap: isMobile ? 10 : 0,
                   justifyContent: "space-between",
                   alignItems: "center",
                 }}
               >
-                <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
+                <div style={{ display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap" }}>
                   {[
                     { id: "mark-width", label: "WIDTH", min: 8, max: 60, default: 24 },
                     { id: "mark-wave", label: "WAVE", min: 0, max: 100, default: 50 },
@@ -1065,7 +1083,7 @@ export function JoinNetwork({ onBack, onContinue }) {
                       >
                         {s.label}
                       </div>
-                      <input type="range" id={s.id} min={s.min} max={s.max} defaultValue={s.default} style={{ width: 65, accentColor: "#b4c814" }} />
+                      <input type="range" id={s.id} min={s.min} max={s.max} defaultValue={s.default} style={{ width: isMobile ? 56 : 65, accentColor: "#b4c814" }} />
                     </div>
                   ))}
                 </div>
@@ -1076,7 +1094,7 @@ export function JoinNetwork({ onBack, onContinue }) {
                   <option value="mix">Mix</option>
                 </select>
 
-                <div style={{ display: "flex", gap: 6 }}>
+                <div style={{ display: "flex", gap: 6, marginLeft: "auto" }}>
                   {[
                     { val: "green", bg: "rgba(180,200,20,0.4)" },
                     { val: "white", bg: "rgba(255,255,255,0.2)" },
@@ -1101,13 +1119,13 @@ export function JoinNetwork({ onBack, onContinue }) {
               </div>
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ display: "flex", flexDirection: isTablet ? "row" : "column", gap: 10 }}>
               <div
                 style={{
                   ...markCardShell,
                   border: "1px solid rgba(181,236,52,0.12)",
                   borderRadius: 12,
-                  padding: 14,
+                  padding: isMobile ? 10 : 14,
                   flex: 1,
                 }}
               >
@@ -1174,7 +1192,7 @@ export function JoinNetwork({ onBack, onContinue }) {
             </div>
           </div>
 
-          <div style={{ display: "flex", gap: 12, marginTop: 18 }}>
+          <div style={{ display: "flex", gap: 12, marginTop: 18, flexDirection: isMobile ? "column" : "row" }}>
             <button
               onClick={clearMark}
               style={{
@@ -1362,17 +1380,17 @@ export function JoinNetwork({ onBack, onContinue }) {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          padding: "40px 24px",
+          padding: isMobile ? "24px 12px" : "40px 24px",
           color: "#fff",
           fontFamily: "inherit",
         }}
       >
         <div style={{ maxWidth: 720, width: "100%" }}>
-          <div style={{ textAlign: "center", marginBottom: 48 }}>
+          <div style={{ textAlign: "center", marginBottom: isMobile ? 28 : 48 }}>
             <div style={{ fontFamily: "monospace", fontSize: 10, letterSpacing: "0.2em", color: "#b4c814", marginBottom: 12 }}>
               ⊙ ONE LAST STEP
             </div>
-            <h1 style={{ fontSize: 38, fontWeight: 800, lineHeight: 1.1, marginBottom: 14 }}>
+            <h1 style={{ fontSize: "clamp(1.9rem, 7vw, 2.4rem)", fontWeight: 800, lineHeight: 1.1, marginBottom: 14 }}>
               How will the network
               <br />
               <span style={{ color: "#b4c814" }}>know you?</span>
@@ -1382,14 +1400,21 @@ export function JoinNetwork({ onBack, onContinue }) {
             </p>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 32 }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: isTablet ? "1fr" : "1fr 1fr",
+              gap: 20,
+              marginBottom: 32,
+            }}
+          >
             <div
               onClick={() => handleIdentityChoice("mark")}
               style={{
                 background: "rgba(180,200,20,0.04)",
                 border: "1px solid rgba(180,200,20,0.25)",
                 borderRadius: 20,
-                padding: "32px 28px",
+                padding: isMobile ? "24px 16px" : "32px 28px",
                 cursor: "pointer",
                 transition: "all 0.25s ease",
                 display: "flex",
@@ -1476,7 +1501,7 @@ export function JoinNetwork({ onBack, onContinue }) {
                 background: "rgba(255,255,255,0.02)",
                 border: "1px solid rgba(255,255,255,0.1)",
                 borderRadius: 20,
-                padding: "32px 28px",
+                padding: isMobile ? "24px 16px" : "32px 28px",
                 cursor: "pointer",
                 transition: "all 0.25s ease",
                 display: "flex",
@@ -1714,7 +1739,7 @@ export function JoinNetwork({ onBack, onContinue }) {
           zIndex: 1,
           width: "100%",
           maxWidth: 560,
-          padding: "0 24px",
+          padding: isMobile ? "0 14px" : "0 24px",
           opacity: fadeIn ? 1 : 0,
           transform: fadeIn ? "translateY(0)" : "translateY(24px)",
           transition: "opacity 0.7s ease, transform 0.7s ease",
@@ -1734,7 +1759,7 @@ export function JoinNetwork({ onBack, onContinue }) {
             letterSpacing: "0.15em",
             textTransform: "uppercase",
             cursor: "pointer",
-            marginBottom: 48,
+            marginBottom: isMobile ? 28 : 48,
             display: "flex",
             alignItems: "center",
             gap: 8,
@@ -1780,7 +1805,7 @@ export function JoinNetwork({ onBack, onContinue }) {
             fontSize: 15,
             lineHeight: 1.7,
             color: "rgba(255,255,255,0.4)",
-            marginBottom: 48,
+            marginBottom: isMobile ? 28 : 48,
             maxWidth: 440,
           }}
         >
@@ -1861,7 +1886,7 @@ export function JoinNetwork({ onBack, onContinue }) {
         <div
           style={{
             marginTop: 40,
-            padding: "20px 24px",
+            padding: isMobile ? "16px 14px" : "20px 24px",
             background: "rgba(181,236,52,0.03)",
             border: "1px solid rgba(181,236,52,0.08)",
             borderRadius: 10,
@@ -1877,12 +1902,13 @@ export function JoinNetwork({ onBack, onContinue }) {
           <p style={{ marginTop: 16, fontSize: 14, color: "#fda4af", lineHeight: 1.5 }}>{error}</p>
         ) : null}
 
-        <div style={{ marginTop: 40, display: "flex", gap: 12 }}>
+        <div style={{ marginTop: 40, display: "flex", gap: 12, flexDirection: isMobile ? "column" : "row" }}>
           <button
             onClick={handleCreate}
             disabled={!alias.trim() || !password || submitting}
             style={{
-              padding: "14px 36px",
+              width: isMobile ? "100%" : "auto",
+              padding: "14px 24px",
               border: "none",
               borderRadius: 6,
               background: alias.trim() && password && !submitting ? ACCENT : "rgba(181,236,52,0.15)",
@@ -1907,7 +1933,8 @@ export function JoinNetwork({ onBack, onContinue }) {
           <button
             type="button"
             style={{
-              padding: "14px 32px",
+              width: isMobile ? "100%" : "auto",
+              padding: "14px 24px",
               border: "1px solid rgba(181,236,52,0.3)",
               borderRadius: 6,
               background: "transparent",

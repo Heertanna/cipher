@@ -1,9 +1,20 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 const ACCENT = "#b5ec34";
 export function HeroSection({ onJoin }) {
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
+  const [viewportWidth, setViewportWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 1440,
+  );
+  const isMobile = viewportWidth < 768;
+  const isTablet = viewportWidth < 1100;
+
+  useEffect(() => {
+    const onResize = () => setViewportWidth(window.innerWidth);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -334,7 +345,7 @@ export function HeroSection({ onJoin }) {
         position: "relative",
         width: "100vw",
         height: "100vh",
-        minHeight: 600,
+        minHeight: isMobile ? 760 : 600,
         background: "transparent",
         overflow: "hidden",
         cursor: "crosshair",
@@ -359,10 +370,12 @@ export function HeroSection({ onJoin }) {
           left: 0,
           zIndex: 2,
           width: "100%",
-          padding: "20px 48px",
+          padding: isMobile ? "14px 12px" : isTablet ? "16px 24px" : "20px 48px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          flexWrap: isMobile ? "wrap" : "nowrap",
+          gap: isMobile ? 10 : 16,
           background: "transparent",
         }}
       >
@@ -384,11 +397,14 @@ export function HeroSection({ onJoin }) {
           style={{
             display: "inline-flex",
             alignItems: "center",
-            gap: 26,
+            gap: isTablet ? 14 : 26,
             color: "rgba(255,255,255,0.62)",
-            fontSize: 14,
+            fontSize: isMobile ? 12 : 14,
             letterSpacing: "0.16em",
             textTransform: "uppercase",
+            flexWrap: "wrap",
+            justifyContent: isMobile ? "center" : "flex-start",
+            width: isMobile ? "100%" : "auto",
           }}
         >
           {["Protocol", "How It Works", "Governance"].map((item) => (
@@ -425,10 +441,10 @@ export function HeroSection({ onJoin }) {
             border: "1px solid rgba(181,236,52,0.65)",
             background: "rgba(2,6,12,0.85)",
             color: "rgba(255,255,255,0.96)",
-            fontSize: 14,
+            fontSize: isMobile ? 12 : 14,
             letterSpacing: "0.15em",
             textTransform: "uppercase",
-            padding: "10px 16px",
+            padding: isMobile ? "8px 12px" : "10px 16px",
             borderRadius: 20,
             cursor: "pointer",
             fontWeight: 700,
@@ -442,9 +458,10 @@ export function HeroSection({ onJoin }) {
         style={{
           position: "absolute",
           zIndex: 2,
-          top: 100,
+          top: isMobile ? 124 : isTablet ? 96 : 100,
           left: 0,
-          paddingLeft: 60,
+          paddingLeft: isMobile ? 12 : isTablet ? 24 : 60,
+          paddingRight: isMobile ? 12 : 0,
           maxWidth: 700,
           width: "auto",
         }}
@@ -452,7 +469,7 @@ export function HeroSection({ onJoin }) {
         <p
           style={{
             margin: 0,
-            fontSize: 14,
+            fontSize: isMobile ? 11 : 14,
             letterSpacing: "0.22em",
             color: "rgba(255,255,255,0.3)",
             textTransform: "uppercase",
@@ -466,13 +483,13 @@ export function HeroSection({ onJoin }) {
             maxWidth: 700,
             width: "auto",
             color: "#ffffff",
-            fontSize: "clamp(2.5rem, 4.5vw, 3.8rem)",
+            fontSize: "clamp(1.9rem, 7vw, 3.8rem)",
             fontWeight: 900,
             lineHeight: 1.08,
             letterSpacing: "-0.02em",
           }}
         >
-          <span style={{ whiteSpace: "nowrap" }}>Rebuilding Trust in</span>
+          <span style={{ whiteSpace: isMobile ? "normal" : "nowrap" }}>Rebuilding Trust in</span>
           <br />
           <span style={{ color: ACCENT }}>Healthcare.</span>
         </h1>
@@ -519,18 +536,18 @@ export function HeroSection({ onJoin }) {
         style={{
           position: "absolute",
           zIndex: 2,
-          right: 60,
-          bottom: 120,
+            right: isMobile ? 12 : isTablet ? 24 : 60,
+            bottom: isMobile ? 84 : 120,
           textAlign: "left",
-          maxWidth: 450,
+            maxWidth: isMobile ? "100%" : 450,
         }}
       >
         <p
           style={{
             margin: 0,
             color: "rgba(255,255,255,0.6)",
-            fontSize: 17,
-            lineHeight: 1.9,
+            fontSize: isMobile ? 14 : 17,
+            lineHeight: 1.7,
             letterSpacing: "0.02em",
           }}
         >
@@ -539,6 +556,7 @@ export function HeroSection({ onJoin }) {
         </p>
       </div>
 
+      {!isMobile && (
       <div
         style={{
           position: "absolute",
@@ -555,6 +573,7 @@ export function HeroSection({ onJoin }) {
       >
         Move · Hover · Click to interact
       </div>
+      )}
     </section>
   );
 }

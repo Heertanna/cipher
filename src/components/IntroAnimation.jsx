@@ -71,7 +71,7 @@ export function IntroAnimation({ onComplete }) {
       return {scale, offX, offY};
     }
 
-    const SPEED = 0.6;
+    const SPEED = 0.75;
     const PH1_LEN = Math.round(115 * SPEED);
     const PH2_LEN = Math.round(55 * SPEED);
     const PH3_LEN = Math.round(90 * SPEED);
