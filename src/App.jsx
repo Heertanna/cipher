@@ -643,7 +643,12 @@ function PageFlow({ initialPage = "home", blockLandingContent = false }) {
 
   return (
     <>
-      <HeroSection onJoin={() => { setPage("join"); window.scrollTo(0, 0); }} />
+      <HeroSection
+        onJoin={() => {
+          navigate("/protocol-dashboard");
+          window.scrollTo(0, 0);
+        }}
+      />
       <PoolHeartbeat />
       <Rulebook />
     </>
@@ -676,7 +681,11 @@ function App() {
         />
       )}
       <Routes>
-        <Route path="/join" element={<PageFlow initialPage="join" />} />
+        {/* TEMPORARILY UNLINKED FOR DEMO — DO NOT DELETE */}
+        {/* <Route path="/join" element={<PageFlow initialPage="join" />} /> */}
+        {/* <Route path="/terms" element={<PageFlow initialPage="terms" />} /> */}
+        {/* <Route path="/protocol-identity" element={<PageFlow initialPage="protocol-identity" />} /> */}
+        {/* <Route path="/submit-documents" element={<PageFlow initialPage="submit-documents" />} /> */}
         <Route path="/juror-dashboard" element={<JurorDashboard />} />
         <Route path="/verdict/:juryCaseId" element={<VerdictScreen />} />
         <Route path="/re-evaluation/:juryCaseId" element={<ReEvaluationFlow />} />
