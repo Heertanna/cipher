@@ -545,15 +545,13 @@ function PageFlow({ initialPage = "home", blockLandingContent = false }) {
           window.scrollTo(0, 0);
         }}
         onContinue={() => {
-          // setPage("documents"); // submit medical documents — temporarily unlinked
-          setPage("dashboard");
+          setPage("documents");
           window.scrollTo(0, 0);
         }}
       />
     );
   }
 
-  /* TEMPORARILY UNLINKED — submit medical documents — DO NOT DELETE
   if (page === "documents") {
     return (
       <DocumentSubmit
@@ -568,7 +566,6 @@ function PageFlow({ initialPage = "home", blockLandingContent = false }) {
       />
     );
   }
-  */
 
   if (page === "dashboard") {
     return (
