@@ -2,8 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion as Motion } from "framer-motion";
 import { ACCENT } from "./OnboardingCommon.jsx";
-import { API_URL } from "../config/api.js";
 import { getSession } from "../lib/session.js";
+import { getMemberRp } from "../lib/mockApi.js";
 import {
   CLAIMS_UPDATED_EVENT,
   readClaimsFromStorage,
@@ -162,38 +162,14 @@ export function ProtocolDashboard({ onHome, onStartClaim, onStartEmergency }) {
     []
   );
 
-  const [rpData, setRpData] = useState(null);
-  const [noSession, setNoSession] = useState(false);
+  const [rpData, setRpData] = useState(() => getMemberRp(getSession().anonymousId));
 
   useEffect(() => {
     const { anonymousId } = getSession();
-    if (!anonymousId) {
-      setNoSession(true);
-      return;
-    }
-    setNoSession(false);
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch(
-          `${API_URL}/members/rp/${encodeURIComponent(anonymousId)}`
-        );
-        const j = await res.json();
-        if (!res.ok) throw new Error(j?.error || "Could not load reputation");
-        if (!cancelled) setRpData(j);
-      } catch {
-        if (!cancelled) setRpData(null);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
+    setRpData(getMemberRp(anonymousId));
   }, []);
 
-  const reputationPoints =
-    noSession || rpData == null
-      ? null
-      : Math.round(Number(rpData?.reputation_points ?? 0));
+  const reputationPoints = Math.round(Number(rpData?.reputation_points ?? 0));
   const reputationLevelLabel =
     LEVEL_DISPLAY[rpData?.rp_level] || LEVEL_DISPLAY.newcomer;
 

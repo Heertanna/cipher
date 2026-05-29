@@ -2,8 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion as Motion } from "framer-motion";
 import { ACCENT } from "./OnboardingCommon.jsx";
-import { API_URL } from "../config/api.js";
 import { getSession } from "../lib/session.js";
+import { getMemberRp } from "../lib/mockApi.js";
 import {
   PROTOCOL_DASHBOARD_CARD,
   PROTOCOL_PAGE_BACKGROUND,
@@ -528,23 +528,9 @@ export function GovernancePanel() {
       setRpLoaded(true);
       return;
     }
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch(`${API_URL}/members/rp/${encodeURIComponent(anonymousId)}`);
-        const j = await res.json();
-        if (!cancelled) {
-          setRp(Number(j?.reputation_points ?? 0));
-        }
-      } catch {
-        if (!cancelled) setRp(0);
-      } finally {
-        if (!cancelled) setRpLoaded(true);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
+    const j = getMemberRp(anonymousId);
+    setRp(Number(j?.reputation_points ?? 0));
+    setRpLoaded(true);
   }, []);
 
   const canVote = rp != null && rp >= 150; // used for top banner & proposal-form gating only; proposal cards bypass for demo

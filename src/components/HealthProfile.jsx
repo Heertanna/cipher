@@ -403,11 +403,8 @@ export function HealthProfile({ onBack, onContinue }) {
               setSubmitting(true);
               try {
                 const { anonymousId, encryptionKey } = getSession();
-                if (!anonymousId || !encryptionKey) {
-                  throw new Error("Your session expired. Please go back and create your identity again.");
-                }
                 const payload = persist({});
-                await saveHealthProfile(anonymousId, encryptionKey, {
+                await saveHealthProfile(anonymousId, encryptionKey || "demo", {
                   ageRange: payload.ageRange,
                   bloodType: payload.bloodType,
                   gender: genderToApiValue(payload.gender),

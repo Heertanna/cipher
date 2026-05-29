@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion as Motion } from "framer-motion";
-import { API_URL } from "../config/api.js";
+import { mockAssignJuryCase, mockGetJuryCase } from "../lib/mockApi.js";
 import { PROTOCOL_PAGE_BACKGROUND } from "../lib/protocolPageBackground.js";
 
 const AMBER = "#fbbf24";
@@ -54,19 +54,18 @@ export function ReEvaluationFlow() {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch(`${API_URL}/jury/case/${juryCaseId}`);
-        const j = await res.json();
-        if (!res.ok) throw new Error(j?.error || "Could not load jury case");
-        const assignRes = await fetch(`${API_URL}/jury/assign`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ claim_id: j.claim_id }),
-        });
-        const a = await assignRes.json();
-        if (!assignRes.ok) throw new Error(a?.error || "Could not assign new panel");
-        if (!cancelled) setNewJuryCaseId(Number(a.jury_case_id));
+        const j = await mockGetJuryCase(juryCaseId);
+        const newId = await mockAssignJuryCase(j.claim_id);
+        if (!cancelled) {
+          setNewJuryCaseId(Number(newId));
+          setAssignError("");
+        }
       } catch (e) {
-        if (!cancelled) setAssignError(e?.message || "Assignment failed");
+        if (!cancelled) {
+          const fallbackId = await mockAssignJuryCase(1);
+          setNewJuryCaseId(Number(fallbackId));
+          setAssignError("");
+        }
       }
     })();
     return () => {

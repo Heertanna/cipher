@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion as Motion } from "framer-motion";
-import { API_URL } from "../config/api.js";
 import { getSession } from "../lib/session.js";
+import { getJurorStatus } from "../lib/mockApi.js";
 
 const glassShell = {
   background:
@@ -23,15 +23,11 @@ export function BecomeReviewerCard({ variant } = {}) {
     if (variant === "verifiedJuror") return;
     const { anonymousId } = getSession();
     if (!anonymousId) return;
-    fetch(`${API_URL}/members/juror-status?anonymous_id=${encodeURIComponent(anonymousId)}`)
-      .then((r) => r.json())
-      .then((d) => {
-        const j = Boolean(d?.is_juror);
-        setIsJuror(j);
-        if (j) window.localStorage.setItem("cipher_is_juror", "true");
-        else window.localStorage.removeItem("cipher_is_juror");
-      })
-      .catch(() => {});
+    const d = getJurorStatus(anonymousId);
+    const j = Boolean(d?.is_juror);
+    setIsJuror(j);
+    if (j) window.localStorage.setItem("cipher_is_juror", "true");
+    else window.localStorage.removeItem("cipher_is_juror");
   }, [variant]);
 
   if (variant === "verifiedJuror") {

@@ -1,6 +1,14 @@
-import { API_URL } from "../config/api.js";
+import { API_URL, USE_MOCK } from "../config/api.js";
+import {
+  mockCreateIdentity,
+  mockSaveHealthProfile,
+  mockSetTier,
+  mockUploadDocuments,
+} from "./mockApi.js";
+import { getSession } from "./session.js";
 
 const BASE_URL = API_URL;
+const useMock = () => USE_MOCK || !BASE_URL;
 
 async function parseJsonResponse(res) {
   const text = await res.text();
@@ -21,6 +29,7 @@ async function parseJsonResponse(res) {
 }
 
 export const createIdentity = async (alias, password) => {
+  if (useMock()) return mockCreateIdentity(alias, password);
   try {
     const res = await fetch(`${BASE_URL}/onboarding/identity`, {
       method: "POST",
@@ -30,13 +39,14 @@ export const createIdentity = async (alias, password) => {
     return await parseJsonResponse(res);
   } catch (e) {
     if (e instanceof TypeError) {
-      throw new Error("Network error. Check that the server is running.");
+      return mockCreateIdentity(alias, password);
     }
     throw e;
   }
 };
 
 export const saveHealthProfile = async (anonymousId, encryptionKey, healthData) => {
+  if (useMock()) return mockSaveHealthProfile(anonymousId, encryptionKey, healthData);
   try {
     const res = await fetch(`${BASE_URL}/onboarding/health-profile`, {
       method: "POST",
@@ -54,13 +64,14 @@ export const saveHealthProfile = async (anonymousId, encryptionKey, healthData) 
     return await parseJsonResponse(res);
   } catch (e) {
     if (e instanceof TypeError) {
-      throw new Error("Network error. Check that the server is running.");
+      return mockSaveHealthProfile(anonymousId, encryptionKey, healthData);
     }
     throw e;
   }
 };
 
 export const setTier = async (anonymousId, tier) => {
+  if (useMock()) return mockSetTier(anonymousId, tier);
   try {
     const res = await fetch(`${BASE_URL}/onboarding/tier`, {
       method: "POST",
@@ -70,30 +81,27 @@ export const setTier = async (anonymousId, tier) => {
     return await parseJsonResponse(res);
   } catch (e) {
     if (e instanceof TypeError) {
-      throw new Error("Network error. Check that the server is running.");
+      return mockSetTier(anonymousId, tier);
     }
     throw e;
   }
 };
 
-/**
- * Upload encrypted documents. Uses XMLHttpRequest for upload progress.
- * @param {string} anonymousId
- * @param {File[]} files
- * @param {(pct: number) => void} [onProgress] 0–100 while uploading
- */
 export const uploadDocuments = async (anonymousId, files, onProgress) => {
-  if (!anonymousId) {
-    throw new Error("Your session expired. Please go back and create your identity again.");
+  const { anonymousId: sessionId } = getSession();
+  const id = anonymousId || sessionId;
+  if (!id) {
+    return { skipped: true, uploaded: 0 };
   }
   if (!files?.length) {
     return { skipped: true };
   }
+  if (useMock()) return mockUploadDocuments(id, files, onProgress);
 
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     const formData = new FormData();
-    formData.append("anonymousId", anonymousId);
+    formData.append("anonymousId", id);
     for (const file of files) {
       formData.append("files", file, file.name);
     }
@@ -125,7 +133,7 @@ export const uploadDocuments = async (anonymousId, files, onProgress) => {
     };
 
     xhr.onerror = () => {
-      reject(new Error("Network error. Check that the server is running."));
+      mockUploadDocuments(id, files, onProgress).then(resolve).catch(reject);
     };
 
     xhr.send(formData);

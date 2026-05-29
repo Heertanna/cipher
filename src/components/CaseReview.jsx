@@ -8,7 +8,10 @@ import {
   getOrCreateJuryCase,
 } from "../data/jurorMockData.js";
 import { JuryEvaluationFlow } from "./JuryEvaluationFlow.jsx";
-import { API_URL } from "../config/api.js";
+import {
+  mockGetClaim,
+  mockSubmitJuryVote,
+} from "../lib/mockApi.js";
 import { PROTOCOL_PAGE_BACKGROUND } from "../lib/protocolPageBackground.js";
 
 function isNumericClaimCaseId(caseIdParam) {
@@ -84,11 +87,7 @@ export function CaseReview() {
       if (isNumericClaimCaseId(caseId)) {
         try {
           const idNum = Number(caseId);
-          const response = await fetch(`${API_URL}/claims/${idNum}`);
-          if (!response.ok) {
-            throw new Error("Could not load claim");
-          }
-          const claim = await response.json();
+          const claim = await mockGetClaim(idNum);
 
           const juryCaseId = await getOrCreateJuryCase(claim.id);
 
@@ -161,23 +160,21 @@ export function CaseReview() {
           }
 
           try {
-            console.log("Submitting vote:", { juryCaseId, jurorAnonymousId, vote, confidence });
-            const response = await fetch(`${API_URL}/jury/${juryCaseId}/vote`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                juror_anonymous_id: jurorAnonymousId,
-                vote,
-                confidence,
-                reasoning,
-                demo_outcome: demoOutcome,
-              }),
+            const data = await mockSubmitJuryVote(juryCaseId, {
+              juror_anonymous_id: jurorAnonymousId,
+              vote,
+              confidence,
+              reasoning,
+              demo_outcome: demoOutcome,
             });
-            const data = await response.json();
-            console.log("Vote response:", data);
-            if (!response.ok) {
-              throw new Error(data?.error || "Could not submit vote");
-            }
+            const votes = JSON.parse(localStorage.getItem("cipher_votes") || "[]");
+            votes.push({
+              caseId,
+              vote,
+              confidence,
+              timestamp: new Date().toISOString(),
+            });
+            localStorage.setItem("cipher_votes", JSON.stringify(votes));
             setMockJuryCaseId(null);
             setEvaluationOpen(false);
             navigate(`/verdict/${juryCaseId}`, {
@@ -186,11 +183,8 @@ export function CaseReview() {
           } catch (e) {
             console.error("Vote failed:", e?.message);
             setEvaluationOpen(false);
-            navigate("/juror-dashboard", {
-              state: {
-                juryEvaluationRecorded: false,
-                message: e?.message || "Could not submit vote",
-              },
+            navigate(`/verdict/${juryCaseId}`, {
+              state: { verdict: { final_decision: vote } },
             });
           }
         }}

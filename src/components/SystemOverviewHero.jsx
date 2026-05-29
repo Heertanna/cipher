@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { animate } from "framer-motion";
 import { ACCENT } from "./OnboardingCommon.jsx";
-import { API_URL } from "../config/api.js";
 import { getSession } from "../lib/session.js";
+import { getMemberRp } from "../lib/mockApi.js";
 
 const MOCK_OVERVIEW = {
   status: "Stable", // Stable | Watch | Critical
@@ -44,31 +44,12 @@ export function SystemOverviewHero() {
   const status = MOCK_OVERVIEW.status;
   const color = statusColor(status);
 
-  const [rpData, setRpData] = useState(null);
+  const [rpData, setRpData] = useState(() => getMemberRp(getSession().anonymousId));
   const [displayPoints, setDisplayPoints] = useState(0);
-  const [noSession, setNoSession] = useState(false);
 
   useEffect(() => {
     const { anonymousId } = getSession();
-    if (!anonymousId) {
-      setNoSession(true);
-      return;
-    }
-    setNoSession(false);
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch(`${API_URL}/members/rp/${encodeURIComponent(anonymousId)}`);
-        const j = await res.json();
-        if (!res.ok) throw new Error(j?.error || "Could not load reputation");
-        if (!cancelled) setRpData(j);
-      } catch {
-        if (!cancelled) setRpData(null);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
+    setRpData(getMemberRp(anonymousId));
   }, []);
 
   const repPts = Number(rpData?.reputation_points ?? 0);
@@ -151,13 +132,9 @@ export function SystemOverviewHero() {
             lineHeight: 1,
           }}
         >
-          {noSession ? "—" : rpData != null ? displayPoints : "—"}
+          {displayPoints}
         </p>
-        {noSession ? (
-          <p style={{ margin: "12px 0 0", fontSize: 14, color: "rgba(148,163,184,0.75)" }}>
-            Join the network to track reputation.
-          </p>
-        ) : rpData != null ? (
+        {rpData != null ? (
           <div style={{ marginTop: 14 }}>
             <span
               style={{

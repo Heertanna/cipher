@@ -432,9 +432,6 @@ export function DocumentSubmit({ onBack, onContinue }) {
                 setUploadProgress(0);
                 try {
                   const { anonymousId } = getSession();
-                  if (!anonymousId) {
-                    throw new Error("Your session expired. Please go back and create your identity again.");
-                  }
                   persist({});
                   await uploadDocuments(anonymousId, fileObjects, (pct) => setUploadProgress(pct));
                   onContinue();

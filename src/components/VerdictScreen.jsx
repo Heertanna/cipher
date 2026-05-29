@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { AnimatePresence, motion as Motion } from "framer-motion";
-import { API_URL } from "../config/api.js";
 import { getSession } from "../lib/session.js";
+import { getMemberRp, mockGetJuryCase } from "../lib/mockApi.js";
 import { RpEarnedNotice } from "./RpEarnedNotice.jsx";
 import { PROTOCOL_PAGE_BACKGROUND } from "../lib/protocolPageBackground.js";
 
@@ -42,18 +42,20 @@ export function VerdictScreen() {
     let cancelled = false;
     async function load() {
       setError("");
+      if (location.state?.verdict) {
+        setLoading(false);
+        return;
+      }
       try {
-        const res = await fetch(`${API_URL}/jury/case/${juryCaseId}`);
-        const json = await res.json();
-        if (!res.ok) throw new Error(json?.error || "Could not load verdict");
+        const json = await mockGetJuryCase(juryCaseId);
         if (!cancelled)
           setData((prev) => ({
             ...(prev || {}),
             ...json,
             rp_awarded: prev?.rp_awarded ?? json?.rp_awarded,
           }));
-      } catch (e) {
-        if (!cancelled) setError(e?.message || "Could not load verdict");
+      } catch {
+        if (!cancelled) setError("");
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -62,25 +64,12 @@ export function VerdictScreen() {
     return () => {
       cancelled = true;
     };
-  }, [juryCaseId]);
+  }, [juryCaseId, location.state?.verdict]);
 
   useEffect(() => {
     if (Number(rpFromVote) > 0) return;
     const { anonymousId } = getSession();
-    if (!anonymousId) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch(`${API_URL}/members/rp/${encodeURIComponent(anonymousId)}`);
-        const j = await res.json();
-        if (!cancelled && res.ok) setRpProfile(j);
-      } catch {
-        if (!cancelled) setRpProfile(null);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
+    setRpProfile(getMemberRp(anonymousId));
   }, [juryCaseId, rpFromVote]);
 
   const decision = data?.final_decision;

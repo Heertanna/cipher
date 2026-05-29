@@ -144,7 +144,6 @@ export function JoinNetwork({ onBack, onContinue }) {
           setShowAliasForm(false);
         } else {
           setCreated(false);
-          setError("Your session expired. Please create identity again to continue.");
           persistAlias(parsed.alias || "", false);
         }
       }
@@ -159,7 +158,14 @@ export function JoinNetwork({ onBack, onContinue }) {
     setSubmitting(true);
     try {
       const data = await createIdentity(alias.trim(), password);
-      saveSession(data.anonymousId, password);
+      saveSession({
+        anonymousId: data.anonymousId,
+        encryptionKey: password,
+        alias: alias.trim(),
+        reputationPoints: 0,
+        tier: "NEWCOMER",
+        joinedAt: new Date().toISOString(),
+      });
       setAnonymousId(data.anonymousId);
       persistAlias(alias, true);
       setCreated(true);
@@ -171,29 +177,43 @@ export function JoinNetwork({ onBack, onContinue }) {
   }, [alias, password, persistAlias]);
 
   const createAnonymousIdentity = useCallback(async () => {
+    const randomAlias = `mbr_${Math.random().toString(36).slice(2, 10)}`;
+    const randomPassword = Math.random().toString(36).slice(2, 18);
     try {
-      const randomAlias = `mbr_${Math.random().toString(36).slice(2, 10)}`;
-      const randomPassword = Math.random().toString(36).slice(2, 18);
       const data = await createIdentity(randomAlias, randomPassword);
       if (data?.anonymousId) {
-        saveSession(data.anonymousId, randomPassword);
+        saveSession({
+          anonymousId: data.anonymousId,
+          encryptionKey: randomPassword,
+          alias: randomAlias,
+          reputationPoints: 0,
+          tier: "NEWCOMER",
+          joinedAt: new Date().toISOString(),
+        });
         setAnonymousId(data.anonymousId);
       }
-      setAlias(randomAlias);
-      persistAlias(randomAlias, true);
-      try {
-        localStorage.setItem("cipher_member_id", data?.anonymousId || randomAlias);
-        localStorage.setItem("cipher_alias", randomAlias);
-      } catch {
-        // best-effort
-      }
-      setShowMarkIntro(true);
-      setShowMarkStep(true);
     } catch (err) {
       console.error("Identity creation error:", err);
-      setShowMarkIntro(true);
-      setShowMarkStep(true);
+      saveSession({
+        anonymousId: randomAlias,
+        encryptionKey: randomPassword,
+        alias: randomAlias,
+        reputationPoints: 0,
+        tier: "NEWCOMER",
+        joinedAt: new Date().toISOString(),
+      });
+      setAnonymousId(randomAlias);
     }
+    setAlias(randomAlias);
+    persistAlias(randomAlias, true);
+    try {
+      localStorage.setItem("cipher_member_id", randomAlias);
+      localStorage.setItem("cipher_alias", randomAlias);
+    } catch {
+      // best-effort
+    }
+    setShowMarkIntro(true);
+    setShowMarkStep(true);
   }, [persistAlias]);
 
   const handleIdentityChoice = useCallback((type) => {

@@ -5,7 +5,6 @@ import { Rulebook } from "./components/Rulebook.jsx";
 import { JoinNetwork } from "./components/JoinNetwork.jsx";
 import { HealthProfile } from "./components/HealthProfile.jsx";
 import { DocumentSubmit } from "./components/DocumentSubmit.jsx";
-import { TermsConditions } from "./components/TermsConditions.jsx";
 import { PricingPlans } from "./components/PricingPlans.jsx";
 import { Dashboard } from "./components/Dashboard.jsx";
 import { PaymentPage } from "./components/PaymentPage.jsx";
@@ -546,13 +545,15 @@ function PageFlow({ initialPage = "home", blockLandingContent = false }) {
           window.scrollTo(0, 0);
         }}
         onContinue={() => {
-          setPage("documents");
+          // setPage("documents"); // submit medical documents — temporarily unlinked
+          setPage("dashboard");
           window.scrollTo(0, 0);
         }}
       />
     );
   }
 
+  /* TEMPORARILY UNLINKED — submit medical documents — DO NOT DELETE
   if (page === "documents") {
     return (
       <DocumentSubmit
@@ -567,6 +568,7 @@ function PageFlow({ initialPage = "home", blockLandingContent = false }) {
       />
     );
   }
+  */
 
   if (page === "dashboard") {
     return (
@@ -576,21 +578,6 @@ function PageFlow({ initialPage = "home", blockLandingContent = false }) {
           window.scrollTo(0, 0);
         }}
         onNext={() => {
-          setPage("terms");
-          window.scrollTo(0, 0);
-        }}
-      />
-    );
-  }
-
-  if (page === "terms") {
-    return (
-      <TermsConditions
-        onBack={() => {
-          setPage("dashboard");
-          window.scrollTo(0, 0);
-        }}
-        onContinue={() => {
           setPage("pricing");
           window.scrollTo(0, 0);
         }}
@@ -602,10 +589,6 @@ function PageFlow({ initialPage = "home", blockLandingContent = false }) {
     return (
       <PricingPlans
         selectedPlanId={selectedPlan}
-        onBack={() => {
-          setPage("terms");
-          window.scrollTo(0, 0);
-        }}
         onFinish={() => {
           setPage("payment");
           window.scrollTo(0, 0);

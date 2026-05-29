@@ -2,8 +2,8 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { SmartProcessing } from "./SmartProcessing.jsx";
 import { FastTrackApproval } from "./FastTrackApproval.jsx";
 import { PeerReviewPreparation } from "./PeerReviewPreparation.jsx";
-import { API_URL } from "../config/api.js";
 import { getSession } from "../lib/session.js";
+import { mockRouteClaim, mockSubmitClaim } from "../lib/mockApi.js";
 import { PROTOCOL_PAGE_BACKGROUND, PROTOCOL_DASHBOARD_CARD } from "../lib/protocolPageBackground.js";
 import { addMockClaim } from "../data/mockDatabase.js";
 import humanBody from "../assets/human.png";
@@ -346,26 +346,19 @@ export function ClaimIntake({ onBack, onDone, onViewCaseProgress }) {
     const numericCost = Number(String(costDetails || "").replace(/[^\d.]/g, "")) || 0;
 
     try {
-      const res = await fetch(`${API_URL}/submit-claim`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          what_happened: whatHappened,
-          cost_inr: numericCost,
-          recommendedTreatment,
-          costDetails,
-          impactIfUntreated,
-          reportsMeta,
-          anonymous_id: anonymousId || undefined,
-          anonymousId: anonymousId || undefined,
-        }),
+      const data = await mockSubmitClaim({
+        what_happened: whatHappened,
+        cost_inr: numericCost,
+        recommendedTreatment,
+        costDetails,
+        impactIfUntreated,
+        reportsMeta,
+        anonymous_id: anonymousId || undefined,
+        anonymousId: anonymousId || undefined,
       });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data?.error || "Could not submit claim.");
-      }
       setRouteDecision(data);
       setClaimRpAwarded(Number(data.rp_awarded) || 0);
+      setRoutingError("");
       if (data.claim_id != null) {
         const backendId = String(data.claim_id);
         setProcessingClaimId(backendId);
@@ -376,31 +369,14 @@ export function ClaimIntake({ onBack, onDone, onViewCaseProgress }) {
           window.localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
         }
       }
-    } catch (e) {
-      setRoutingError(e?.message || "Could not route claim.");
+    } catch {
+      const fallback = await mockRouteClaim({
+        what_happened: whatHappened,
+        cost_inr: numericCost,
+      });
+      setRouteDecision(fallback);
       setClaimRpAwarded(0);
-      try {
-        const res = await fetch(`${API_URL}/claims/route`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            what_happened: whatHappened,
-            cost_inr: numericCost,
-          }),
-        });
-        const data = await res.json();
-        if (res.ok) setRouteDecision(data);
-        else
-          setRouteDecision({
-            path: "PATH_B",
-            reason: "route_service_unavailable",
-          });
-      } catch {
-        setRouteDecision({
-          path: "PATH_B",
-          reason: "route_service_unavailable",
-        });
-      }
+      setRoutingError("");
     } finally {
       setProcessing(true);
     }

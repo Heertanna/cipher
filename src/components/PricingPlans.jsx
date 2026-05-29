@@ -6,7 +6,6 @@ import { getSession } from "../lib/session.js";
 import { planIdToTier } from "../lib/planTierMap.js";
 
 export function PricingPlans({
-  onBack,
   onFinish,
   selectedPlanId = "standard",
   onSelectPlan,
@@ -19,11 +18,6 @@ export function PricingPlans({
       setTierSubmitting(true);
       try {
         const { anonymousId } = getSession();
-        if (!anonymousId) {
-          throw new Error(
-            "Your session expired. Please return to the start and sign up again.",
-          );
-        }
         await setTier(anonymousId, planIdToTier(planId));
         onFinish?.();
       } catch (e) {
@@ -130,36 +124,13 @@ export function PricingPlans({
         <div
           style={{
             display: "flex",
-            justifyContent: "space-between",
+            justifyContent: "flex-end",
             alignItems: "center",
             marginBottom: 32,
             gap: 16,
             flexWrap: "wrap",
           }}
         >
-          <button
-            onClick={onBack}
-            style={{
-              background: "transparent",
-              border: "none",
-              color: "rgba(148,163,184,0.9)",
-              fontSize: 14,
-              fontWeight: 600,
-              letterSpacing: "0.15em",
-              textTransform: "uppercase",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              fontFamily: "inherit",
-              padding: 0,
-            }}
-            onMouseEnter={(e) => (e.target.style.color = ACCENT)}
-            onMouseLeave={(e) => (e.target.style.color = "rgba(148,163,184,0.9)")}
-          >
-            ← Back to terms
-          </button>
-
           <div
             style={{
               display: "inline-flex",

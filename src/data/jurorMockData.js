@@ -1,7 +1,7 @@
 /**
  * Static mock data for juror mode (same user, responsibility layer).
  */
-import { API_URL } from "../config/api.js";
+import { mockAssignJuryCase } from "../lib/mockApi.js";
 
 export const JUROR_MOCK_CASES = [
   {
@@ -123,16 +123,7 @@ export async function getOrCreateJuryCase(claim_id) {
     throw new Error("claim_id is required");
   }
 
-  const created = await fetch(`${API_URL}/jury/assign`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ claim_id: claimId }),
-  });
-  const data = await created.json();
-  if (!created.ok) {
-    throw new Error(data?.error || "Could not assign jury case");
-  }
-  return Number(data.jury_case_id);
+  return mockAssignJuryCase(claimId);
 }
 
 /** Reserved for future app-init seeding; jury cases are created when opening CaseReview. */
