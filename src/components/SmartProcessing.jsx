@@ -11,7 +11,7 @@ function toUiPath(path) {
 }
 
 export function SmartProcessing({ claimData, routeDecision, onContinue }) {
-  const path = routeDecision?.path ? toUiPath(routeDecision.path) : "PathB";
+  const path = routeDecision?.path ? toUiPath(routeDecision.path) : null;
 
   const steps = useMemo(
     () => [
@@ -38,6 +38,7 @@ export function SmartProcessing({ claimData, routeDecision, onContinue }) {
   const [done, setDone] = useState(false);
 
   useEffect(() => {
+    if (!path) return;
     let cancelled = false;
 
     async function run() {
@@ -68,7 +69,29 @@ export function SmartProcessing({ claimData, routeDecision, onContinue }) {
     return () => {
       cancelled = true;
     };
-  }, [outcomes, steps.length]);
+  }, [outcomes, path, steps.length]);
+
+  if (!path) {
+    return (
+      <Motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 2200,
+          background: "rgba(2,6,12,0.52)",
+          backdropFilter: "blur(10px)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 24,
+        }}
+      >
+        <p style={{ color: "rgba(148,163,184,0.95)", fontSize: 15 }}>Evaluating claim…</p>
+      </Motion.div>
+    );
+  }
 
   const title =
     path === "PathA"
@@ -77,8 +100,8 @@ export function SmartProcessing({ claimData, routeDecision, onContinue }) {
 
   const explanation =
     path === "PathA"
-      ? "Procedure matched approved list. Moving to automatic processing."
-      : `No approved procedure match (${routeDecision?.reason || "procedure_not_recognized"}). Routing to jury review.`;
+      ? "Fever detected in your description. Moving to automatic fast-track processing."
+      : "No fever detected in your description. Routing to peer jury review.";
 
   return (
     <Motion.div

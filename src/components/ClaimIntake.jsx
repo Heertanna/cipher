@@ -3,7 +3,7 @@ import { SmartProcessing } from "./SmartProcessing.jsx";
 import { FastTrackApproval } from "./FastTrackApproval.jsx";
 import { PeerReviewPreparation } from "./PeerReviewPreparation.jsx";
 import { getSession } from "../lib/session.js";
-import { mockRouteClaim, mockSubmitClaim } from "../lib/mockApi.js";
+import { claimRouteForWhatHappened, mockSubmitClaim } from "../lib/mockApi.js";
 import { PROTOCOL_PAGE_BACKGROUND, PROTOCOL_DASHBOARD_CARD } from "../lib/protocolPageBackground.js";
 import { addMockClaim } from "../data/mockDatabase.js";
 import humanBody from "../assets/human.png";
@@ -166,6 +166,14 @@ export function ClaimIntake({ onBack, onDone, onViewCaseProgress }) {
   );
 
   const [reportsMeta, setReportsMeta] = useState(storedDraft?.reportsMeta ?? []);
+
+  useEffect(() => {
+    setProcessing(false);
+    setPostProcessingPath(null);
+    setRouteDecision(null);
+    setProcessingClaim(null);
+    setProcessingClaimId(null);
+  }, []);
 
   useEffect(() => {
     setWhatHappenedCount((whatHappened || "").length);
@@ -339,15 +347,22 @@ export function ClaimIntake({ onBack, onDone, onViewCaseProgress }) {
     setProcessingClaimId(id);
     setProcessingClaim({ description: whatHappened });
     setRoutingError("");
-    setRouteDecision(null);
+    setPostProcessingPath(null);
     setClaimRpAwarded(null);
+
+    const route = claimRouteForWhatHappened(whatHappened);
+    setRouteDecision(route);
+    setClaimRpAwarded(route.rp_awarded);
 
     // Parse first number from free-form cost details (e.g. "INR 120000")
     const numericCost = Number(String(costDetails || "").replace(/[^\d.]/g, "")) || 0;
 
+    setProcessing(true);
+
     try {
       const data = await mockSubmitClaim({
         what_happened: whatHappened,
+        whatHappened,
         cost_inr: numericCost,
         recommendedTreatment,
         costDetails,
@@ -356,9 +371,10 @@ export function ClaimIntake({ onBack, onDone, onViewCaseProgress }) {
         anonymous_id: anonymousId || undefined,
         anonymousId: anonymousId || undefined,
       });
-      setRouteDecision(data);
-      setClaimRpAwarded(Number(data.rp_awarded) || 0);
-      setRoutingError("");
+      setRouteDecision({
+        ...route,
+        claim_id: data.claim_id,
+      });
       if (data.claim_id != null) {
         const backendId = String(data.claim_id);
         setProcessingClaimId(backendId);
@@ -370,15 +386,7 @@ export function ClaimIntake({ onBack, onDone, onViewCaseProgress }) {
         }
       }
     } catch {
-      const fallback = await mockRouteClaim({
-        what_happened: whatHappened,
-        cost_inr: numericCost,
-      });
-      setRouteDecision(fallback);
-      setClaimRpAwarded(0);
       setRoutingError("");
-    } finally {
-      setProcessing(true);
     }
   }, [
     claimSummary,

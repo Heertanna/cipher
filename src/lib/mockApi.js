@@ -23,6 +23,20 @@ function delay(ms = 80) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function resolveClaimPath(payload) {
+  const text = String(payload.what_happened || payload.whatHappened || "").trim().toLowerCase();
+  return text.includes("fever") ? "PATH_A" : "PATH_B";
+}
+
+export function claimRouteForWhatHappened(whatHappened) {
+  const isFastTrack = String(whatHappened || "").trim().toLowerCase().includes("fever");
+  return {
+    path: isFastTrack ? "PATH_A" : "PATH_B",
+    reason: isFastTrack ? "fever_fast_track_eligible" : "requires_jury_review",
+    rp_awarded: isFastTrack ? 5 : 10,
+  };
+}
+
 function nextJuryCaseId() {
   const n = Number(localStorage.getItem("cipher_jury_case_seq") || "1000") + 1;
   localStorage.setItem("cipher_jury_case_seq", String(n));
@@ -120,7 +134,7 @@ export async function mockUploadDocuments(anonymousId, files, onProgress) {
 export async function mockSubmitClaim(payload) {
   await delay(150);
   const numericCost = Number(payload.cost_inr) || 0;
-  const path = numericCost > 100000 ? "PATH_B" : "PATH_A";
+  const path = resolveClaimPath(payload);
   const claimId = `CLM_${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
   const claims = JSON.parse(localStorage.getItem(CLAIMS_KEY) || "[]");
   const newClaim = {
@@ -136,7 +150,7 @@ export async function mockSubmitClaim(payload) {
   return {
     claim_id: claimId,
     path,
-    reason: path === "PATH_B" ? "high_cost_peer_review" : "auto_triage_eligible",
+    reason: path === "PATH_B" ? "requires_jury_review" : "fever_fast_track_eligible",
     rp_awarded: newClaim.rp_awarded,
     matched_procedure: numericCost
       ? { max_cost_inr: Math.round(numericCost * 1.15) }
@@ -146,11 +160,10 @@ export async function mockSubmitClaim(payload) {
 
 export async function mockRouteClaim(payload) {
   await delay(80);
-  const numericCost = Number(payload.cost_inr) || 0;
-  const path = numericCost > 100000 ? "PATH_B" : "PATH_A";
+  const path = resolveClaimPath(payload);
   return {
     path,
-    reason: path === "PATH_B" ? "high_cost_peer_review" : "auto_triage_eligible",
+    reason: path === "PATH_B" ? "requires_jury_review" : "fever_fast_track_eligible",
   };
 }
 
